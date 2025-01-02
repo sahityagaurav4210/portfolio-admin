@@ -64,10 +64,10 @@ function Login(): ReactNode {
               item
               xs={8}
               display="flex"
-              justifyContent="end"
+              justifyContent="flex-end"
               alignItems="center"
             >
-              <Link> Forgot your password</Link>
+              <Link fontFamily="Roboto"> Forgot your password</Link>
             </Grid>
 
             <FormTermsAndCondition />
