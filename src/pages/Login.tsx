@@ -1,14 +1,55 @@
-import { Button, Grid, Link, TextField, Typography } from "@mui/material";
-import { ReactNode } from "react";
+import { Button, CircularProgress, Grid, TextField, } from "@mui/material";
+import { ReactNode, useState } from "react";
 import FormTermsAndCondition from "../components/FormTermsAndCondition";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ILoginModel } from "../interfaces/models.interface";
+import { getGlobalToastConfig } from "../configs/toasts.config";
+import { AppPatterns } from "../constants";
+import { AppStrings } from "../i18n";
+import { LoginController } from "../controllers/login.controller";
+import { ApiStatus } from "../api";
 
 function Login(): ReactNode {
-  const navigate = useNavigate();
+  const [loginFrmData, setLoginFrmData] = useState<ILoginModel>({ phone: '', password: '' });
+  const [frmLoading, setFrmLoading] = useState<boolean>(false);
+
+  async function handleLogin(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
+    event.preventDefault();
+    const { phone, password } = loginFrmData || {};
+
+    if (!phone || !password) {
+      toast.warning(AppStrings.LOGIN.ERR_MSGS.FIELD_REQ, getGlobalToastConfig());
+      return;
+    }
+
+    if (!AppPatterns.phone.test(phone)) {
+      toast.warning(AppStrings.LOGIN.ERR_MSGS.INV_PHONE, getGlobalToastConfig());
+      return;
+    }
+    if (!AppPatterns.pwd.test(password)) {
+      toast.warning(AppStrings.LOGIN.ERR_MSGS.INV_PWD, getGlobalToastConfig());
+      return;
+    }
+
+    setFrmLoading(true);
+
+    const controller = new LoginController();
+    const reply = await controller.makePostLoginReq("authentication/login", loginFrmData);
+
+    if (reply.status === ApiStatus.SUCCESS)
+      toast.success(reply.message, getGlobalToastConfig());
+
+    else
+      toast.error(reply.message, getGlobalToastConfig())
+
+    setFrmLoading(false);
+    setLoginFrmData({});
+  }
 
   return (
     <>
-      <Grid container height="100vh" bgcolor="#F5EFFF">
+      <Grid container height="100vh" className="bg-neutral-50">
         <Grid
           item
           bgcolor="white"
@@ -24,9 +65,7 @@ function Login(): ReactNode {
             boxShadow: "0px 0px 0.25rem 0.25rem grey",
           }}
         >
-          <Typography variant="h3" textAlign="center">
-            LOGIN FORM
-          </Typography>
+          <h1 className="text-3xl font-bold text-center text-orange-400">LOGIN FORM</h1>
           <Grid container spacing={1} marginTop={0.25}>
             <Grid item xs={12} md={6}>
               <TextField
@@ -37,6 +76,9 @@ function Login(): ReactNode {
                 focused
                 helperText="It should contain country code also"
                 error={false}
+                id="email"
+                value={loginFrmData?.phone}
+                onChange={e => setLoginFrmData(prev => ({ ...prev, phone: e.target.value }))}
               />
             </Grid>
 
@@ -47,6 +89,9 @@ function Login(): ReactNode {
                 fullWidth
                 placeholder="Ex: Abc!123"
                 helperText="It should contain at least one capital, one small, one digit and one special character."
+                id="password"
+                value={loginFrmData?.password}
+                onChange={e => setLoginFrmData(prev => ({ ...prev, password: e.target.value }))}
               />
             </Grid>
 
@@ -54,7 +99,9 @@ function Login(): ReactNode {
               <Button
                 variant="contained"
                 sx={{ width: { xs: "100%", md: "50%" } }}
-                onClick={() => navigate("/home")}
+                onClick={handleLogin}
+                startIcon={frmLoading && <CircularProgress size={16} />}
+                disabled={frmLoading}
               >
                 LOGIN
               </Button>
@@ -67,13 +114,13 @@ function Login(): ReactNode {
               justifyContent="flex-end"
               alignItems="center"
             >
-              <Link fontFamily="Roboto"> Forgot your password</Link>
+              <Link to="/forgot-pwd" className="text-base text-blue-500 underline underline-offset-2 font-semibold">Forgot your password</Link>
             </Grid>
 
             <FormTermsAndCondition />
           </Grid>
         </Grid>
-      </Grid>
+      </Grid >
     </>
   );
 }
