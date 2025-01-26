@@ -12,12 +12,15 @@ export class LoginController {
         controller.abort();
       }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
 
+      const refToken = localStorage.getItem("token");
+
       const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, {
         method: HttpVerbs.POST,
         headers: {
           'Content-Type': 'application/json',
           'Accept': '*/*',
-          'x-user-id': AppUserAgent
+          'x-user-id': AppUserAgent,
+          'x-token': refToken || ''
         },
         body: JSON.stringify(loginFrmData),
         signal: controller.signal

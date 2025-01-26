@@ -1,3 +1,6 @@
+import { AppUserAgent } from "../constants";
+import { IApiReply } from "../interfaces/api.interface";
+
 export enum ApiStatus {
   SUCCESS = 'success',
   ERROR = 'error',
@@ -15,4 +18,148 @@ export enum HttpVerbs {
   GET = "GET",
   POST = "POST",
   PUT = "PUT"
+}
+
+export function getApiHeaders(): HeadersInit {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': '*/*',
+    'x-user-id': AppUserAgent,
+  }
+}
+
+export class ApiController {
+  public async GET(loginUri: string, authorization?: string): Promise<IApiReply> {
+    try {
+      const controller = new AbortController();
+      const headers = !authorization ? getApiHeaders() : { ...getApiHeaders(), Authorization: authorization }
+
+      setTimeout(() => {
+        controller.abort();
+      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+
+      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, {
+        method: HttpVerbs.GET,
+        headers,
+        signal: controller.signal
+      });
+
+      const reply = (await rawReply.json()) as IApiReply;
+
+      if (reply.status === ApiStatus.FORBIDDEN) {
+        const token = localStorage.getItem("token") as string;
+        await this.refreshAccessToken(token);
+
+        const authorization = localStorage.getItem("authorization") as string;
+        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
+        return reply;
+      }
+
+      return reply;
+    } catch (error) {
+      const reply = {
+        status: ApiStatus.TIMEOUT,
+        message: "Connection broked, please try again later"
+      }
+
+      return reply;
+    }
+  }
+
+  public async POST(loginUri: string, authorization?: string, payload?: Record<string, any>): Promise<IApiReply> {
+    try {
+      const controller = new AbortController();
+      const headers = !authorization ? getApiHeaders() : { ...getApiHeaders(), Authorization: authorization }
+      const commons = {
+        method: HttpVerbs.POST,
+        headers,
+        signal: controller.signal
+      };
+      const apiPayload = !payload ? commons : { ...commons, body: JSON.stringify(payload) };
+
+      setTimeout(() => {
+        controller.abort();
+      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+
+      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, apiPayload);
+
+      const reply = (await rawReply.json()) as IApiReply;
+
+      if (reply.status === ApiStatus.FORBIDDEN) {
+        const token = localStorage.getItem("token") as string;
+        await this.refreshAccessToken(token);
+
+        const authorization = localStorage.getItem("authorization") as string;
+        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
+        return reply;
+      }
+
+      return reply;
+    } catch (error) {
+      const reply = {
+        status: ApiStatus.TIMEOUT,
+        message: "Connection broked, please try again later"
+      }
+
+      return reply;
+    }
+  }
+
+  public async logout(loginUri: string, tokens: Record<string, any>): Promise<IApiReply> {
+    try {
+      const controller = new AbortController();
+      const headers = { ...getApiHeaders(), Authorization: tokens.authorization, 'x-ref-token': tokens.token }
+      const commons = {
+        method: HttpVerbs.POST,
+        headers,
+        signal: controller.signal
+      };
+      setTimeout(() => {
+        controller.abort();
+      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+
+      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, commons);
+
+      const reply = (await rawReply.json()) as IApiReply;
+
+      if (reply.status === ApiStatus.FORBIDDEN) {
+        const token = localStorage.getItem("token") as string;
+        await this.refreshAccessToken(token);
+
+        const authorization = localStorage.getItem("authorization") as string;
+        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
+        return reply;
+      }
+
+      return reply;
+    } catch (error) {
+      const reply = {
+        status: ApiStatus.TIMEOUT,
+        message: "Connection broked, please try again later"
+      }
+
+      return reply;
+    }
+  }
+
+  private async refreshAccessToken(token: string): Promise<void> {
+    try {
+      const controller = new AbortController();
+      const headers = { ...getApiHeaders(), "x-ref-token": token }
+
+      setTimeout(() => {
+        controller.abort();
+      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+
+      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/authentication/tokens/refresh-access-token`, {
+        method: HttpVerbs.GET,
+        headers,
+        signal: controller.signal
+      });
+
+      const reply = (await rawReply.json()) as IApiReply;
+      localStorage.setItem("authorization", reply?.data?.access_token);
+    } catch (error) {
+    }
+  }
 }

@@ -1,76 +1,95 @@
 import {
-  Button,
-  Grid,
-  Typography
+  Box,
+  Card,
+  CardContent,
+  Divider,
+  Grid2,
 } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { AddCircleOutline } from "@mui/icons-material";
-import { ITableCol } from "../interfaces/component_props.interface";
-import TableRow from "../components/TableRow";
-import skills from "../data/skills.data";
+import { useNavigate } from "react-router-dom";
+import { IoStatsChartOutline } from "react-icons/io5";
+import { ApiController } from "../api";
 
 function Home(): ReactNode {
+  const [dailyViewCount, setDailyViewCount] = useState<number>(0);
+  const [monthlyViewCount, setMonthlyViewCount] = useState<number>(0);
+
+  const username = localStorage.getItem("username");
+  const loginStatus = Boolean(localStorage.getItem("login_status"));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loginStatus) {
+      navigate("/");
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    async function getTodayViews() {
+      const controller = new ApiController();
+      const authorization = localStorage.getItem("authorization") as string;
+      const views = await controller.GET("today-website-views", `Bearer ${authorization}`);
+
+      setDailyViewCount(views?.data?.view_count);
+    }
+
+    async function getMonthlyViews() {
+      const controller = new ApiController();
+      const authorization = localStorage.getItem("authorization") as string;
+      const views = await controller.GET("total-website-views", `Bearer ${authorization}`);
+
+      setMonthlyViewCount(views?.data?.view_count);
+    }
+
+    async function callApis() {
+      await getTodayViews();
+      await getMonthlyViews();
+    }
+
+    callApis();
+  }, []);
 
   return (
     <>
-      <Navbar username="Gaurav" />
-      <Grid container spacing={2} px={2} mt={1}>
-        <Grid item xs={12} display="flex" alignItems="center">
-          <Typography
-            variant="h4"
-            fontFamily="Roboto"
-            fontWeight="bolder"
-            style={{
-              textDecoration: "underline",
-              textUnderlineOffset: "0.25rem",
-              textDecorationStyle: "dashed",
-            }}
-          >
-            Your skills
-          </Typography>
-        </Grid>
-      </Grid>
+      <Navbar username={username || "User"} />
 
-      <Grid container spacing={2} marginTop="0.08rem">
-        <Grid item xs={11} display="flex" justifyContent="flex-end" mx="auto">
-          <Button sx={{ backgroundColor: "#3f6212", color: "white" }}>
-            <AddCircleOutline sx={{ marginX: "0.08rem" }} /> Add
-          </Button>
-        </Grid>
-      </Grid>
+      <Grid2 container spacing={2} px={2} my={2}>
+        <Grid2 justifyItems="center" size={3} mx="auto">
+          <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+            <Card sx={{ width: "100%", }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IoStatsChartOutline size={24} className="text-amber-800" /> <h1 className="text-2xl font-bold text-blue-700">{dailyViewCount}</h1>
+                </Box>
+                <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                <Box>
+                  <p className="font-bold text-blue-400">Today's views</p>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
+        </Grid2>
 
-      <Grid container spacing={2}>
-        <Grid item xs={11} mx="auto">
-          <table
-            width="100%"
-            style={{
-              fontFamily: "Roboto",
-              marginTop: "0.25rem",
-              border: "1px solid #f59e0b",
-              borderCollapse: "collapse",
-              borderRadius: "10px",
-            }}
-          >
-            <thead style={{ backgroundColor: "#f59e0b" }}>
-              <tr>
-                <th style={{ padding: "0.25rem", height: "2rem" }}>Name</th>
-                <th style={{ padding: "0.25rem", height: "2rem" }}>
-                  Experience
-                </th>
-                <th style={{ padding: "0.25rem", height: "2rem" }}>
-                  Description
-                </th>
-                <th style={{ padding: "0.25rem", height: "2rem" }}>Action</th>
-              </tr>
-            </thead>
+        <Grid2 justifyItems="center" size={3} mx="auto">
+          <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+            <Card sx={{ width: "100%", }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IoStatsChartOutline size={24} className="text-amber-800" /> <h1 className="text-2xl font-bold text-blue-700">{monthlyViewCount}</h1>
+                </Box>
+                <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                <Box>
+                  <p className="font-bold text-blue-400">Total monthly views</p>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
+        </Grid2>
+      </Grid2>
 
-            <tbody>
-              {skills.map((skill: Array<ITableCol>) => <TableRow columns={skill} />)}
-            </tbody>
-          </table>
-        </Grid>
-      </Grid>
+      <Divider />
     </>
   );
 }

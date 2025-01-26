@@ -1,7 +1,7 @@
 import { Button, CircularProgress, Grid, TextField, } from "@mui/material";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import FormTermsAndCondition from "../components/FormTermsAndCondition";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ILoginModel } from "../interfaces/models.interface";
 import { getGlobalToastConfig } from "../configs/toasts.config";
@@ -13,6 +13,15 @@ import { ApiStatus } from "../api";
 function Login(): ReactNode {
   const [loginFrmData, setLoginFrmData] = useState<ILoginModel>({ phone: '', password: '' });
   const [frmLoading, setFrmLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const loginStatus = Boolean(localStorage.getItem("login_status"));
+
+  useEffect(() => {
+    if (loginStatus) {
+      navigate("/home");
+      return;
+    }
+  }, [])
 
   async function handleLogin(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
     event.preventDefault();
@@ -37,14 +46,20 @@ function Login(): ReactNode {
     const controller = new LoginController();
     const reply = await controller.makePostLoginReq("authentication/login", loginFrmData);
 
-    if (reply.status === ApiStatus.SUCCESS)
-      toast.success(reply.message, getGlobalToastConfig());
-
-    else
-      toast.error(reply.message, getGlobalToastConfig())
-
     setFrmLoading(false);
-    setLoginFrmData({});
+
+    if (reply.status === ApiStatus.SUCCESS) {
+      localStorage.setItem("token", reply?.data?.refresh_token)
+      localStorage.setItem("authorization", reply?.data?.access_token)
+      localStorage.setItem("username", reply?.data?.name)
+      localStorage.setItem("login_status", "true");
+      toast.success(reply.message, getGlobalToastConfig());
+      navigate("/home");
+    }
+    else {
+      toast.error(reply.message, getGlobalToastConfig())
+      setLoginFrmData({});
+    }
   }
 
   return (
