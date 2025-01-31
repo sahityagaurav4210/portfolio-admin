@@ -69,13 +69,10 @@ else {
   caprover deploy -h "$uri" -p "$plainPwd" -i "$dockerUsername/$imgName" --appName "$appName"
 
   $fileContents = @{
-    Host              = $uri
-    Password          = $plainPwd
-    AppName           = $appName
-    ImgName           = "$dockerUsername/$imgName"
-    VITE_APP_ENV      = $viteAppEnv
-    VITE_API_BASE_URL = $viteApiBaseUrl
-    VITE_API_TIMEOUT  = $viteApiTimeout
+    Host     = $uri
+    Password = $plainPwd
+    AppName  = $appName
+    ImgName  = "$dockerUsername/$imgName"
   }
   $data = $fileContents | ConvertTo-Json -Depth 10
 
