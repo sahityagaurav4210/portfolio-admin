@@ -7,11 +7,11 @@ import {
 } from "@mui/material";
 import { ReactNode, useState } from "react";
 import { INavbarProp } from "../interfaces/component_props.interface";
-import { IoLogOut } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { ApiController, ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
+import { FaPowerOff } from "react-icons/fa";
 
 function Navbar({ username }: INavbarProp): ReactNode {
   const [logoutStatus, setLogoutStatus] = useState<boolean>(false);
@@ -51,7 +51,6 @@ function Navbar({ username }: INavbarProp): ReactNode {
           flexGrow: 1,
           top: 0,
           left: 0,
-          pointerEvents: "none",
         }}
         position="sticky"
         color="default"
@@ -63,12 +62,19 @@ function Navbar({ username }: INavbarProp): ReactNode {
 
           <Button
             variant="outlined"
+            startIcon={
+              logoutStatus ? (
+                <CircularProgress size={16} />
+              ) : (
+                <FaPowerOff size={16} />
+              )
+            }
             disabled={logoutStatus}
-            startIcon={logoutStatus && <CircularProgress size={16} />}
             onClick={handleLogout}
-            className="flex items-center"
+            color="error"
+            className="hover:cursor-pointer"
           >
-            <IoLogOut size={24} />
+            Logout
           </Button>
         </div>
       </AppBar>

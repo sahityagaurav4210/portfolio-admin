@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,16 +22,22 @@ import { ReactNode, useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
-import { ApiController } from "../api";
+import { ApiController, ApiStatus } from "../api";
 import { MdOutlineDelete } from "react-icons/md";
 import { FaRegClipboard } from "react-icons/fa";
 import { TbHandFingerRight } from "react-icons/tb";
+import { IoMdCreate } from "react-icons/io";
+import { toast } from "react-toastify";
+import { getGlobalToastConfig } from "../configs/toasts.config";
 
 function Home(): ReactNode {
   const [dailyViewCount, setDailyViewCount] = useState<number>(0);
   const [monthlyViewCount, setMonthlyViewCount] = useState<number>(0);
   const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
     useState<boolean>(false);
+  const [tokenGenerationStatus, setTokenGenerationStatus] =
+    useState<boolean>(false);
+  const [clientToken, setClientToken] = useState<string>("");
 
   const username = localStorage.getItem("username");
   const loginStatus = Boolean(localStorage.getItem("login_status"));
@@ -52,6 +59,11 @@ function Home(): ReactNode {
         `Bearer ${authorization}`
       );
 
+      if (views.status === ApiStatus.LOGOUT) {
+        localStorage.clear();
+        throw new Error("Logout");
+      }
+
       setDailyViewCount(views?.data?.view_count);
     }
 
@@ -63,6 +75,11 @@ function Home(): ReactNode {
         `Bearer ${authorization}`
       );
 
+      if (views.status === ApiStatus.LOGOUT) {
+        localStorage.clear();
+        throw new Error("Logout");
+      }
+
       setMonthlyViewCount(views?.data?.view_count);
     }
 
@@ -71,8 +88,28 @@ function Home(): ReactNode {
       await getMonthlyViews();
     }
 
-    callApis();
+    callApis().catch((reason: Error) => {
+      if (reason.message === ApiStatus.LOGOUT) navigate("/");
+    });
   }, []);
+
+  async function handleTokenGeneration() {
+    setTokenGenerationStatus(true);
+    const controller = new ApiController();
+    const authorization = localStorage.getItem("authorization") as string;
+    const reply = await controller.POST(
+      "authentication/tokens/refresh-client-token",
+      `Bearer ${authorization}`,
+      { url: "https://gaurav-sahitya.netlify.app" }
+    );
+
+    setTokenGenerationStatus(false);
+
+    if (reply.status === ApiStatus.SUCCESS) {
+      setClientToken(reply?.data?.token);
+      setTokenDialogOpenFlag(true);
+    } else toast.error(reply.message, getGlobalToastConfig());
+  }
 
   return (
     <>
@@ -80,7 +117,7 @@ function Home(): ReactNode {
         <Navbar username={username || "User"} />
 
         <Grid2 container spacing={2} px={2} my={2}>
-          <Grid2 justifyItems="center" size={3} mx="auto">
+          <Grid2 justifyItems="center" size={{ xs: 6, md: 3 }} mx="auto">
             <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
               <Card sx={{ width: "100%" }}>
                 <CardContent>
@@ -99,7 +136,7 @@ function Home(): ReactNode {
             </div>
           </Grid2>
 
-          <Grid2 justifyItems="center" size={3} mx="auto">
+          <Grid2 justifyItems="center" size={{ xs: 6, md: 3 }} mx="auto">
             <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
               <Card sx={{ width: "100%" }}>
                 <CardContent>
@@ -136,9 +173,17 @@ function Home(): ReactNode {
                   <Button
                     variant="outlined"
                     color="warning"
-                    onClick={() => setTokenDialogOpenFlag((prev) => !prev)}
+                    startIcon={
+                      !tokenGenerationStatus ? (
+                        <IoMdCreate />
+                      ) : (
+                        <CircularProgress size={16} />
+                      )
+                    }
+                    disabled={tokenGenerationStatus}
+                    onClick={handleTokenGeneration}
                   >
-                    Generate a new
+                    Generate
                   </Button>
                 </div>
               </CardContent>
@@ -258,8 +303,8 @@ function Home(): ReactNode {
         >
           <DialogTitle>Your token</DialogTitle>
           <DialogContent>
-            <Grid2 container spacing={2}>
-              <Grid2 size={10}>
+            <Grid2 container spacing={2} display="flex" alignItems="center">
+              <Grid2 size={{ xs: 8, md: 10 }}>
                 <input
                   type="text"
                   disabled
@@ -268,11 +313,14 @@ function Home(): ReactNode {
                 />
               </Grid2>
 
-              <Grid2 size={2}>
+              <Grid2 size={{ xs: 4, md: 2 }}>
                 <Button
                   variant="outlined"
                   color="success"
                   startIcon={<FaRegClipboard />}
+                  onClick={async () =>
+                    await navigator.clipboard.writeText(clientToken)
+                  }
                 >
                   Copy
                 </Button>
