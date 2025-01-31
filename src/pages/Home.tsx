@@ -23,14 +23,17 @@ import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
 import { ApiController, ApiStatus } from "../api";
-import { MdOutlineDelete } from "react-icons/md";
 import { FaRegClipboard } from "react-icons/fa";
 import { TbHandFingerRight } from "react-icons/tb";
 import { IoMdCreate } from "react-icons/io";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
+import { AppStrings } from "../i18n";
+import { FaCircleInfo } from "react-icons/fa6";
 
 function Home(): ReactNode {
+  const { HOME } = AppStrings;
+
   const [dailyViewCount, setDailyViewCount] = useState<number>(0);
   const [monthlyViewCount, setMonthlyViewCount] = useState<number>(0);
   const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
@@ -38,6 +41,7 @@ function Home(): ReactNode {
   const [tokenGenerationStatus, setTokenGenerationStatus] =
     useState<boolean>(false);
   const [clientToken, setClientToken] = useState<string>("");
+  const [clipboardBtnTxt, setClipboardBtnTxt] = useState<string>(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
 
   const username = localStorage.getItem("username");
   const loginStatus = Boolean(localStorage.getItem("login_status"));
@@ -93,7 +97,8 @@ function Home(): ReactNode {
     });
   }, []);
 
-  async function handleTokenGeneration() {
+  async function handleTokenGeneration(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault();
     setTokenGenerationStatus(true);
     const controller = new ApiController();
     const authorization = localStorage.getItem("authorization") as string;
@@ -109,6 +114,15 @@ function Home(): ReactNode {
       setClientToken(reply?.data?.token);
       setTokenDialogOpenFlag(true);
     } else toast.error(reply.message, getGlobalToastConfig());
+  }
+
+  async function handleClipboardBtnTxt(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault();
+    await navigator.clipboard.writeText(clientToken)
+    setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN);
+    setTimeout(() => {
+      setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN)
+    }, HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN_TTL);
   }
 
   return (
@@ -229,54 +243,7 @@ function Home(): ReactNode {
 
               <TableBody>
                 <TableRow className="odd:bg-neutral-50">
-                  <TableCell align="center">1.</TableCell>
-                  <TableCell align="center">
-                    https://gaurav-sahitya.netlify.app
-                  </TableCell>
-                  <TableCell align="center">5</TableCell>
-                  <TableCell
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MdOutlineDelete size={24} color="red" />
-                  </TableCell>
-                </TableRow>
-
-                <TableRow className="odd:bg-neutral-50">
-                  <TableCell align="center">1.</TableCell>
-                  <TableCell align="center">
-                    https://gaurav-sahitya.netlify.app
-                  </TableCell>
-                  <TableCell align="center">5</TableCell>
-                  <TableCell
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MdOutlineDelete size={24} color="red" />
-                  </TableCell>
-                </TableRow>
-
-                <TableRow className="odd:bg-neutral-50">
-                  <TableCell align="center">1.</TableCell>
-                  <TableCell align="center">
-                    https://gaurav-sahitya.netlify.app
-                  </TableCell>
-                  <TableCell align="center">5</TableCell>
-                  <TableCell
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <MdOutlineDelete size={24} color="red" />
-                  </TableCell>
+                  <TableCell align="center" colSpan={4}>No data available</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -301,10 +268,10 @@ function Home(): ReactNode {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle>Your token</DialogTitle>
-          <DialogContent>
+          <DialogTitle className="bg-blue-200 inline-flex items-center gap-1"><FaCircleInfo className="text-blue-800" /> Your token</DialogTitle>
+          <DialogContent className="my-2">
             <Grid2 container spacing={2} display="flex" alignItems="center">
-              <Grid2 size={{ xs: 8, md: 10 }}>
+              <Grid2 size={{ xs: 8, md: 9 }}>
                 <input
                   type="text"
                   disabled
@@ -313,27 +280,24 @@ function Home(): ReactNode {
                 />
               </Grid2>
 
-              <Grid2 size={{ xs: 4, md: 2 }}>
+              <Grid2 size={{ xs: 4, md: 3 }}>
                 <Button
                   variant="outlined"
                   color="success"
                   startIcon={<FaRegClipboard />}
-                  onClick={async () =>
-                    await navigator.clipboard.writeText(clientToken)
-                  }
+                  onClick={handleClipboardBtnTxt}
+                  fullWidth
                 >
-                  Copy
+                  {clipboardBtnTxt}
                 </Button>
               </Grid2>
             </Grid2>
-            <p className="text-justify text-zinc-600 text-xs mt-1 inline-flex">
-              <TbHandFingerRight className="mx-1 text-neutral-500" size={24} />
-              For security purposes, we will not provide you a further chance to
-              copy your client token, so please copy this right away and store
-              in a safe and secure place and never share this to anyone.
+            <p className="text-justify text-zinc-600 text-[10px] mt-1 inline-flex">
+              <TbHandFingerRight className="mx-1 text-neutral-500" size={16} />
+              {HOME.CLIENT_TOKEN_DIALOG.FOOTER_NOTE}
             </p>
           </DialogContent>
-          <DialogActions>
+          <DialogActions className="bg-neutral-50">
             <Button
               variant="outlined"
               onClick={() => setTokenDialogOpenFlag((prev) => !prev)}
