@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 credentials.json
+.env.production
 
 # Editor directories and files
 .vscode/*
