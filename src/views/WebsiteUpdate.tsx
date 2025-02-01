@@ -15,7 +15,7 @@ function WebsiteUpdate(): ReactNode {
     const controller = new ApiController();
     const authorization = localStorage.getItem("authorization") as string;
 
-    const reply = await controller.POST("baas/website", `Bearer ${authorization}`);
+    const reply = await controller.POST("update-website", `Bearer ${authorization}`);
     setWebsiteUpdateStatus(false);
 
     if (reply.status === ApiStatus.LOGOUT) {
