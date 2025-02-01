@@ -24,6 +24,7 @@ import { getGlobalToastConfig } from "../configs/toasts.config";
 import { AppStrings } from "../i18n";
 import { FaCircleInfo } from "react-icons/fa6";
 import TodayViewsDetails from "../views/TodayViewsDetails";
+import WebsiteUpdate from "../views/WebsiteUpdate";
 
 function Home(): ReactNode {
   const { HOME } = AppStrings;
@@ -165,6 +166,8 @@ function Home(): ReactNode {
             </div>
           </Grid2>
         </Grid2>
+
+        <WebsiteUpdate />
 
         <Grid2 container spacing={2} px={2} my={2} mt={5}>
           <Grid2 size={12}>

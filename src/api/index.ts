@@ -111,7 +111,11 @@ export class ApiController {
 
       if (reply.status === ApiStatus.FORBIDDEN) {
         const token = localStorage.getItem("token") as string;
-        await this.refreshAccessToken(token);
+        const status = await this.refreshAccessToken(token);
+
+        if (status === ApiStatus.FORBIDDEN) {
+          return { status: ApiStatus.LOGOUT, message: "Logout" };
+        }
 
         const authorization = localStorage.getItem("authorization") as string;
         const reply = await this.GET(loginUri, `Bearer ${authorization}`);
@@ -186,8 +190,7 @@ export class ApiController {
       }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
 
       const rawReply = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
+        `${import.meta.env.VITE_API_BASE_URL
         }/authentication/tokens/refresh-access-token`,
         {
           method: HttpVerbs.GET,
@@ -202,6 +205,6 @@ export class ApiController {
         return reply.status;
       }
       localStorage.setItem("authorization", reply?.data?.access_token);
-    } catch (error) {}
+    } catch (error) { }
   }
 }
