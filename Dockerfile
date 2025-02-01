@@ -18,6 +18,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the static files from the build stage
 COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/public /usr/share/nginx/html
 
 # Expose the desired port
 EXPOSE 3663

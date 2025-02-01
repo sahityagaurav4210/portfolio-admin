@@ -80,7 +80,7 @@ function Login(): ReactNode {
             boxShadow: "0px 0px 0.25rem 0.25rem grey",
           }}
         >
-          <h1 className="text-3xl font-bold text-center text-orange-400">LOGIN FORM</h1>
+          <h1 className="text-3xl font-bold text-center text-orange-400" style={{ fontFamily: "Roboto" }}>LOGIN FORM</h1>
           <Grid container spacing={1} marginTop={0.25}>
             <Grid item xs={12} md={6}>
               <TextField

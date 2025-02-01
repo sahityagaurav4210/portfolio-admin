@@ -143,7 +143,7 @@ function Home(): ReactNode {
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                   <Box>
-                    <p className="font-bold text-blue-400">Today's views</p>
+                    <p className="font-bold text-blue-400" style={{ fontFamily: "Roboto" }}>Today's views</p>
                   </Box>
                 </CardContent>
               </Card>
