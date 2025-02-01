@@ -13,3 +13,8 @@ export interface ITableCol {
 export interface ITableRowProp {
   columns: Array<ITableCol>;
 }
+
+export interface INoDataTableRow {
+  colspan: number,
+  text: string
+}

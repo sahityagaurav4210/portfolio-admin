@@ -10,13 +10,6 @@ import {
   DialogTitle,
   Divider,
   Grid2,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
@@ -30,6 +23,7 @@ import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import { AppStrings } from "../i18n";
 import { FaCircleInfo } from "react-icons/fa6";
+import TodayViewsDetails from "../views/TodayViewsDetails";
 
 function Home(): ReactNode {
   const { HOME } = AppStrings;
@@ -137,13 +131,13 @@ function Home(): ReactNode {
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1}>
                     <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1 className="text-2xl font-bold text-blue-700">
+                    <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
                       {dailyViewCount}
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                   <Box>
-                    <p className="font-bold text-blue-400" style={{ fontFamily: "Roboto" }}>Today's views</p>
+                    <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>Today's views</p>
                   </Box>
                 </CardContent>
               </Card>
@@ -156,13 +150,13 @@ function Home(): ReactNode {
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1}>
                     <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1 className="text-2xl font-bold text-blue-700">
+                    <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
                       {monthlyViewCount}
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                   <Box>
-                    <p className="font-bold text-blue-400">
+                    <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>
                       Total monthly views
                     </p>
                   </Box>
@@ -205,63 +199,7 @@ function Home(): ReactNode {
           </Grid2>
         </Grid2>
 
-        <Grid2 container spacing={2} px={2} my={2}>
-          <TableContainer component={Paper} className="mb-2">
-            <Table sx={{ minWidth: 650 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    align="center"
-                    sx={{ color: "white" }}
-                    className="bg-blue-700"
-                  >
-                    Sr No.
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ color: "white" }}
-                    className="bg-blue-700"
-                  >
-                    Client URL
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ color: "white" }}
-                    className="bg-blue-700"
-                  >
-                    Token Quantity
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ color: "white" }}
-                    className="bg-blue-700"
-                  >
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                <TableRow className="odd:bg-neutral-50">
-                  <TableCell align="center" colSpan={4}>No data available</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid2>
-
-        <Grid2 container spacing={2} px={2} my={2} mt={5}>
-          <Grid2 size={12}>
-            <Card className="border-l-8 border-blue-500">
-              <CardContent
-                sx={{ fontFamily: "Roboto" }}
-                className="flex items-center"
-              >
-                <h1 className="text-xl text-amber-600 font-bold">Requests</h1>
-              </CardContent>
-            </Card>
-          </Grid2>
-        </Grid2>
+        <TodayViewsDetails />
 
         <Dialog
           open={tokenDialogOpenFlag}
