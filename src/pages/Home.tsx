@@ -25,6 +25,7 @@ import { AppStrings } from "../i18n";
 import { FaCircleInfo } from "react-icons/fa6";
 import TodayViewsDetails from "../views/TodayViewsDetails";
 import WebsiteUpdate from "../views/WebsiteUpdate";
+import Footer from "../views/Footer";
 
 function Home(): ReactNode {
   const { HOME } = AppStrings;
@@ -203,6 +204,8 @@ function Home(): ReactNode {
         </Grid2>
 
         <TodayViewsDetails />
+
+        <Footer />
 
         <Dialog
           open={tokenDialogOpenFlag}

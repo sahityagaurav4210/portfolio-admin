@@ -53,7 +53,7 @@ function TodayViewsDetails(): ReactNode {
                   <TableRow className='odd:bg-amber-50'>
                     <TableCell align='center'>{index + 1}</TableCell>
                     <TableCell align='center'>{detail.firedBy}</TableCell>
-                    <TableCell align='center'>{new Date(detail.createdAt).toLocaleDateString("hi-In")}</TableCell>
+                    <TableCell align='center'>{new Date(detail.createdAt).toLocaleString("hi-In")}</TableCell>
                   </TableRow>
                 </React.Fragment>)}
               </TableBody>
