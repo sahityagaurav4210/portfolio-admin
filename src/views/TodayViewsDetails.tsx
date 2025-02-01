@@ -51,9 +51,9 @@ function TodayViewsDetails(): ReactNode {
               <TableBody>
                 {!viewDetails.length ? <NoDataTableRow colspan={3} text='No data available' /> : viewDetails?.map((detail: IViewDetails, index: number) => <React.Fragment key={index}>
                   <TableRow className='odd:bg-amber-50'>
-                    <TableCell>{index}</TableCell>
-                    <TableCell>{detail.firedBy}</TableCell>
-                    <TableCell>{new Date(detail.createdAt).toLocaleDateString("hi-In")}</TableCell>
+                    <TableCell align='center'>{index}</TableCell>
+                    <TableCell align='center'>{detail.firedBy}</TableCell>
+                    <TableCell align='center'>{new Date(detail.createdAt).toLocaleDateString("hi-In")}</TableCell>
                   </TableRow>
                 </React.Fragment>)}
               </TableBody>
