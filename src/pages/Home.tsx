@@ -26,6 +26,7 @@ import { FaCircleInfo } from "react-icons/fa6";
 import TodayViewsDetails from "../views/TodayViewsDetails";
 import WebsiteUpdate from "../views/WebsiteUpdate";
 import Footer from "../views/Footer";
+import Hirings from "../views/Hirings";
 
 function Home(): ReactNode {
   const { HOME } = AppStrings;
@@ -202,6 +203,8 @@ function Home(): ReactNode {
             </Card>
           </Grid2>
         </Grid2>
+
+        <Hirings />
 
         <TodayViewsDetails />
 
