@@ -32,13 +32,16 @@ function Home(): ReactNode {
   const { HOME } = AppStrings;
 
   const [dailyViewCount, setDailyViewCount] = useState<number>(0);
+  const [totalViewsCount, setTotalViewsCount] = useState<number>(0);
   const [monthlyViewCount, setMonthlyViewCount] = useState<number>(0);
   const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
     useState<boolean>(false);
   const [tokenGenerationStatus, setTokenGenerationStatus] =
     useState<boolean>(false);
   const [clientToken, setClientToken] = useState<string>("");
-  const [clipboardBtnTxt, setClipboardBtnTxt] = useState<string>(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
+  const [clipboardBtnTxt, setClipboardBtnTxt] = useState<string>(
+    HOME.CLIENT_TOKEN_DIALOG.COPY_BTN
+  );
 
   const username = localStorage.getItem("username");
   const loginStatus = Boolean(localStorage.getItem("login_status"));
@@ -72,7 +75,7 @@ function Home(): ReactNode {
       const controller = new ApiController();
       const authorization = localStorage.getItem("authorization") as string;
       const views = await controller.GET(
-        "total-website-views",
+        "monthly-website-views",
         `Bearer ${authorization}`
       );
 
@@ -84,9 +87,26 @@ function Home(): ReactNode {
       setMonthlyViewCount(views?.data?.view_count);
     }
 
+    async function getTotalViews() {
+      const controller = new ApiController();
+      const authorization = localStorage.getItem("authorization") as string;
+      const views = await controller.GET(
+        "total-website-views",
+        `Bearer ${authorization}`
+      );
+
+      if (views.status === ApiStatus.LOGOUT) {
+        localStorage.clear();
+        throw new Error("Logout");
+      }
+
+      setTotalViewsCount(views?.data?.view_count);
+    }
+
     async function callApis() {
       await getTodayViews();
       await getMonthlyViews();
+      await getTotalViews();
     }
 
     callApis().catch((reason: Error) => {
@@ -94,7 +114,9 @@ function Home(): ReactNode {
     });
   }, []);
 
-  async function handleTokenGeneration(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function handleTokenGeneration(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
     event.preventDefault();
     setTokenGenerationStatus(true);
     const controller = new ApiController();
@@ -113,12 +135,14 @@ function Home(): ReactNode {
     } else toast.error(reply.message, getGlobalToastConfig());
   }
 
-  async function handleClipboardBtnTxt(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+  async function handleClipboardBtnTxt(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) {
     event.preventDefault();
-    await navigator.clipboard.writeText(clientToken)
+    await navigator.clipboard.writeText(clientToken);
     setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN);
     setTimeout(() => {
-      setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN)
+      setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
     }, HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN_TTL);
   }
 
@@ -128,39 +152,83 @@ function Home(): ReactNode {
         <Navbar username={username || "User"} />
 
         <Grid2 container spacing={2} px={2} my={2}>
-          <Grid2 justifyItems="center" size={{ xs: 6, md: 3 }} mx="auto">
+          {/* Daily views */}
+          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
             <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
               <Card sx={{ width: "100%" }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1}>
                     <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
+                    <h1
+                      className="text-2xl font-bold text-blue-700"
+                      style={{ fontFamily: "Roboto" }}
+                    >
                       {dailyViewCount}
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                   <Box>
-                    <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>Today's views</p>
+                    <p
+                      className="font-bold text-blue-400 text-xs"
+                      style={{ fontFamily: "Roboto" }}
+                    >
+                      Today's views
+                    </p>
                   </Box>
                 </CardContent>
               </Card>
             </div>
           </Grid2>
 
-          <Grid2 justifyItems="center" size={{ xs: 6, md: 3 }} mx="auto">
+          {/* Total monthly views */}
+          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
             <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
               <Card sx={{ width: "100%" }}>
                 <CardContent>
                   <Box display="flex" alignItems="center" gap={1}>
                     <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
+                    <h1
+                      className="text-2xl font-bold text-blue-700"
+                      style={{ fontFamily: "Roboto" }}
+                    >
                       {monthlyViewCount}
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                   <Box>
-                    <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>
+                    <p
+                      className="font-bold text-blue-400 text-xs"
+                      style={{ fontFamily: "Roboto" }}
+                    >
                       Total monthly views
+                    </p>
+                  </Box>
+                </CardContent>
+              </Card>
+            </div>
+          </Grid2>
+
+          {/* Total views */}
+          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
+            <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+              <Card sx={{ width: "100%" }}>
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
+                    <h1
+                      className="text-2xl font-bold text-blue-700"
+                      style={{ fontFamily: "Roboto" }}
+                    >
+                      {totalViewsCount}
+                    </h1>
+                  </Box>
+                  <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                  <Box>
+                    <p
+                      className="font-bold text-blue-400 text-xs"
+                      style={{ fontFamily: "Roboto" }}
+                    >
+                      Total views
                     </p>
                   </Box>
                 </CardContent>
@@ -215,7 +283,9 @@ function Home(): ReactNode {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle className="bg-blue-200 inline-flex items-center gap-1"><FaCircleInfo className="text-blue-800" /> Your token</DialogTitle>
+          <DialogTitle className="bg-blue-200 inline-flex items-center gap-1">
+            <FaCircleInfo className="text-blue-800" /> Your token
+          </DialogTitle>
           <DialogContent className="my-2">
             <Grid2 container spacing={2} display="flex" alignItems="center">
               <Grid2 size={{ xs: 8, md: 9 }}>
