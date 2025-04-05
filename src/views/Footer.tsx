@@ -3,17 +3,17 @@ import { FaInstagram, FaLinkedin, FaTwitter } from 'react-icons/fa';
 
 function Footer() {
   return (
-    <section className='overflow-hidden bg-gradient-to-tr from-indigo-950 to-blue-950 via-zinc-900 py-4 text-xs px-1 sm:px-0 font-bold' style={{ fontFamily: "Roboto" }}>
+    <section className='overflow-hidden bg-gradient-to-tr from-amber-950 to-orange-950 via-yellow-900 py-4 text-xs px-1 sm:px-0 font-bold' style={{ fontFamily: "Roboto" }}>
       <div className='grid lg:grid-cols-3 text-zinc-200'>
         <div className='sm:p-1 lg:border-r text-center'>
-          <p className='flex justify-center items-center'>Made in
+          <p className='flex justify-center items-center h-full flex-wrap'>Made in
             <span className='font-extrabold text-white flex items-center'>
               &nbsp;
               <span className='text-orange-600'>भा</span><span className='text-white'>र</span><span className='text-green-600'>त</span>
               &nbsp;
               <img src="https://bookjn-bucket.s3.ap-south-1.amazonaws.com/country-flags/ind.svg" alt="Indian Flag" width={16} height={16} />
-            </span> &nbsp; || &copy; Gaurav Sahitya || All rights are reserved</p>
-          <p className='mt-1 italic'>Content of this website is being owned and maintained by Gaurav Sahitya.</p>
+            </span> &nbsp; || &copy; {new Date().getFullYear()} Gaurav Sahitya || All rights are reserved</p>
+
         </div>
         <div className="p-1 flex items-center justify-center lg:border-r">
           <a href={import.meta.env.VITE_PORTFOLIO_URL} className='mx-1 underline decoration-dashed underline-offset-2'>Portfolio Website</a> <a href="#" className='mx-1 underline decoration-dashed underline-offset-2'>CMS Portal</a>

@@ -12,7 +12,6 @@ import {
   Grid2,
 } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
 import { ApiController, ApiStatus } from "../api";
@@ -23,10 +22,7 @@ import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import { AppStrings } from "../i18n";
 import { FaCircleInfo } from "react-icons/fa6";
-import TodayViewsDetails from "../views/TodayViewsDetails";
 import WebsiteUpdate from "../views/WebsiteUpdate";
-import Footer from "../views/Footer";
-import Hirings from "../views/Hirings";
 
 function Home(): ReactNode {
   const { HOME } = AppStrings;
@@ -43,13 +39,12 @@ function Home(): ReactNode {
     HOME.CLIENT_TOKEN_DIALOG.COPY_BTN
   );
 
-  const username = localStorage.getItem("username");
   const loginStatus = Boolean(localStorage.getItem("login_status"));
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loginStatus) {
-      navigate("/");
+      navigate("/login");
       return;
     }
   }, []);
@@ -148,9 +143,7 @@ function Home(): ReactNode {
 
   return (
     <>
-      <div className="bg-neutral-200 min-h-screen">
-        <Navbar username={username || "User"} />
-
+      <div className="min-h-screen">
         <Grid2 container spacing={2} px={2} my={2}>
           {/* Daily views */}
           <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
@@ -271,12 +264,6 @@ function Home(): ReactNode {
             </Card>
           </Grid2>
         </Grid2>
-
-        <Hirings />
-
-        <TodayViewsDetails />
-
-        <Footer />
 
         <Dialog
           open={tokenDialogOpenFlag}

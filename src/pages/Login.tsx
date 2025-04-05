@@ -18,7 +18,7 @@ function Login(): ReactNode {
 
   useEffect(() => {
     if (loginStatus) {
-      navigate("/home");
+      navigate("/");
       return;
     }
   }, [])
@@ -54,7 +54,7 @@ function Login(): ReactNode {
       localStorage.setItem("username", reply?.data?.name)
       localStorage.setItem("login_status", "true");
       toast.success(reply.message, getGlobalToastConfig());
-      navigate("/home");
+      navigate("/");
     }
     else {
       toast.error(reply.message, getGlobalToastConfig())

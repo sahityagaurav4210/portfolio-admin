@@ -1,15 +1,15 @@
-import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import Login from './pages/Login';
-import Home from './pages/Home';
+import { Outlet } from 'react-router-dom';
+import { ReactRouterAppProvider } from '@toolpad/core/react-router';
+import { AppBranding, AppNav, AppTheme } from './configs/app.config';
+
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-      </Routes>
-    </Router>
+    <>
+      <ReactRouterAppProvider navigation={AppNav} branding={AppBranding} theme={AppTheme} >
+        <Outlet />
+      </ReactRouterAppProvider>
+    </>
   );
 }
 

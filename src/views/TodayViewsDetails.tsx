@@ -1,6 +1,4 @@
 import {
-  Card,
-  CardContent,
   Grid2,
   Paper,
   Table,
@@ -36,22 +34,8 @@ function TodayViewsDetails(): ReactNode {
 
   return (
     <>
-      <Grid2 container spacing={2} px={2} my={2} mt={5}>
-        <Grid2 size={12}>
-          <Card className="border-l-8 border-blue-500">
-            <CardContent
-              sx={{ fontFamily: "Roboto" }}
-              className="flex items-center"
-            >
-              <h1 className="text-xl text-amber-600 font-bold">
-                Daily views details
-              </h1>
-            </CardContent>
-          </Card>
-        </Grid2>
-      </Grid2>
 
-      <Grid2 container spacing={2} px={2} my={2} mt={5}>
+      <Grid2 container spacing={2} px={2} my={2}>
         <Grid2 size={12}>
           <TableContainer component={Paper}>
             <Table align="center">

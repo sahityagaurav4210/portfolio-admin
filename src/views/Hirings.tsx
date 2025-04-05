@@ -1,4 +1,4 @@
-import { Card, CardContent, Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import { Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { IHiringDetails } from '../interfaces/models.interface';
 import NoDataTableRow from '../components/NoDataTableRow';
@@ -23,20 +23,7 @@ function Hirings(): ReactNode {
 
   return (
     <>
-      <Grid2 container spacing={2} px={2} my={2} mt={5}>
-        <Grid2 size={12}>
-          <Card className="border-l-8 border-blue-500">
-            <CardContent
-              sx={{ fontFamily: "Roboto" }}
-              className="flex items-center"
-            >
-              <h1 className="text-xl text-amber-600 font-bold">Hirings</h1>
-            </CardContent>
-          </Card>
-        </Grid2>
-      </Grid2>
-
-      <Grid2 container spacing={2} px={2} my={2} mt={5}>
+      <Grid2 container spacing={2} px={2} my={2}>
         <Grid2 size={12}>
           <TableContainer component={Paper}>
             <Table align='center'>
@@ -44,7 +31,7 @@ function Hirings(): ReactNode {
                 <TableRow>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Sr No.</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Client Name</TableCell>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Client Email</TableCell>
+                  <TableCell align='center' className='bg-amber-700 max-w-max' style={{ color: "white", }}>Client Email</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Client Budget</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Project Name</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Hiring Type</TableCell>
