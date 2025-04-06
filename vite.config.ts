@@ -7,9 +7,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0'
   },
-  build: {
-    rollupOptions: {
-      external: ['@mui/x-date-pickers/AdapterDayjs', '@mui/system', '@mui/system/RtlProvider'],
-    },
-  }
+  optimizeDeps: {
+    include: ['@mui/system', '@mui/material', '@mui/x-date-pickers'],
+  },
+  // build: {
+  //   rollupOptions: {
+  //     external: ['@mui/x-date-pickers/AdapterDayjs', '@mui/system', '@mui/system/RtlProvider'],
+  //   },
+  // }
 });
