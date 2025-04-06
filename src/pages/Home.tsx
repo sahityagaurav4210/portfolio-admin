@@ -119,7 +119,7 @@ function Home(): ReactNode {
     const reply = await controller.POST(
       "authentication/tokens/refresh-client-token",
       `Bearer ${authorization}`,
-      { url: "https://gaurav-sahitya.netlify.app" }
+      { url: "https://www.sgaurav.me" }
     );
 
     setTokenGenerationStatus(false);
