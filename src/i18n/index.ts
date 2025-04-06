@@ -17,4 +17,23 @@ export const AppStrings = {
       COPIED_BTN_TTL: 1000
     },
   }
-}
+};
+
+export const AppModalStrings = {
+  SKILL_MODAL: {
+    VALIDATION: {
+      DESC: {
+        MAX: `Description can't be more than 1000 characters`,
+        MIN: 'Description should be atleast 5 characters long'
+      },
+      URL: {
+        MAX: `Skill url can't be more than 200 characters`,
+        MIN: 'Skill url should be atleast 5 characters long'
+      },
+      NAME: {
+        MAX: `Skill name can't be more than 32 characters`,
+        MIN: 'Skill name should be atleast 2 characters long'
+      }
+    }
+  }
+};

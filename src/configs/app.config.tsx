@@ -4,12 +4,14 @@ import { Branding, Navigation } from "@toolpad/core";
 import { BiBriefcase } from "react-icons/bi";
 import AppLogo from '/portfolio-builder.jpg';
 import { BsEye } from "react-icons/bs";
+import { GiSkills } from "react-icons/gi";
 
 const AppNav: Navigation = [
   { segment: '', title: "Dashboard", icon: <Dashboard /> },
   { segment: "hirings", title: "Hirings", icon: <BiBriefcase /> },
   { segment: "today-views-details", title: "View details", icon: <BsEye /> },
   { segment: "contacts", title: "Contacts", icon: <ContactPage /> },
+  { segment: "skills", title: "Skills", icon: <GiSkills /> },
   { kind: "divider" },
   { segment: 'logout', title: "Logout", icon: <Logout /> },
 ]

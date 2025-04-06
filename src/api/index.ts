@@ -133,6 +133,60 @@ export class ApiController {
     }
   }
 
+  public async PUT(
+    loginUri: string,
+    authorization?: string,
+    payload?: Record<string, any>
+  ): Promise<IApiReply> {
+    try {
+      const controller = new AbortController();
+      const headers = !authorization
+        ? getApiHeaders()
+        : { ...getApiHeaders(), Authorization: authorization };
+      const commons = {
+        method: HttpVerbs.PUT,
+        headers,
+        signal: controller.signal,
+      };
+      const apiPayload = !payload
+        ? commons
+        : { ...commons, body: JSON.stringify(payload) };
+
+      setTimeout(() => {
+        controller.abort();
+      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+
+      const rawReply = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/${loginUri}`,
+        apiPayload
+      );
+
+      const reply = (await rawReply.json()) as IApiReply;
+
+      if (reply.status === ApiStatus.FORBIDDEN) {
+        const token = localStorage.getItem("token") as string;
+        const status = await this.refreshAccessToken(token);
+
+        if (status === ApiStatus.FORBIDDEN) {
+          return { status: ApiStatus.LOGOUT, message: "Logout" };
+        }
+
+        const authorization = localStorage.getItem("authorization") as string;
+        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
+        return reply;
+      }
+
+      return reply;
+    } catch (error) {
+      const reply = {
+        status: ApiStatus.TIMEOUT,
+        message: "Connection broked, please try again later",
+      };
+
+      return reply;
+    }
+  }
+
   public async logout(
     loginUri: string,
     tokens: Record<string, any>

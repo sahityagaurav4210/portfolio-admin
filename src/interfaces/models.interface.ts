@@ -27,3 +27,19 @@ export interface IContactDetails {
   message: string;
   ipAddress: string;
 }
+
+export interface ISkillForm {
+  _id?: string;
+  name: string;
+  experience: number;
+  description: string;
+  url?: string;
+}
+
+export interface ISkills {
+  skillId: string;
+  skills: Array<ISkillForm>
+  windowRef: React.MutableRefObject<Window | null>;
+  index: number;
+  type: string;
+}

@@ -7,6 +7,7 @@ import Logout from "../views/Logout";
 import Hirings from "../views/Hirings";
 import TodayViewsDetails from "../views/TodayViewsDetails";
 import Contact from "../views/Contact";
+import Skills from "../pages/SkillsPage";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const AppRoutes = createBrowserRouter([
           {
             path: 'contacts',
             Component: Contact,
+          },
+          {
+            path: 'skills',
+            Component: Skills,
           },
         ],
       },

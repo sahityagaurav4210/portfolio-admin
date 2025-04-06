@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom';
 import { ReactRouterAppProvider } from '@toolpad/core/react-router';
 import { AppBranding, AppNav, AppTheme } from './configs/app.config';
 
-
 function App() {
   return (
     <>

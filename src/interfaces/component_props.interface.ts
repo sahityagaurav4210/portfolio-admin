@@ -18,3 +18,8 @@ export interface INoDataTableRow {
   colspan: number,
   text: string
 }
+
+export interface ITextFieldLabel {
+  text: string
+  required?: boolean
+}

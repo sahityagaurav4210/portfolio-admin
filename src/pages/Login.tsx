@@ -51,7 +51,8 @@ function Login(): ReactNode {
     if (reply.status === ApiStatus.SUCCESS) {
       localStorage.setItem("token", reply?.data?.refresh_token)
       localStorage.setItem("authorization", reply?.data?.access_token)
-      localStorage.setItem("username", reply?.data?.name)
+      localStorage.setItem("username", reply?.data?.name);
+      localStorage.setItem("userId", reply?.data?._id);
       localStorage.setItem("login_status", "true");
       toast.success(reply.message, getGlobalToastConfig());
       navigate("/");
