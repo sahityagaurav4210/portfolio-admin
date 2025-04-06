@@ -55,7 +55,7 @@ function Skills(): ReactNode {
               <TableHead>
                 <TableRow>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Sr No.</TableCell>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Name</TableCell>
+                  <TableCell align='center' className='bg-amber-700' style={{ color: "white", maxWidth: 80 }}>Name</TableCell>
                   <TableCell align='center' className='bg-amber-700 max-w-max' style={{ color: "white", }}>Experience</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }} sx={{ minWidth: 200, maxWidth: 450 }}>Description</TableCell>
                   <TableCell align='center' className='bg-amber-700' style={{ color: "white" }} sx={{ maxWidth: 50 }}>Actions</TableCell>
@@ -72,7 +72,7 @@ function Skills(): ReactNode {
                 {!skillsDetails.length ? <NoDataTableRow colspan={8} text='No data available' /> : skillsDetails?.map((detail: ISkillForm, index: number) => <React.Fragment key={index}>
                   <TableRow className='odd:bg-amber-100' data-index={index}>
                     <TableCell align='center'>{index + 1}</TableCell>
-                    <TableCell align='center'>{detail.name}</TableCell>
+                    <TableCell align='center' sx={{ maxWidth: 80 }}>{detail.name}</TableCell>
                     <TableCell align='center'>{detail.experience}</TableCell>
                     <TableCell align='justify' sx={{ minWidth: 200, maxWidth: 450 }}>{detail.description}</TableCell>
                     <TableCell align='center' sx={{ maxWidth: 50 }}>
