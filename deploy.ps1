@@ -59,6 +59,12 @@ else {
   $imgName = Read-Host "Enter your docker image name (without docker username)"
 
   docker build -t "$dockerUsername/$imgName" .
+
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "Build failed, exiting....."
+    exit 0;
+  }
+
   docker push "$dockerUsername/$imgName"
   
   Write-Output "Deploying the app, please wait..."
