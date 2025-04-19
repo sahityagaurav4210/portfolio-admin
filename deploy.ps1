@@ -80,9 +80,7 @@ else {
   docker push "$dockerUsername/$imgName"
   
   Write-Output "Deploying the app, please wait..."
-  $plainPwd = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-    [Runtime.InteropServices.Marshal]::SecureStringToBSTR($hashedPwd)
-  )
+  $plainPwd = $plainPwd = Convert-SecureStringToPlainText -SecureString $hashedPwd
   
   caprover deploy -h "$uri" -p "$plainPwd" -i "$dockerUsername/$imgName" --appName "$appName"
 
