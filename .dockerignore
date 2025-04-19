@@ -1,3 +1,6 @@
 .env
 node_modules
 README.md
+credentials.json
+dist
+.env.sample

@@ -11,6 +11,8 @@ import { toast } from "react-toastify";
 import { IApiReply } from "../interfaces/api.interface";
 import { AppModalStrings } from "../i18n";
 
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+
 export default function SkillModal({ payload, open, onClose }: DialogProps<ISkills>): ReactNode {
   const [skill, setSkill] = useState<ISkillForm>({ name: "", experience: 0, description: "" });
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -94,6 +96,11 @@ export default function SkillModal({ payload, open, onClose }: DialogProps<ISkil
     toast.error(details.message, getGlobalToastConfig());
   }
 
+  function handleFtpBtn(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event.preventDefault();
+    window.open(`${import.meta.env.VITE_FTP_URL}/?fileName=skill`, "_blank");
+  }
+
   return (
     <Dialog fullWidth open={open} closeAfterTransition maxWidth='md'>
       <DialogTitle variant="h4" color="primary" className="underline underline-offset-4 decoration-dashed">Skills</DialogTitle>
@@ -118,8 +125,12 @@ export default function SkillModal({ payload, open, onClose }: DialogProps<ISkil
             <TextField placeholder="Node.js" label={<TextFieldLabel text="Description" required />} value={skill.description} type="text" minRows={3} onChange={event => setSkill(prev => ({ ...prev, [event.target.id]: event.target.value }))} id="description" variant="outlined" helperText="Write something about your skill in short" fullWidth color="warning" multiline spellCheck={false} tabIndex={3} className="outline-none"></TextField>
           </Grid>
 
-          <Grid size={12}>
+          <Grid size={8}>
             <TextField placeholder="www.google.com" label={<TextFieldLabel text="Skill photo" />} value={skill.url} type="url" onChange={event => setSkill(prev => ({ ...prev, [event.target.id]: event.target.value }))} id="url" variant="outlined" helperText="Provide a pic of your skill" fullWidth color="warning" spellCheck={false} tabIndex={3} className="outline-none"></TextField>
+          </Grid>
+
+          <Grid size={4} display="flex" alignItems="center">
+            <Button variant="outlined" endIcon={<OpenInNewIcon />} fullWidth onClick={handleFtpBtn}>Ftp portal</Button>
           </Grid>
 
         </Grid>

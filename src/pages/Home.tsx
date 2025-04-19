@@ -63,7 +63,7 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setDailyViewCount(views?.data?.view_count);
+      setDailyViewCount(views?.data?.view_count || -1);
     }
 
     async function getMonthlyViews() {
@@ -79,7 +79,7 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setMonthlyViewCount(views?.data?.view_count);
+      setMonthlyViewCount(views?.data?.view_count || -1);
     }
 
     async function getTotalViews() {
@@ -95,7 +95,7 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setTotalViewsCount(views?.data?.view_count);
+      setTotalViewsCount(views?.data?.view_count || -1);
     }
 
     async function callApis() {
