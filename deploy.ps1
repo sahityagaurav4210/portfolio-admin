@@ -1,3 +1,17 @@
+function Convert-SecureStringToPlainText {
+  param (
+      [System.Security.SecureString]$SecureString
+  )
+
+  $ptr = [System.Runtime.InteropServices.Marshal]::SecureStringToGlobalAllocUnicode($SecureString)
+  try {
+      [System.Runtime.InteropServices.Marshal]::PtrToStringUni($ptr)
+  }
+  finally {
+      [System.Runtime.InteropServices.Marshal]::ZeroFreeGlobalAllocUnicode($ptr)
+  }
+}
+
 $credentialPath = "credentials.json"
 $dockerUsername = ""
 $branch = ""
@@ -34,9 +48,7 @@ else {
     $uri = Read-Host "Enter your caprover host"
     $hashedPwd = Read-Host "Enter your caprover password" -AsSecureString
     $appName = Read-Host "Enter your app name" 
-    $plainPwd = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-      [Runtime.InteropServices.Marshal]::SecureStringToBSTR($hashedPwd)
-    )
+    $plainPwd = Convert-SecureStringToPlainText -SecureString $hashedPwd
 
     caprover deploy -h "$uri" -p "$plainPwd" --appName "$appName" --branch "$branch" 
 
