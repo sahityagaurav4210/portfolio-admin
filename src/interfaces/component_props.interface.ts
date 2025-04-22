@@ -16,10 +16,14 @@ export interface ITableRowProp {
 
 export interface INoDataTableRow {
   colspan: number,
-  text: string
+  text: string;
 }
 
 export interface ITextFieldLabel {
-  text: string
-  required?: boolean
+  text: string;
+  required?: boolean;
+}
+
+export interface IViewCount {
+  count: number;
 }

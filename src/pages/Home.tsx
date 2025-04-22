@@ -1,43 +1,21 @@
 import {
   Box,
-  Button,
   Card,
   CardContent,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   Grid2,
 } from "@mui/material";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
 import { ApiController, ApiStatus } from "../api";
-import { FaRegClipboard } from "react-icons/fa";
-import { TbHandFingerRight } from "react-icons/tb";
-import { IoMdCreate } from "react-icons/io";
-import { toast } from "react-toastify";
-import { getGlobalToastConfig } from "../configs/toasts.config";
-import { AppStrings } from "../i18n";
-import { FaCircleInfo } from "react-icons/fa6";
 import WebsiteUpdate from "../views/WebsiteUpdate";
+import ViewCount from "../components/ViewCount";
 
 function Home(): ReactNode {
-  const { HOME } = AppStrings;
-
-  const [dailyViewCount, setDailyViewCount] = useState<number>(0);
-  const [totalViewsCount, setTotalViewsCount] = useState<number>(0);
-  const [monthlyViewCount, setMonthlyViewCount] = useState<number>(0);
-  const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
-    useState<boolean>(false);
-  const [tokenGenerationStatus, setTokenGenerationStatus] =
-    useState<boolean>(false);
-  const [clientToken, setClientToken] = useState<string>("");
-  const [clipboardBtnTxt, setClipboardBtnTxt] = useState<string>(
-    HOME.CLIENT_TOKEN_DIALOG.COPY_BTN
-  );
+  const [dailyViewCount, setDailyViewCount] = useState<number>(-2);
+  const [totalViewsCount, setTotalViewsCount] = useState<number>(-2);
+  const [monthlyViewCount, setMonthlyViewCount] = useState<number>(-2);
 
   const loginStatus = Boolean(localStorage.getItem("login_status"));
   const navigate = useNavigate();
@@ -50,6 +28,7 @@ function Home(): ReactNode {
   }, []);
 
   useEffect(() => {
+    let timer: NodeJS.Timer;
     async function getTodayViews() {
       const controller = new ApiController();
       const authorization = localStorage.getItem("authorization") as string;
@@ -63,7 +42,8 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setDailyViewCount(views?.data?.view_count || -1);
+      console.log(views?.data?.view_count);
+      setDailyViewCount(views?.data?.view_count ?? -1);
     }
 
     async function getMonthlyViews() {
@@ -79,7 +59,7 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setMonthlyViewCount(views?.data?.view_count || -1);
+      setMonthlyViewCount(views?.data?.view_count ?? -1);
     }
 
     async function getTotalViews() {
@@ -95,7 +75,7 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      setTotalViewsCount(views?.data?.view_count || -1);
+      setTotalViewsCount(views?.data?.view_count ?? -1);
     }
 
     async function callApis() {
@@ -104,42 +84,21 @@ function Home(): ReactNode {
       await getTotalViews();
     }
 
-    callApis().catch((reason: Error) => {
-      if (reason.message === ApiStatus.LOGOUT) navigate("/");
-    });
+    timer = setTimeout(() => {
+      callApis().catch((reason: Error) => {
+        if (reason.message === ApiStatus.LOGOUT) navigate("/");
+      });
+    }, 250);
+
+    return function () {
+      if (timer)
+        clearTimeout(timer);
+    };
   }, []);
 
-  async function handleTokenGeneration(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
-    event.preventDefault();
-    setTokenGenerationStatus(true);
-    const controller = new ApiController();
-    const authorization = localStorage.getItem("authorization") as string;
-    const reply = await controller.POST(
-      "authentication/tokens/refresh-client-token",
-      `Bearer ${authorization}`,
-      { url: "https://www.sgaurav.me" }
-    );
-
-    setTokenGenerationStatus(false);
-
-    if (reply.status === ApiStatus.SUCCESS) {
-      setClientToken(reply?.data?.token);
-      setTokenDialogOpenFlag(true);
-    } else toast.error(reply.message, getGlobalToastConfig());
-  }
-
-  async function handleClipboardBtnTxt(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
-    event.preventDefault();
-    await navigator.clipboard.writeText(clientToken);
-    setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN);
-    setTimeout(() => {
-      setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
-    }, HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN_TTL);
-  }
+  const cachedDailyViewsCount = useMemo(() => dailyViewCount, [dailyViewCount]);
+  const cachedMonthlyViewsCount = useMemo(() => monthlyViewCount, [monthlyViewCount]);
+  const cachedTotalViewsCount = useMemo(() => totalViewsCount, [totalViewsCount]);
 
   return (
     <>
@@ -156,7 +115,7 @@ function Home(): ReactNode {
                       className="text-2xl font-bold text-blue-700"
                       style={{ fontFamily: "Roboto" }}
                     >
-                      {dailyViewCount}
+                      <ViewCount count={cachedDailyViewsCount} />
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
@@ -184,7 +143,7 @@ function Home(): ReactNode {
                       className="text-2xl font-bold text-blue-700"
                       style={{ fontFamily: "Roboto" }}
                     >
-                      {monthlyViewCount}
+                      <ViewCount count={cachedMonthlyViewsCount} />
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
@@ -212,7 +171,7 @@ function Home(): ReactNode {
                       className="text-2xl font-bold text-blue-700"
                       style={{ fontFamily: "Roboto" }}
                     >
-                      {totalViewsCount}
+                      <ViewCount count={cachedTotalViewsCount} />
                     </h1>
                   </Box>
                   <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
@@ -232,84 +191,6 @@ function Home(): ReactNode {
 
         <WebsiteUpdate />
 
-        <Grid2 container spacing={2} px={2} my={2} mt={5}>
-          <Grid2 size={12}>
-            <Card className="border-l-8 border-blue-500">
-              <CardContent
-                sx={{ fontFamily: "Roboto" }}
-                className="flex items-center"
-              >
-                <div className="flex items-center justify-between w-full h-full">
-                  <h1 className="text-xl text-amber-600 font-bold">
-                    Client tokens
-                  </h1>
-
-                  <Button
-                    variant="outlined"
-                    color="warning"
-                    startIcon={
-                      !tokenGenerationStatus ? (
-                        <IoMdCreate />
-                      ) : (
-                        <CircularProgress size={16} />
-                      )
-                    }
-                    disabled={tokenGenerationStatus}
-                    onClick={handleTokenGeneration}
-                  >
-                    Generate
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </Grid2>
-        </Grid2>
-
-        <Dialog
-          open={tokenDialogOpenFlag}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle className="bg-blue-200 inline-flex items-center gap-1">
-            <FaCircleInfo className="text-blue-800" /> Your token
-          </DialogTitle>
-          <DialogContent className="my-2">
-            <Grid2 container spacing={2} display="flex" alignItems="center">
-              <Grid2 size={{ xs: 8, md: 9 }}>
-                <input
-                  type="text"
-                  disabled
-                  value={"*****************************"}
-                  className="border p-2 font-bold text-xl rounded-lg bg-neutral-100 border-neutral-400 outline-none w-full"
-                />
-              </Grid2>
-
-              <Grid2 size={{ xs: 4, md: 3 }}>
-                <Button
-                  variant="outlined"
-                  color="success"
-                  startIcon={<FaRegClipboard />}
-                  onClick={handleClipboardBtnTxt}
-                  fullWidth
-                >
-                  {clipboardBtnTxt}
-                </Button>
-              </Grid2>
-            </Grid2>
-            <p className="text-justify text-zinc-600 text-[10px] mt-1 inline-flex">
-              <TbHandFingerRight className="mx-1 text-neutral-500" size={16} />
-              {HOME.CLIENT_TOKEN_DIALOG.FOOTER_NOTE}
-            </p>
-          </DialogContent>
-          <DialogActions className="bg-neutral-50">
-            <Button
-              variant="outlined"
-              onClick={() => setTokenDialogOpenFlag((prev) => !prev)}
-            >
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
     </>
   );
