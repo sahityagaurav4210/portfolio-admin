@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:linux": "pwsh scripts/linux/deploy.ps1",
+    "deploy:win": "powershell -ExecutionPolicy Bypass -File .\\scripts\\windows\\deploy.ps1"
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",
