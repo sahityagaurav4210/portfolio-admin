@@ -1,10 +1,4 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Grid2,
-} from "@mui/material";
+import { Box, Card, CardContent, Divider, Grid2 } from "@mui/material";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
@@ -28,7 +22,7 @@ function Home(): ReactNode {
   }, []);
 
   useEffect(() => {
-    let timer: NodeJS.Timer;
+    let timer: unknown;
     async function getTodayViews() {
       const controller = new ApiController();
       const authorization = localStorage.getItem("authorization") as string;
@@ -42,7 +36,6 @@ function Home(): ReactNode {
         throw new Error("Logout");
       }
 
-      console.log(views?.data?.view_count);
       setDailyViewCount(views?.data?.view_count ?? -1);
     }
 
@@ -91,14 +84,19 @@ function Home(): ReactNode {
     }, 250);
 
     return function () {
-      if (timer)
-        clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     };
   }, []);
 
   const cachedDailyViewsCount = useMemo(() => dailyViewCount, [dailyViewCount]);
-  const cachedMonthlyViewsCount = useMemo(() => monthlyViewCount, [monthlyViewCount]);
-  const cachedTotalViewsCount = useMemo(() => totalViewsCount, [totalViewsCount]);
+  const cachedMonthlyViewsCount = useMemo(
+    () => monthlyViewCount,
+    [monthlyViewCount]
+  );
+  const cachedTotalViewsCount = useMemo(
+    () => totalViewsCount,
+    [totalViewsCount]
+  );
 
   return (
     <>
@@ -190,7 +188,6 @@ function Home(): ReactNode {
         </Grid2>
 
         <WebsiteUpdate />
-
       </div>
     </>
   );
