@@ -22,7 +22,7 @@ function Home(): ReactNode {
   }, []);
 
   useEffect(() => {
-    let timer: unknown;
+    let timer: any;
     async function getTodayViews() {
       const controller = new ApiController();
       const authorization = localStorage.getItem("authorization") as string;
