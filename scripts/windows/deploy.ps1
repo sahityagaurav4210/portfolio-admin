@@ -24,11 +24,16 @@ if (Test-Path -Path $credentialPath) {
   
   Write-Output "Preparing the image..."
   docker build -t $($credentials.ImgName) .
-  docker push $($credentials.ImgName)
+  CheckCmdStatus -Msg "Build failed, exiting..."
 
+  docker push $($credentials.ImgName)
+  CheckCmdStatus -Msg "Build upload failed, exiting..."
+
+  Write-Output "================================="
   Write-Output "Deploying the app, please wait..."
 
   caprover deploy -h "$($credentials.Host)" -p "$($credentials.Password)" -i "$($credentials.ImgName)" --appName "$($credentials.AppName)"
+  CheckCmdStatus -Msg "Deploy failed, exiting..."
 }
 else {
   Write-Output "Preparing the image..."
@@ -40,6 +45,7 @@ else {
     $plainPwd = Convert-SecureStringToPlainText -SecureString $hashedPwd
 
     caprover deploy -h "$uri" -p "$plainPwd" --appName "$appName" --branch "$branch" 
+    CheckCmdStatus -Msg "Deploy failed, exiting..."
 
     $fileContents = @{
       Host     = $uri
@@ -60,18 +66,16 @@ else {
   $imgName = Read-Host "Enter your docker image name (without docker username)"
 
   docker build -t "$dockerUsername/$imgName" .
-
-  if ($LASTEXITCODE -ne 0) {
-    Write-Output "Build failed, exiting....."
-    exit 0;
-  }
+  CheckCmdStatus -Msg "Build failed, exiting..."
 
   docker push "$dockerUsername/$imgName"
+  CheckCmdStatus -Msg "Build upload, exiting..."
   
   Write-Output "Deploying the app, please wait..."
   $plainPwd = $plainPwd = Convert-SecureStringToPlainText -SecureString $hashedPwd
   
   caprover deploy -h "$uri" -p "$plainPwd" -i "$dockerUsername/$imgName" --appName "$appName"
+  CheckCmdStatus -Msg "Deploy failed, exiting..."
 
   $fileContents = @{
     Host     = $uri

@@ -12,4 +12,13 @@ function Convert-SecureStringToPlainText {
   }
 }
 
-Export-ModuleMember -Function Convert-SecureStringToPlainText
+function CheckCmdStatus{
+    param ([string]$Msg)
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output "$Msg"
+        exit -1;
+    }
+}
+
+Export-ModuleMember -Function Convert-SecureStringToPlainText, CheckCmdStatus
