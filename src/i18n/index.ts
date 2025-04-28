@@ -16,6 +16,17 @@ export const AppStrings = {
       FOOTER_NOTE: `For security purposes, we will not provide you a further chance to copy your client token, so please copy this right away and store in a safe and secure place and never share this to anyone except client.`,
       COPIED_BTN_TTL: 1000
     },
+  },
+  ROUTES: {
+    UNDER_MAINTAINANCE: '/under-maintainance',
+    HOME: '/',
+    HIRINGS: "hirings",
+    CONTACTS: "contacts",
+    VIEW_DETAILS: 'today-views-details',
+    SKILLS: 'skills',
+    FORGET_PWD: 'forgot-pwd',
+    LOGIN: 'login',
+    LOGOUT: "logout"
   }
 };
 

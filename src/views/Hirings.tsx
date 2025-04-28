@@ -1,5 +1,5 @@
-import { Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import React, { ReactNode, useEffect, useState } from 'react'
+import { Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React, { memo, ReactNode, useEffect, useState } from 'react';
 import { IHiringDetails } from '../interfaces/models.interface';
 import NoDataTableRow from '../components/NoDataTableRow';
 import { ApiController, ApiStatus } from '../api';
@@ -17,7 +17,6 @@ function Hirings(): ReactNode {
       if (details.status === ApiStatus.SUCCESS)
         setViewDetails(details?.data);
     }
-
     getDetails();
   }, []);
 
@@ -59,7 +58,7 @@ function Hirings(): ReactNode {
         </Grid2>
       </Grid2>
     </>
-  )
+  );
 }
 
-export default Hirings
+export default memo(Hirings);

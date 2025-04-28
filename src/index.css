@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+.login-bg {
+  background-image: url('./assets/login-bg.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+}

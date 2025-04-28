@@ -26,7 +26,6 @@ function Skills(): ReactNode {
         setSkillId(details?.data._id || '');
       }
     }
-
     getDetails();
   }, []);
 

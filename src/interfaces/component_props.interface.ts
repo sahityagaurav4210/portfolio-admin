@@ -1,4 +1,4 @@
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 
 export interface INavbarProp {
   username: string;
@@ -26,4 +26,8 @@ export interface ITextFieldLabel {
 
 export interface IViewCount {
   count: number;
+}
+
+export interface IProtected {
+  children: ReactNode;
 }

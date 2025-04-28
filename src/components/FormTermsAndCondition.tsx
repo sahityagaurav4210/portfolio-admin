@@ -4,7 +4,7 @@ import { TbHandFingerRight } from "react-icons/tb";
 
 function FormTermsAndCondition(): ReactNode {
   return (
-    <>
+    <Grid container>
       <Grid item xs={12} mt={1}>
         <Box sx={{ display: "flex", alignItems: "center", }}>
           <TbHandFingerRight className="mx-1 text-neutral-500" size={12} />
@@ -15,14 +15,14 @@ function FormTermsAndCondition(): ReactNode {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", }}>
-          <TbHandFingerRight className="mx-1 text-neutral-500" size={16} />
+          <TbHandFingerRight className="mx-1 text-neutral-500" size={12} />
           <Typography variant="caption" fontFamily="Roboto" className="text-neutral-400">
             If you don't have your login credentials, then please contact &nbsp;
             <Link href="#">administrator</Link>
           </Typography>
         </Box>
       </Grid>
-    </>
+    </Grid>
   );
 }
 

@@ -8,47 +8,91 @@ import Hirings from "../views/Hirings";
 import TodayViewsDetails from "../views/TodayViewsDetails";
 import Contact from "../views/Contact";
 import Skills from "../pages/SkillsPage";
+import ForgetPwd from "../pages/ForgetPwd";
+import UnderMaintainance from "../pages/UnderMaintainance";
+import { getRouteStatus } from "../helpers";
+import { AppStrings } from "../i18n";
+import ProtectedView from "../views/Protected";
+import UnProtectedView from "../views/UnProtected";
+import UnProtectedWithStatus from "../views/UnProtectedWithStatus";
+import NotFound from "../pages/NotFound";
+import Error from "../pages/Error";
 
 const AppRoutes = createBrowserRouter([
   {
-    Component: App,
+    element: <App />,
     children: [
       {
-        path: 'login',
-        Component: Login,
+        path: AppStrings.ROUTES.LOGIN,
+        element: <UnProtectedView><Login /></UnProtectedView>,
       },
       {
-        path: 'logout',
-        Component: Logout,
+        path: AppStrings.ROUTES.LOGOUT,
+        element: <UnProtectedView><Logout /></UnProtectedView>,
+      },
+      {
+        path: AppStrings.ROUTES.FORGET_PWD,
+        element: <UnProtectedWithStatus><ForgetPwd /></UnProtectedWithStatus>,
+        loader: async ({ request }) => {
+          const { url } = request;
+          let routeName = url.split("/");
+          return await getRouteStatus(`/${routeName[routeName.length - 1]}`);
+        }
+      },
+      {
+        path: AppStrings.ROUTES.UNDER_MAINTAINANCE,
+        element: <UnderMaintainance />,
       },
       {
         path: '/',
-        Component: Layout,
+        element: <Layout />,
         children: [
           {
             path: '/',
-            Component: Home,
+            element: <Home />,
           },
           {
-            path: 'hirings',
-            Component: Hirings,
+            path: AppStrings.ROUTES.HIRINGS,
+            element: <ProtectedView><Hirings /></ProtectedView>,
+            loader: async ({ request }) => {
+              const { url } = request;
+              let routeName = url.split("/");
+              return await getRouteStatus(`/${routeName[routeName.length - 1]}`);
+            }
           },
           {
-            path: 'today-views-details',
-            Component: TodayViewsDetails,
+            path: AppStrings.ROUTES.VIEW_DETAILS,
+            element: <ProtectedView><TodayViewsDetails /></ProtectedView>,
+            loader: async ({ request }) => {
+              const { url } = request;
+              let routeName = url.split("/");
+              return await getRouteStatus(`/${routeName[routeName.length - 1]}`);
+            }
           },
           {
-            path: 'contacts',
-            Component: Contact,
+            path: AppStrings.ROUTES.CONTACTS,
+            element: <ProtectedView><Contact /></ProtectedView>,
+            loader: async ({ request }) => {
+              const { url } = request;
+              let routeName = url.split("/");
+              return await getRouteStatus(`/${routeName[routeName.length - 1]}`);
+            }
           },
           {
-            path: 'skills',
-            Component: Skills,
+            path: AppStrings.ROUTES.SKILLS,
+            element: <ProtectedView><Skills /></ProtectedView>,
+            loader: async ({ request }) => {
+              const { url } = request;
+              let routeName = url.split("/");
+              return await getRouteStatus(`/${routeName[routeName.length - 1]}`);
+            }
           },
         ],
       },
     ],
+    errorElement: <Error />
   },
+  { path: "*", element: <NotFound />, errorElement: <Error /> }
 ]);
 
 export default AppRoutes;

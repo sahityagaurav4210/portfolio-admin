@@ -28,7 +28,6 @@ function TodayViewsDetails(): ReactNode {
 
       if (details.status === ApiStatus.SUCCESS) setViewDetails(details?.data);
     }
-
     getDetails();
   }, []);
 

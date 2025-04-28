@@ -1,5 +1,5 @@
-import { Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import React, { ReactNode, useEffect, useState } from 'react'
+import { Chip, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { IContactDetails } from '../interfaces/models.interface';
 import NoDataTableRow from '../components/NoDataTableRow';
 import { ApiController, ApiStatus } from '../api';
@@ -17,7 +17,6 @@ function Contact(): ReactNode {
       if (details.status === ApiStatus.SUCCESS)
         setViewDetails(details?.data);
     }
-
     getDetails();
   }, []);
 
@@ -53,7 +52,7 @@ function Contact(): ReactNode {
         </Grid2>
       </Grid2>
     </>
-  )
+  );
 }
 
 export default Contact;
