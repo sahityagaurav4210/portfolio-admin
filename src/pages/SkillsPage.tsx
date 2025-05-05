@@ -107,7 +107,7 @@ function Skills(): ReactNode {
         </Grid2>
 
         <Grid size={12} display={"flex"} justifyContent={"center"}>
-          <Pagination page={currentPage} count={Math.round(skillsDetails.length / 5) + 1} sx={{ mt: 2 }} onChange={handlePaginationChange}></Pagination>
+          <Pagination page={currentPage} count={Number((skillsDetails.length / 4).toFixed(0))} sx={{ mt: 2 }} onChange={handlePaginationChange}></Pagination>
         </Grid>
       </Grid2>
     </>
