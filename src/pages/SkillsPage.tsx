@@ -1,4 +1,4 @@
-import { Button, Fab, Grid2, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Button, Fab, Grid2, Pagination, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import NoDataTableRow from '../components/NoDataTableRow';
 import { ApiController, ApiStatus } from '../api';
@@ -6,12 +6,15 @@ import { useDialogs } from '@toolpad/core';
 import SkillModal from '../models/Skills';
 import { Add, Edit } from '@mui/icons-material';
 import { ISkillForm } from '../interfaces/models.interface';
+import { Grid } from '@mui/system';
 
 function Skills(): ReactNode {
   const [skillsDetails, setSkillsDetails] = useState<ISkillForm[]>([]);
   const [skillId, setSkillId] = useState<string>('');
   const dialogs = useDialogs();
   const windowRef = useRef<Window | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [skills, setSkills] = useState<ISkillForm[]>([]);
 
   useEffect(() => {
     async function getDetails() {
@@ -29,6 +32,19 @@ function Skills(): ReactNode {
     getDetails();
   }, []);
 
+  useEffect(() => {
+    const skillCopy = [...skillsDetails];
+    const factor = currentPage > 0 ? (currentPage - 1) * 4 : 0;
+    setSkills(skillCopy.slice(factor, factor + 4));
+  }, [currentPage, skillsDetails]);
+
+  function handlePaginationChange(event: React.ChangeEvent<unknown>, value: number) {
+    event.preventDefault();
+    console.log("hello ji....", value);
+
+    setCurrentPage(value);
+  }
+
   async function handleSkillAddModal() {
     windowRef.current = window;
     await dialogs.open(SkillModal, { skillId, skills: skillsDetails, windowRef, type: "add", index: -1 });
@@ -42,12 +58,16 @@ function Skills(): ReactNode {
   return (
     <>
       <Grid2 container px={2}>
-        <Grid2 size={12} sx={{ display: "flex", justifyContent: "end" }}>
+        <Grid2 size={2}>
+          <p className='text-lg font-bold text-orange-600'>Showing page {currentPage}</p>
+        </Grid2>
+
+        <Grid2 size={10} sx={{ display: "flex", justifyContent: "end" }}>
           <Button onClick={handleSkillAddModal} variant='contained' color='warning' startIcon={<Add />}>Add</Button>
         </Grid2>
       </Grid2>
 
-      <Grid2 container spacing={2} px={2} my={2}>
+      <Grid2 container spacing={2} my={2}>
         <Grid2 size={12}>
           <TableContainer component={Paper} className='border border-orange-600 border-dashed'>
             <Table align='center'>
@@ -67,15 +87,15 @@ function Skills(): ReactNode {
 
                 if (index)
                   await handleSkillEditModal(Number(index));
-              }}>
-                {!skillsDetails.length ? <NoDataTableRow colspan={8} text='No data available' /> : skillsDetails?.map((detail: ISkillForm, index: number) => <React.Fragment key={index}>
-                  <TableRow className='odd:bg-amber-100' data-index={index}>
+              }} className='w-full'>
+                {!skills.length ? <NoDataTableRow colspan={8} text='No data available' /> : skills?.map((detail: ISkillForm, index: number) => <React.Fragment key={index}>
+                  <TableRow className='odd:bg-amber-100 min-w-full' data-index={index}>
                     <TableCell align='center'>{index + 1}</TableCell>
                     <TableCell align='center' sx={{ maxWidth: 80 }}>{detail.name}</TableCell>
                     <TableCell align='center'>{detail.experience}</TableCell>
                     <TableCell align='justify' sx={{ minWidth: 200, maxWidth: 450 }}>{detail.description}</TableCell>
-                    <TableCell align='center' sx={{ maxWidth: 50 }}>
-                      <Fab color="info" aria-label="edit" size='small'>
+                    <TableCell align='center' sx={{ maxWidth: 50, minWidth: 25, p: 0.25 }}>
+                      <Fab color="warning" aria-label="edit" size='small'>
                         <Edit />
                       </Fab>
                     </TableCell>
@@ -85,6 +105,10 @@ function Skills(): ReactNode {
             </Table>
           </TableContainer>
         </Grid2>
+
+        <Grid size={12} display={"flex"} justifyContent={"center"}>
+          <Pagination page={currentPage} count={Math.round(skillsDetails.length / 5) + 1} sx={{ mt: 2 }} onChange={handlePaginationChange}></Pagination>
+        </Grid>
       </Grid2>
     </>
   );
