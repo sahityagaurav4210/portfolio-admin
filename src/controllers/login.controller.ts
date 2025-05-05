@@ -33,7 +33,7 @@ export class LoginController {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later"
-      }
+      };
 
       return reply;
     }

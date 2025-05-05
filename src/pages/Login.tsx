@@ -57,6 +57,8 @@ function Login(): ReactNode {
       localStorage.setItem("username", reply?.data?.name);
       localStorage.setItem("userId", reply?.data?._id);
       localStorage.setItem("login_status", "true");
+      localStorage.setItem("email", reply?.data?.email);
+
       toast.success(reply.message, getGlobalToastConfig());
       navigate("/");
     }

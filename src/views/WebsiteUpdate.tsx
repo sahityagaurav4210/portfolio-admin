@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2 } from '@mui/material';
+import { Button, Card, CardActionArea, CardContent, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, TextField } from '@mui/material';
 import { memo, ReactNode, useState } from 'react';
 import { IoMdCreate } from 'react-icons/io';
 import { ApiController, ApiStatus } from '../api';
@@ -8,11 +8,15 @@ import { useNavigate } from 'react-router-dom';
 
 import WebUpdates from '../assets/web-updates.jpg';
 import AppSecrets from '../assets/app-secrets.jpg';
+import Docs from '../assets/docs.jpg';
 
 import { TbHandFingerRight } from 'react-icons/tb';
 import { FaRegClipboard } from 'react-icons/fa';
 import { FaCircleInfo } from 'react-icons/fa6';
 import { AppStrings } from '../i18n';
+import { Link } from '@mui/icons-material';
+import { BtnClick } from '../interfaces';
+import { FTPController } from '../controllers/ftp.controller';
 
 function WebsiteUpdate(): ReactNode {
   const { HOME } = AppStrings;
@@ -25,6 +29,9 @@ function WebsiteUpdate(): ReactNode {
   );
   const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
     useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showCVUpdateForm, setShowCVUpdateForm] = useState<boolean>(false);
+  const [url, setUrl] = useState<string>("");
 
   const navigate = useNavigate();
 
@@ -73,6 +80,48 @@ function WebsiteUpdate(): ReactNode {
     setTimeout(() => {
       setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
     }, HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN_TTL);
+  }
+
+  async function handleFTPButton(event: BtnClick) {
+    event.preventDefault();
+    setLoading(true);
+
+    const controller = new FTPController();
+    const email = localStorage.getItem("email");
+    const auth = localStorage.getItem("authorization") as string;
+    const payload = { email, fileName: 'documents', fileType: "application/pdf" };
+
+    const status = await controller.generateToken(`${import.meta.env.VITE_FTP_API_BASE_URL}/tokens/generate`, `Bearer ${auth}`, payload);
+
+    setLoading(false);
+
+    if (status) {
+      setShowCVUpdateForm(true);
+      window.open(`${import.meta.env.VITE_FTP_URL}/?fileName=${payload.fileName}&fileType=${payload.fileType}&email=${email}`, "_blank");
+      return;
+    }
+
+    toast.error("Something went wrong, please try again after sometime...", getGlobalToastConfig());
+  }
+
+  async function handleUpdateCVBtn(event: BtnClick) {
+    event.preventDefault();
+    setLoading(true);
+
+    const api = new ApiController();
+    const auth = localStorage.getItem("authorization") as string;
+
+    const reply = await api.POST('files/save-cv', `Bearer ${auth}`, { url });
+
+    setLoading(false);
+
+    if (reply.status === ApiStatus.SUCCESS) {
+      setShowCVUpdateForm(false);
+      toast.success(reply.message, getGlobalToastConfig());
+      return;
+    }
+
+    toast.error(reply.message, getGlobalToastConfig());
   }
 
   return (
@@ -135,6 +184,44 @@ function WebsiteUpdate(): ReactNode {
                 Generate
               </Button>
             </CardContent>
+          </Card>
+        </Grid2>
+      </Grid2>
+
+      <Grid2 container spacing={2} px={2} my={2}>
+        <Grid2 size={{ xs: 12, lg: 6 }} mx="auto">
+          <Card>
+            <CardMedia image={Docs} sx={{ height: 300 }} />
+            <CardContent
+              sx={{ fontFamily: "Roboto" }}
+            >
+              <h1 className="text-xl text-amber-600 font-bold">Update CV</h1>
+
+              <p>Upload your CV on the FTP portal by clicking on the button given below and then paste the url obtained in the below form.</p>
+
+              {showCVUpdateForm && <Grid2 container spacing={1} mt={2}>
+                <Grid2 size={8}>
+                  <TextField label="URL" fullWidth placeholder='Ex:- www.sgaurav.me/cv.pdf' focused value={url} onChange={event => setUrl(event.target.value)}></TextField>
+                </Grid2>
+                <Grid2 size={4} alignItems={"center"} display={"flex"}>
+                  <Button fullWidth variant='outlined' disabled={loading} onClick={handleUpdateCVBtn}>Update</Button>
+                </Grid2>
+              </Grid2>
+              }
+
+            </CardContent>
+            <CardActionArea sx={{ p: 1, display: "flex", justifyContent: "flex-end", background: "#f5f5f5" }}>
+              <Button
+                variant="outlined"
+                color="warning"
+                onClick={handleFTPButton}
+                startIcon={
+                  !loading ? <Link /> : <CircularProgress size={16} />
+                }
+              >
+                FTP Portal
+              </Button>
+            </CardActionArea>
           </Card>
         </Grid2>
       </Grid2>
