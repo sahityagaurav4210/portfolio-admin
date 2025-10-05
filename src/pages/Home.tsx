@@ -18,7 +18,7 @@ function Home(): ReactNode {
 
   useEffect(() => {
     if (!loginStatus) {
-      navigate("/login");
+      navigate("/auth/login");
       return;
     }
   }, []);
