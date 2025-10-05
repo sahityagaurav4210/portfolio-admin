@@ -4,7 +4,7 @@ export const AppPatterns = Object.freeze({
     skillName: /^[A-Za-z0-9+#\.\s]*$/,
     skillUrl: /^(?:https?:\/\/[^\s\$.?#].[^\s]*|)$/,
     skillExp: /^[0-9]{1,}$/,
-    skillDesc: /^[A-Za-z0-9\-_\.\,\(\)\s]{10,1000}$/
+    skillDesc: /^[A-Za-z0-9\-_\.\,\(\)\s'\/:;|<>]{10,1000}$/gm
 });
 
 export const AppUserAgent = "PortfolioAuthWebApp/v1";
