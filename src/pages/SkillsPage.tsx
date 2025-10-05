@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Fab, Paper, } from '@mui/material';
+import { Box, Button, Container, Divider, Fab, Paper, } from '@mui/material';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { ApiController, ApiStatus } from '../api';
 import { Add, Edit, Visibility, Widgets } from '@mui/icons-material';
@@ -103,17 +103,19 @@ function Skills(): ReactNode {
 
   return (
     <>
-      <Paper variant="elevation" component="div" className="p-4 m-0 sm:m-1 border border-slate-400">
-        <Heading Icon={Widgets} text="Skills" />
+      <Container maxWidth="xl" className='my-2'>
+        <Paper variant="elevation" component="div" className="p-4 m-0 sm:m-1 border border-slate-400">
+          <Heading Icon={Widgets} text="Skills" />
 
-        <Divider sx={{ mb: 4 }} />
+          <Divider sx={{ mb: 4 }} />
 
-        <Box component="div" className='flex items-center justify-end my-2'>
-          <Button size='small' startIcon={<Add fontSize='small' />} variant='contained' onClick={handleAddBtnClick}>Add</Button>
-        </Box>
+          <Box component="div" className='flex items-center justify-end my-2'>
+            <Button size='small' startIcon={<Add fontSize='small' />} variant='contained' onClick={handleAddBtnClick}>Add</Button>
+          </Box>
 
-        <MaterialReactTable table={table} />
-      </Paper>
+          <MaterialReactTable table={table} />
+        </Paper>
+      </Container>
 
       {
         detailDialogOpen &&
@@ -143,6 +145,7 @@ function Skills(): ReactNode {
           onAddHandler={getDetails}
         />
       }
+
     </>
   );
 }

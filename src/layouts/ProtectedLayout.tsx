@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, CircularProgress, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography, useMediaQuery, useTheme } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import { useCallback, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -128,7 +128,7 @@ function ProtectedLayout() {
 
   return (
     <>
-      <Box component="div" sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Box component="div" className="flex flex-col min-h-screen">
         <Box component="header" className="flex justify-between items-center min-h-[4vh]">
           <Box component="div" className="max-w-max p-1 mx-1">
             <Typography variant={!isMobile ? "h4" : "h5"} fontWeight={900} className="text-center" color="warning">Coding Works</Typography>
@@ -142,8 +142,6 @@ function ProtectedLayout() {
             <ImgContainer url="/logo.jpeg" />
           </Box>
         </Box>
-
-        <Divider sx={{ my: 1 }} />
 
         <Box component="div" sx={{ display: "flex", gap: 1, px: 1, alignItems: "center", justifyContent: "space-between" }}>
           <Box component="div" className="flex items-center">
@@ -160,7 +158,7 @@ function ProtectedLayout() {
             <Typography variant="h6" fontWeight={900} className="text-blue-800">Portfolio CMS</Typography>
           </Box>
 
-          <Box component="div" className="m-1">
+          <Box component="div">
             <IconButton
               sx={{ backgroundColor: '#ea580c', color: "white", "&:hover": { color: "#ea580c" } }}
               id="account-menu"
@@ -232,7 +230,7 @@ function ProtectedLayout() {
               onClose={handleDrawerClose}
               sx={{
                 display: { xs: 'block', sm: 'none' },
-                '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                '& .MuiDrawer-paper': { boxSizing: 'border-box', },
               }}
               slotProps={{
                 root: {
@@ -240,6 +238,8 @@ function ProtectedLayout() {
                 },
               }}
             >
+              <Toolbar />
+              <Divider />
               {DrawerItems}
             </Drawer>
 
@@ -260,9 +260,7 @@ function ProtectedLayout() {
           </Box>
 
           <Box component="div" sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}>
-            <Container maxWidth="xl">
-              <Outlet />
-            </Container>
+            <Outlet />
           </Box>
         </Box>
 

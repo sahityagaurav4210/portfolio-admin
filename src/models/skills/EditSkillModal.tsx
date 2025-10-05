@@ -101,23 +101,23 @@ function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler
         }
 
         <Grid container rowSpacing={2} columnSpacing={2}>
-          <Grid size={6} sx={{ py: 1 }}>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
             <TextField label="Name" name='name' value={skillFormData?.name} required onChange={handleTextFieldOnChange} fullWidth autoFocus helperText="Only characters, digits and some special characters are allowed" />
           </Grid>
 
-          <Grid size={6} sx={{ py: 1 }}>
-            <TextField label="Experience (in months)" type='number' name='experience' required value={skillFormData?.experience} onChange={handleTextFieldOnChange} fullWidth helperText="Only digits are allowed. Please enter the amount in months." />
+          <Grid size={{ xs: 12, md: 6 }} sx={{ mt: { xs: 0, md: 1 } }}>
+            <TextField label="Experience (in months)" type='number' name='experience' required value={skillFormData?.experience} onChange={handleTextFieldOnChange} fullWidth helperText="Only positive natural numbers are allowed. Please enter the amount in months." />
           </Grid>
 
-          <Grid size={8} sx={{ py: 1 }}>
-            <TextField label="Url" type='url' name='url' fullWidth value={skillFormData?.url} onChange={handleTextFieldOnChange} helperText="Only string in url format is allowed. Copy and paste the url directly." />
+          <Grid size={{ xs: 12, md: 8 }}>
+            <TextField label="Url" type='url' name='url' fullWidth value={skillFormData?.url} onChange={handleTextFieldOnChange} helperText="Only string in url format is allowed. It should start with http or https" />
           </Grid>
 
-          <Grid size={4} sx={{ py: 1, display: "flex", alignItems: "center" }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ py: 1, display: "flex", alignItems: "center" }}>
             <Button variant='contained' startIcon={<Link fontSize='small' />} color='warning' LinkComponent="a" href={import.meta.env.VITE_FTP_URL} target='_blank'>FTP PORTAL</Button>
           </Grid>
 
-          <Grid size={12} sx={{ py: 1 }}>
+          <Grid size={12}>
             <TextField label="Description" type='text' name='description' value={skillFormData?.description} multiline onChange={handleTextFieldOnChange} fullWidth required placeholder='Ex:- Description' sx={{ textAlign: "justify" }} helperText="Only characters, digits, comma, parenthesis, periods are allowed." />
           </Grid>
         </Grid>

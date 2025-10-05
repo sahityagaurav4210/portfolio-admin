@@ -1,4 +1,4 @@
-import { Box, Dialog, DialogContent, DialogTitle, Divider, Fab, IconButton, Paper, TextField, Typography } from '@mui/material';
+import { Box, Container, Dialog, DialogContent, DialogTitle, Divider, Fab, IconButton, Paper, TextField, Typography } from '@mui/material';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { IContactDetails } from '../interfaces/models.interface';
 import { ApiController, ApiStatus } from '../api';
@@ -78,13 +78,15 @@ function Contact(): ReactNode {
 
   return (
     <>
-      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
-        <Heading Icon={ContactEmergency} text="Contacts" />
+      <Container maxWidth="xl">
+        <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
+          <Heading Icon={ContactEmergency} text="Contacts" />
 
-        <Divider sx={{ mb: 4 }} />
+          <Divider sx={{ mb: 4 }} />
 
-        <MaterialReactTable table={table} />
-      </Paper>
+          <MaterialReactTable table={table} />
+        </Paper>
+      </Container>
 
       <Dialog maxWidth="lg" fullWidth open={detailDialogOpen}>
         <DialogTitle>
