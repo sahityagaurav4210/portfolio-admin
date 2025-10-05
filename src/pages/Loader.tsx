@@ -1,10 +1,8 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import '../loader.css';
 import { Code } from '@mui/icons-material';
 
 function Loader(): ReactNode {
-  useEffect(() => {
-  }, []);
 
   return (
     <>

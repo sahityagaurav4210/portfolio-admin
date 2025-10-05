@@ -1,10 +1,12 @@
-import { Box, Card, CardContent, Divider, Grid2 } from "@mui/material";
+import { Box, Card, CardContent, Divider, Grid2, Paper } from "@mui/material";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
 import { ApiController, ApiStatus } from "../api";
 import WebsiteUpdate from "../views/WebsiteUpdate";
 import ViewCount from "../components/ViewCount";
+import Heading from "../components/Heading";
+import { Dashboard } from "@mui/icons-material";
 
 function Home(): ReactNode {
   const [dailyViewCount, setDailyViewCount] = useState<number>(-2);
@@ -100,7 +102,12 @@ function Home(): ReactNode {
 
   return (
     <>
-      <div className="min-h-screen">
+      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
+
+        <Heading Icon={Dashboard} text="Dashboard" />
+
+        <Divider sx={{ mb: 4 }} />
+
         <Grid2 container spacing={2} px={2} my={2}>
           {/* Daily views */}
           <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
@@ -188,7 +195,7 @@ function Home(): ReactNode {
         </Grid2>
 
         <WebsiteUpdate />
-      </div>
+      </Paper>
     </>
   );
 }

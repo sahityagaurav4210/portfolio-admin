@@ -24,8 +24,8 @@ export const AppStrings = {
     CONTACTS: "contacts",
     VIEW_DETAILS: 'today-views-details',
     SKILLS: 'skills',
-    FORGET_PWD: 'forgot-pwd',
-    LOGIN: 'login',
+    FORGET_PWD: 'auth/forgot-pwd',
+    LOGIN: 'auth/login',
     LOGOUT: "logout"
   }
 };

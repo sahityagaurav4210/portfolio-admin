@@ -161,6 +161,10 @@ export class ApiController {
         apiPayload
       );
 
+      if (rawReply.status === 204) {
+        return { status: ApiStatus.SUCCESS, message: "Updated" };
+      }
+
       const reply = (await rawReply.json()) as IApiReply;
 
       if (reply.status === ApiStatus.FORBIDDEN) {

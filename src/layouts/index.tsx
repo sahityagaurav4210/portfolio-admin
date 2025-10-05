@@ -1,26 +1,4 @@
-import { Outlet } from 'react-router';
-import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { PageContainer } from '@toolpad/core/PageContainer';
-import Footer from '../views/Footer';
-import { Box, } from '@mui/material';
+import ProtectedLayout from './ProtectedLayout';
+import PublicLayout from './PublicLayout';
 
-export default function Layout() {
-  return (
-    <>
-      <DashboardLayout defaultSidebarCollapsed sidebarExpandedWidth={220} sx={{
-        '& .Toolpad_Breadcrumbs-root': {
-          display: 'none',
-        },
-      }}>
-        <PageContainer>
-          <Outlet />
-        </PageContainer>
-
-        <Box>
-          <Footer />
-        </Box>
-      </DashboardLayout>
-
-    </>
-  );
-}
+export { ProtectedLayout, PublicLayout };

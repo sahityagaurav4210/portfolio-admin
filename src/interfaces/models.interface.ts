@@ -11,6 +11,7 @@ export interface IViewDetails {
 }
 
 export interface IHiringDetails {
+  id?: number;
   client_name: string;
   client_email: string;
   client_project_name: string;
@@ -29,6 +30,7 @@ export interface IContactDetails {
 }
 
 export interface ISkillForm {
+  id?: number;
   _id?: string;
   name: string;
   experience: number;
@@ -38,8 +40,13 @@ export interface ISkillForm {
 
 export interface ISkills {
   skillId: string;
-  skills: Array<ISkillForm>
+  skills: Array<ISkillForm>;
   windowRef: React.MutableRefObject<Window | null>;
   index: number;
   type: string;
+}
+
+export interface IAlert {
+  isOpen: boolean;
+  message: string;
 }

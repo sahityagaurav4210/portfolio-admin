@@ -1,92 +1,76 @@
 import {
-  Grid2,
+  Divider,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from "@mui/material";
-import React, { ReactNode, useEffect, useState } from "react";
+import { memo, ReactNode, useEffect, useMemo, useState } from "react";
 import { IViewDetails } from "../interfaces/models.interface";
 import { ApiController, ApiStatus } from "../api";
-import NoDataTableRow from "../components/NoDataTableRow";
+import Heading from "../components/Heading";
+import { ListAlt } from "@mui/icons-material";
+import { getArrayRecords } from "../helpers";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 
 function TodayViewsDetails(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IViewDetails[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
 
   useEffect(() => {
     async function getDetails() {
       const controller = new ApiController();
 
       const authorization = localStorage.getItem("authorization") as string;
-      const details = await controller.GET(
-        "today-views-details",
-        `Bearer ${authorization}`
-      );
+      const details = await controller.GET("today-views-details", `Bearer ${authorization}`);
 
-      if (details.status === ApiStatus.SUCCESS) setViewDetails(details?.data);
+      if (details.status === ApiStatus.SUCCESS) {
+        const list = getArrayRecords<IViewDetails>(details);
+        setViewDetails(list);
+      }
+
+      setIsLoading(false);
     }
+
+    setIsLoading(true);
     getDetails();
   }, []);
 
+  const columns = useMemo(() => [
+    { accessorKey: "id", header: "S.No." },
+    { accessorKey: "firedBy", header: "Client Identity" },
+    {
+      accessorKey: "createdAt", header: "Date", Cell: ({ cell }: Record<string, any>) => {
+        return new Date(cell?.getValue()).toLocaleString("hi-In");
+      }
+    }
+  ], [viewDetails]);
+
+  const table = useMaterialReactTable({
+    columns,
+    data: viewDetails,
+    initialState: { pagination: { pageSize: 5, pageIndex: 0 } },
+    muiTablePaperProps: {
+      elevation: 3,
+      sx: { borderRadius: "8px", overflow: "hidden" },
+    },
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableHeadCellProps: {
+      sx: { fontWeight: "bold", color: "#000080" },
+    },
+    state: { isLoading }
+  });
+
   return (
     <>
+      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
+        <Heading Icon={ListAlt} text="Views" />
+        <Divider sx={{ mb: 4 }} />
 
-      <Grid2 container spacing={2} px={2} my={2}>
-        <Grid2 size={12}>
-          <TableContainer component={Paper}>
-            <Table align="center">
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    align="center"
-                    className="bg-amber-700"
-                    style={{ color: "white" }}
-                  >
-                    Sr No.
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    className="bg-amber-700"
-                    style={{ color: "white" }}
-                  >
-                    IP Address
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    className="bg-amber-700"
-                    style={{ color: "white" }}
-                  >
-                    Date
-                  </TableCell>
-                </TableRow>
-              </TableHead>
+        <MaterialReactTable table={table} />
 
-              <TableBody>
-                {!viewDetails.length ? (
-                  <NoDataTableRow colspan={3} text="No data available" />
-                ) : (
-                  viewDetails?.map((detail: IViewDetails, index: number) => (
-                    <React.Fragment key={index}>
-                      <TableRow className="odd:bg-amber-50">
-                        <TableCell align="center">{index + 1}</TableCell>
-                        <TableCell align="center">{detail.firedBy}</TableCell>
-                        <TableCell align="center">
-                          {new Date(detail.createdAt).toLocaleString("hi-In")}
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid2>
-      </Grid2>
+      </Paper>
+
     </>
   );
 }
 
-export default TodayViewsDetails;
+export default memo(TodayViewsDetails);

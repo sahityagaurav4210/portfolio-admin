@@ -1,115 +1,148 @@
-import { Button, Fab, Grid2, Pagination, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import NoDataTableRow from '../components/NoDataTableRow';
+import { Box, Button, Divider, Fab, Paper, } from '@mui/material';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { ApiController, ApiStatus } from '../api';
-import { useDialogs } from '@toolpad/core';
-import SkillModal from '../models/Skills';
-import { Add, Edit } from '@mui/icons-material';
+import { Add, Edit, Visibility, Widgets } from '@mui/icons-material';
 import { ISkillForm } from '../interfaces/models.interface';
-import { Grid } from '@mui/system';
+import { getArrayRecords } from '../helpers';
+import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import { BtnClick } from '../interfaces';
+import Heading from '../components/Heading';
+import AddSkillModal from '../models/skills/AddSkillModal';
+import ViewModal from '../models/ViewModal';
+import EditSkillModal from '../models/skills/EditSkillModal';
 
 function Skills(): ReactNode {
-  const [skillsDetails, setSkillsDetails] = useState<ISkillForm[]>([]);
-  const [skillId, setSkillId] = useState<string>('');
-  const dialogs = useDialogs();
-  const windowRef = useRef<Window | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(0);
   const [skills, setSkills] = useState<ISkillForm[]>([]);
+  const [details, setDetails] = useState<ISkillForm>();
+  const [detailDialogOpen, setDetailDialogOpen] = useState<boolean>(false);
+  const [addDialogBoxView, setAddDialogBoxView] = useState<boolean>(false);
+  const [editDialogBoxView, setEditDialogBoxView] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  async function getDetails() {
+    const controller = new ApiController();
+
+    const authorization = localStorage.getItem("authorization") as string;
+    const details = await controller.GET(`portfolio/skills/list`, `Bearer ${authorization}`);
+
+    if (details.status === ApiStatus.SUCCESS) {
+      const list = getArrayRecords<ISkillForm>(details);
+      setSkills(list);
+    }
+
+    setIsLoading(false);
+  }
 
   useEffect(() => {
-    async function getDetails() {
-      const controller = new ApiController();
-      const userId = localStorage.getItem('userId');
-
-      const authorization = localStorage.getItem("authorization") as string;
-      const details = await controller.GET(`portfolio/${userId}`, `Bearer ${authorization}`);
-
-      if (details.status === ApiStatus.SUCCESS) {
-        setSkillsDetails(details?.data?.skillSection || []);
-        setSkillId(details?.data._id || '');
-      }
-    }
+    setIsLoading(true);
     getDetails();
   }, []);
 
-  useEffect(() => {
-    const skillCopy = [...skillsDetails];
-    const factor = currentPage > 0 ? (currentPage - 1) * 4 : 0;
-    setSkills(skillCopy.slice(factor, factor + 4));
-  }, [currentPage, skillsDetails]);
+  const handleViewBtnClick = useCallback(function (id: number) {
+    setDetails(skills[id - 1]);
+    setDetailDialogOpen(true);
+  }, [skills]);
 
-  function handlePaginationChange(event: React.ChangeEvent<unknown>, value: number) {
-    event.preventDefault();
-    console.log("hello ji....", value);
+  const handleEditBtnClick = useCallback(function (id: number) {
+    setDetails(skills[id - 1]);
+    setEditDialogBoxView(true);
+  }, [skills]);
 
-    setCurrentPage(value);
-  }
+  const handleAddDialogBoxClickBtn = useCallback(function () {
+    setAddDialogBoxView(false);
+  }, [addDialogBoxView]);
 
-  async function handleSkillAddModal() {
-    windowRef.current = window;
-    await dialogs.open(SkillModal, { skillId, skills: skillsDetails, windowRef, type: "add", index: -1 });
-  }
+  const handleAddBtnClick = useCallback(function () {
+    setAddDialogBoxView(true);
+  }, [addDialogBoxView]);
 
-  async function handleSkillEditModal(index: number) {
-    windowRef.current = window;
-    await dialogs.open(SkillModal, { skillId, skills: skillsDetails, windowRef, index, type: "edit" });
-  }
+  const handleDialogCloseBtnClick = useCallback(function (e: BtnClick) {
+    e.preventDefault();
+    setDetails(undefined);
+
+    setDetailDialogOpen(false);
+    setEditDialogBoxView(false);
+  }, []);
+
+
+  const columns = useMemo(() => [
+    { accessorKey: "id", header: "S.No." },
+    { accessorKey: "name", header: "Skill Name" },
+    { accessorKey: "experience", header: "Experience" },
+    {
+      accessorKey: "actions", header: "Actions", Cell: ({ row }: Record<string, any>) => {
+        return (
+          <Box component="div" className='flex gap-2'>
+            <Fab color='primary' size='small' onClick={() => handleViewBtnClick(row?.original?.id)}>
+              <Visibility fontSize='small' />
+            </Fab>
+
+            <Fab color='warning' size='small' onClick={() => handleEditBtnClick(row?.original?.id)}>
+              <Edit fontSize='small' />
+            </Fab>
+          </Box>
+        );
+      }
+    }
+  ], [skills]);
+
+  const table = useMaterialReactTable({
+    columns,
+    data: skills,
+    initialState: { pagination: { pageSize: 5, pageIndex: 0 } },
+    muiTablePaperProps: {
+      elevation: 3,
+      sx: { borderRadius: "8px", overflow: "hidden" },
+    },
+    muiTableContainerProps: { sx: { maxHeight: "600px" } },
+    muiTableHeadCellProps: {
+      sx: { fontWeight: "bold", color: "#000080" },
+    },
+    state: { isLoading }
+  });
 
   return (
     <>
-      <Grid2 container px={2}>
-        <Grid2 size={2}>
-          <p className='text-lg font-bold text-orange-600'>Showing page {currentPage}</p>
-        </Grid2>
+      <Paper variant="elevation" component="div" className="p-4 m-0 sm:m-1 border border-slate-400">
+        <Heading Icon={Widgets} text="Skills" />
 
-        <Grid2 size={10} sx={{ display: "flex", justifyContent: "end" }}>
-          <Button onClick={handleSkillAddModal} variant='contained' color='warning' startIcon={<Add />}>Add</Button>
-        </Grid2>
-      </Grid2>
+        <Divider sx={{ mb: 4 }} />
 
-      <Grid2 container spacing={2} my={2}>
-        <Grid2 size={12}>
-          <TableContainer component={Paper} className='border border-orange-600 border-dashed'>
-            <Table align='center'>
-              <TableHead>
-                <TableRow>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white" }}>Sr No.</TableCell>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white", maxWidth: 80 }}>Name</TableCell>
-                  <TableCell align='center' className='bg-amber-700 max-w-max' style={{ color: "white", }}>Experience</TableCell>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white" }} sx={{ minWidth: 200, maxWidth: 450 }}>Description</TableCell>
-                  <TableCell align='center' className='bg-amber-700' style={{ color: "white" }} sx={{ maxWidth: 50 }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
+        <Box component="div" className='flex items-center justify-end my-2'>
+          <Button size='small' startIcon={<Add fontSize='small' />} variant='contained' onClick={handleAddBtnClick}>Add</Button>
+        </Box>
 
-              <TableBody onClick={async (event) => {
-                const tr = (event.target as HTMLElement).closest('tr');
-                const index = tr?.dataset.index;
+        <MaterialReactTable table={table} />
+      </Paper>
 
-                if (index)
-                  await handleSkillEditModal(Number(index));
-              }} className='w-full'>
-                {!skills.length ? <NoDataTableRow colspan={8} text='No data available' /> : skills?.map((detail: ISkillForm, index: number) => <React.Fragment key={index}>
-                  <TableRow className='odd:bg-amber-100 min-w-full' data-index={index}>
-                    <TableCell align='center'>{index + 1}</TableCell>
-                    <TableCell align='center' sx={{ maxWidth: 80 }}>{detail.name}</TableCell>
-                    <TableCell align='center'>{detail.experience}</TableCell>
-                    <TableCell align='justify' sx={{ minWidth: 200, maxWidth: 450 }}>{detail.description}</TableCell>
-                    <TableCell align='center' sx={{ maxWidth: 50, minWidth: 25, p: 0.25 }}>
-                      <Fab color="warning" aria-label="edit" size='small'>
-                        <Edit />
-                      </Fab>
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>)}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid2>
+      {
+        detailDialogOpen &&
+        <ViewModal
+          details={details}
+          handleDialogCloseBtnClick={handleDialogCloseBtnClick}
+          open={detailDialogOpen}
+          text='Skill Details'
+        />
+      }
 
-        <Grid size={12} display={"flex"} justifyContent={"center"}>
-          <Pagination page={currentPage} count={Number((skillsDetails.length / 4).toFixed(0))} sx={{ mt: 2 }} onChange={handlePaginationChange}></Pagination>
-        </Grid>
-      </Grid2>
+      {
+        addDialogBoxView &&
+        <AddSkillModal
+          open={addDialogBoxView}
+          handleDialogCloseBtnClick={handleAddDialogBoxClickBtn}
+          onAddHandler={getDetails}
+        />
+      }
+
+      {
+        editDialogBoxView &&
+        <EditSkillModal
+          open={editDialogBoxView}
+          handleDialogCloseBtnClick={handleDialogCloseBtnClick}
+          details={details}
+          onAddHandler={getDetails}
+        />
+      }
     </>
   );
 }
