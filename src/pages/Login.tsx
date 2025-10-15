@@ -64,7 +64,6 @@ function Login(): ReactNode {
     }
     else {
       toast.error(reply.message, getGlobalToastConfig());
-      setLoginFrmData({});
     }
   }
 
@@ -74,6 +73,7 @@ function Login(): ReactNode {
       setInputType("text");
     else setInputType("password");
   }
+
   return (
     <>
       <Grid container height="100vh" className="login-bg">

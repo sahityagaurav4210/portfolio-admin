@@ -15,7 +15,7 @@ import ChangePwdModal from "../models/ChangePwdModal";
 function ProtectedLayout() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const drawerWidth = 350;
+  const drawerWidth = 250;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -202,9 +202,9 @@ function ProtectedLayout() {
                 </List>
               </MenuItem>
 
-              <MenuItem>
+              <MenuItem disabled={isLoading} onClick={handleLogoutBtnClick}>
                 <List>
-                  <ListItemButton onClick={handleLogoutBtnClick} disabled={isLoading}>
+                  <ListItemButton>
                     <ListItemIcon>
                       {!isLoading ? <Logout /> : <CircularProgress size={16} color="secondary" />}
                     </ListItemIcon>

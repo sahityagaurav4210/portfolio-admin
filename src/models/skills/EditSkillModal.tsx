@@ -1,10 +1,10 @@
 import { memo, ReactNode, useCallback, useState } from 'react';
 import { IEditSkillDialogProp } from '../../interfaces/component_props.interface';
-import { Alert, Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
 import { Close, Edit, Link, ListAlt } from '@mui/icons-material';
 import Heading from '../../components/Heading';
 import { Grid } from '@mui/system';
-import { IAlert, ISkillForm } from '../../interfaces/models.interface';
+import { ISkillForm } from '../../interfaces/models.interface';
 import { BtnClick, InputChange } from '../../interfaces';
 import { ApiController, ApiStatus } from '../../api';
 import { getGlobalToastConfig } from '../../configs/toasts.config';
@@ -12,11 +12,14 @@ import { toast } from 'react-toastify';
 import { AppPatterns } from '../../constants';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import CWPSAlert from '../../components/CWPSAlert';
+import { IAlert } from '../../interfaces/hooks.interface';
+import useAppAlert from '../../hooks/useAppAlert';
 
 function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler }: IEditSkillDialogProp): ReactNode {
   const [skillFormData, setSkillFormData] = useState<ISkillForm | undefined>(details);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [alert, setAlert] = useState<IAlert>();
+  const { alert, handleAlertOnClose, setAlert } = useAppAlert();
   const formats = [
     "header",
     "bold",
@@ -92,10 +95,6 @@ function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler
     }
   }, [skillFormData]);
 
-  const handleAlertOnClose = useCallback(function () {
-    setAlert(prev => ({ ...(prev as IAlert), isOpen: false, message: "" }));
-  }, []);
-
   return (
     <Dialog maxWidth="md" fullWidth open={open}>
       <DialogTitle>
@@ -109,17 +108,7 @@ function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler
       </DialogTitle>
 
       <DialogContent>
-        {
-          alert?.isOpen &&
-          <Container maxWidth="xs" sx={{ my: 2 }}>
-            <Alert variant='filled' severity='warning' onClose={handleAlertOnClose} className='flex items-center' icon={false}>
-              <Box component="div" className='flex items-center gap-2'>
-                <Typography variant='caption' fontWeight={700} className='bg-orange-700 p-1 rounded-sm'>WARNING</Typography>
-                <Typography variant='subtitle2' textAlign="justify">{alert.message}</Typography>
-              </Box>
-            </Alert>
-          </Container>
-        }
+        <CWPSAlert alert={alert} handleAlertOnClose={handleAlertOnClose} />
 
         <Grid container rowSpacing={2} columnSpacing={2}>
           <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>

@@ -3,18 +3,40 @@ import { memo, ReactNode, useCallback, useState } from 'react';
 import Heading from '../../components/Heading';
 import { Add, Close, Link, Send } from '@mui/icons-material';
 import { IGlobalDialogProp } from '../../interfaces/component_props.interface';
-import { IAlert, ISkillForm } from '../../interfaces/models.interface';
+import { ISkillForm } from '../../interfaces/models.interface';
 import { BtnClick, InputChange } from '../../interfaces';
 import { Grid } from '@mui/system';
 import { toast } from 'react-toastify';
 import { getGlobalToastConfig } from '../../configs/toasts.config';
 import { ApiController, ApiStatus } from '../../api';
 import { AppPatterns } from '../../constants';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { IAlert } from '../../interfaces/hooks.interface';
 
 function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: IGlobalDialogProp): ReactNode {
   const [skillFormData, setSkillFormData] = useState<ISkillForm>();
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [alert, setAlert] = useState<IAlert>();
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "link",
+    "image",
+    "list",
+    "bullet",
+  ];
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline"],
+      ["link", "image"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["clean"],
+    ],
+  };
 
   const handleTextFieldOnChange = useCallback(function (e: InputChange) {
     setSkillFormData((prev) => ({ ...(prev as ISkillForm), [e.target.name]: e.target.value }));
@@ -110,7 +132,7 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: IGloba
           </Grid>
 
           <Grid size={12} >
-            <TextField label="Description" type='text' name='description' value={skillFormData?.description} multiline onChange={handleTextFieldOnChange} fullWidth required placeholder='Ex:- Description' sx={{ textAlign: "justify" }} helperText="Only characters, digits, comma, parenthesis, periods are allowed." />
+            <ReactQuill value={skillFormData?.description} onChange={(value) => setSkillFormData(prev => ({ ...(prev as ISkillForm), description: value }))} placeholder='Ex:- description' formats={formats} modules={modules} style={{ minHeight: "20px" }} />
           </Grid>
         </Grid>
       </DialogContent>

@@ -46,7 +46,8 @@ export interface ISkills {
   type: string;
 }
 
-export interface IAlert {
-  isOpen: boolean;
-  message: string;
+export interface IChangePwd {
+  oldPwd: string;
+  newPwd: string;
+  cnfNewPwd: string;
 }

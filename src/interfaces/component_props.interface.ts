@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode } from "react";
 import { AppIcon, BtnClick } from ".";
 import { ISkillForm } from "./models.interface";
+import { IAlert } from "./hooks.interface";
 
 export interface INavbarProp {
   username: string;
@@ -76,4 +77,13 @@ export interface IEditSkillDialogProp {
 export interface IChangePwdProp {
   open: boolean;
   callback: () => void;
+}
+
+export interface INotesProp {
+  notes: string[];
+}
+
+export interface ICWPSAlertProp {
+  alert: IAlert;
+  handleAlertOnClose: VoidFunction;
 }
