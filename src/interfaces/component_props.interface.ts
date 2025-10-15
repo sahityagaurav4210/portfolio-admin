@@ -72,3 +72,8 @@ export interface IEditSkillDialogProp {
   details?: ISkillForm;
   onAddHandler: () => Promise<void>;
 }
+
+export interface IChangePwdProp {
+  open: boolean;
+  callback: () => void;
+}

@@ -10,11 +10,32 @@ import { ApiController, ApiStatus } from '../../api';
 import { getGlobalToastConfig } from '../../configs/toasts.config';
 import { toast } from 'react-toastify';
 import { AppPatterns } from '../../constants';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler }: IEditSkillDialogProp): ReactNode {
   const [skillFormData, setSkillFormData] = useState<ISkillForm | undefined>(details);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [alert, setAlert] = useState<IAlert>();
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "link",
+    "image",
+    "list",
+    "bullet",
+  ];
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline"],
+      ["link", "image"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["clean"],
+    ],
+  };
 
   const handleTextFieldOnChange = useCallback(function (e: InputChange) {
     const { name, value } = e.target;
@@ -37,7 +58,7 @@ function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler
         return;
       }
 
-      if (!AppPatterns.skillUrl.test(url)) {
+      if (url && !AppPatterns.skillUrl.test(url)) {
         const message = "Invalid skill url, it should begin with http:// or https://";
         setAlert(prev => ({ ...(prev as IAlert), isOpen: true, message }));
         return;
@@ -118,7 +139,7 @@ function EditSkillModal({ open, handleDialogCloseBtnClick, details, onAddHandler
           </Grid>
 
           <Grid size={12}>
-            <TextField label="Description" type='text' name='description' value={skillFormData?.description} multiline onChange={handleTextFieldOnChange} fullWidth required placeholder='Ex:- Description' sx={{ textAlign: "justify" }} helperText="Only characters, digits, comma, parenthesis, periods are allowed." />
+            <ReactQuill value={skillFormData?.description} onChange={(value) => setSkillFormData(prev => ({ ...(prev as ISkillForm), description: value }))} placeholder='Ex:- description' formats={formats} modules={modules} />
           </Grid>
         </Grid>
       </DialogContent>

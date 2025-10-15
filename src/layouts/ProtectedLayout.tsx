@@ -5,11 +5,12 @@ import { Outlet, useNavigate } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
 import Footer from "../views/Footer";
 import ImgContainer from "../components/ImgContainer";
-import { Logout, Person } from "@mui/icons-material";
+import { Logout, Password, Person } from "@mui/icons-material";
 import { ApiController, ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import ProfileModal from "../models/ProfileModal";
+import ChangePwdModal from "../models/ChangePwdModal";
 
 function ProtectedLayout() {
   const theme = useTheme();
@@ -23,6 +24,7 @@ function ProtectedLayout() {
   const [isLoading, setIsLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
+  const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -45,6 +47,10 @@ function ProtectedLayout() {
       setMobileOpen(!mobileOpen);
     }
   };
+
+  const handleChangePwdModal = useCallback(function () {
+    setChangePwdModalVisibility(prev => !prev);
+  }, [changePwdModalVisibility]);
 
   async function logout(): Promise<void> {
     const authorization = `Bearer ${localStorage.getItem("authorization") as string
@@ -207,6 +213,18 @@ function ProtectedLayout() {
                   </ListItemButton>
                 </List>
               </MenuItem>
+
+              <MenuItem onClick={handleChangePwdModal}>
+                <List>
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <Password fontSize="small" />
+                    </ListItemIcon>
+
+                    <ListItemText>Change Password</ListItemText>
+                  </ListItemButton>
+                </List>
+              </MenuItem>
             </Menu>
           </Box>
         </Box>
@@ -276,6 +294,14 @@ function ProtectedLayout() {
           handleDialogCloseBtnClick={() => setProfileDialogView(false)}
           open={profileDialogView}
           text="Profile Details"
+        />
+      }
+
+      {
+        changePwdModalVisibility &&
+        <ChangePwdModal
+          callback={handleChangePwdModal}
+          open={changePwdModalVisibility}
         />
       }
     </>
