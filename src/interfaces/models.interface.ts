@@ -1,6 +1,7 @@
 export interface ILoginModel {
   phone?: string;
   password?: string;
+  captcha?: string;
 }
 
 export interface IViewDetails {
@@ -19,6 +20,7 @@ export interface IHiringDetails {
   hiring_type: string;
   budget: string;
   ipAddress: string;
+  project_desc: string;
 }
 
 export interface IContactDetails {

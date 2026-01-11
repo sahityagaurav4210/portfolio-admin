@@ -7,19 +7,30 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
 
+ARG PORT=3663
+ARG VITE_API_BASE_URL
+ARG VITE_APP_ENV
+ARG VITE_API_TIMEOUT
+ARG VITE_PORTFOLIO_URL
+ARG VITE_FRONTEND_URL
+ARG VITE_FTP_URL
+ARG VITE_FTP_API_BASE_URL
+
+ENV EXPOSE_PORT=${PORT}
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_APP_ENV=${VITE_APP_ENV}
+ENV VITE_API_TIMEOUT=${VITE_API_TIMEOUT}
+ENV VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}
+ENV VITE_LINKEDIN_URL=${VITE_FRONTEND_URL}
+ENV VITE_FTP_URL=${VITE_FTP_URL}
+ENV VITE_FTP_API_BASE_URL=${VITE_FTP_API_BASE_URL}
+
 RUN npm run build
 
-# Step 2: Create the production image
 FROM nginx:alpine
 
-# Copy the custom NGINX config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy the static files from the build stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose the desired port
-EXPOSE 3663
-
-# Start NGINX
+EXPOSE ${EXPOSE_PORT}
 CMD ["nginx", "-g", "daemon off;"]

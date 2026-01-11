@@ -19,6 +19,7 @@ export enum HttpVerbs {
   GET = "GET",
   POST = "POST",
   PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export function getApiHeaders(): HeadersInit {
@@ -36,9 +37,9 @@ export class ApiController {
   ): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = !authorization
-        ? getApiHeaders()
-        : { ...getApiHeaders(), Authorization: authorization };
+      const headers = authorization
+        ? { ...getApiHeaders(), Authorization: authorization }
+        : getApiHeaders();
 
       setTimeout(() => {
         controller.abort();
@@ -69,7 +70,7 @@ export class ApiController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -86,17 +87,17 @@ export class ApiController {
   ): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = !authorization
-        ? getApiHeaders()
-        : { ...getApiHeaders(), Authorization: authorization };
+      const headers = authorization
+        ? { ...getApiHeaders(), Authorization: authorization }
+        : getApiHeaders();
       const commons = {
         method: HttpVerbs.POST,
         headers,
         signal: controller.signal,
       };
-      const apiPayload = !payload
-        ? commons
-        : { ...commons, body: JSON.stringify(payload) };
+      const apiPayload = payload
+        ? { ...commons, body: JSON.stringify(payload) }
+        : commons;
 
       setTimeout(() => {
         controller.abort();
@@ -123,7 +124,7 @@ export class ApiController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -140,17 +141,17 @@ export class ApiController {
   ): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = !authorization
-        ? getApiHeaders()
-        : { ...getApiHeaders(), Authorization: authorization };
+      const headers = authorization
+        ? { ...getApiHeaders(), Authorization: authorization }
+        : getApiHeaders();
       const commons = {
         method: HttpVerbs.PUT,
         headers,
         signal: controller.signal,
       };
-      const apiPayload = !payload
-        ? commons
-        : { ...commons, body: JSON.stringify(payload) };
+      const apiPayload = payload
+        ? { ...commons, body: JSON.stringify(payload) }
+        : commons;
 
       setTimeout(() => {
         controller.abort();
@@ -181,7 +182,7 @@ export class ApiController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -228,7 +229,7 @@ export class ApiController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -248,7 +249,8 @@ export class ApiController {
       }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
 
       const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL
+        `${
+          import.meta.env.VITE_API_BASE_URL
         }/authentication/tokens/refresh-access-token`,
         {
           method: HttpVerbs.GET,
@@ -263,6 +265,6 @@ export class ApiController {
         return reply.status;
       }
       localStorage.setItem("authorization", reply?.data?.access_token);
-    } catch (error) { }
+    } catch {}
   }
 }

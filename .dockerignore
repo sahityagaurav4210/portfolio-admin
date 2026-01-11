@@ -1,4 +1,7 @@
 .env
+dist
+.vscode
+scripts
 node_modules
 README.md
 credentials.json

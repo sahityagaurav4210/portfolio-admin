@@ -2,7 +2,7 @@ import { ApiStatus, getApiHeaders, HttpVerbs } from "../api";
 import { IApiReply } from "../interfaces/api.interface";
 
 export class FTPController {
-  private async refreshAccessToken(token: string): Promise<void | string> {
+  public async refreshAccessToken(token: string): Promise<void | string> {
     try {
       const controller = new AbortController();
       const headers = { ...getApiHeaders(), "x-ref-token": token };
@@ -12,7 +12,8 @@ export class FTPController {
       }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
 
       const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL
+        `${
+          import.meta.env.VITE_API_BASE_URL
         }/authentication/tokens/refresh-access-token`,
         {
           method: HttpVerbs.GET,
@@ -27,31 +28,27 @@ export class FTPController {
         return reply.status;
       }
       localStorage.setItem("authorization", reply?.data?.access_token);
-    } catch (error) { }
+    } catch {
+      return ApiStatus.EXCEPTION;
+    }
   }
 
-  private async GET(
-    url: string,
-    authorization?: string
-  ): Promise<IApiReply> {
+  private async GET(url: string, authorization?: string): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = !authorization
-        ? getApiHeaders()
-        : { ...getApiHeaders(), Authorization: authorization };
+      const headers = authorization
+        ? { ...getApiHeaders(), Authorization: authorization }
+        : getApiHeaders();
 
       setTimeout(() => {
         controller.abort();
       }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
 
-      const rawReply = await fetch(
-        url,
-        {
-          method: HttpVerbs.GET,
-          headers,
-          signal: controller.signal,
-        }
-      );
+      const rawReply = await fetch(url, {
+        method: HttpVerbs.GET,
+        headers,
+        signal: controller.signal,
+      });
 
       const reply = (await rawReply.json()) as IApiReply;
 
@@ -69,7 +66,7 @@ export class FTPController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -86,17 +83,17 @@ export class FTPController {
   ): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = !authorization
-        ? getApiHeaders()
-        : { ...getApiHeaders(), Authorization: authorization };
+      const headers = authorization
+        ? { ...getApiHeaders(), Authorization: authorization }
+        : getApiHeaders();
       const commons = {
         method: HttpVerbs.POST,
         headers,
         signal: controller.signal,
       };
-      const apiPayload = !payload
-        ? commons
-        : { ...commons, body: JSON.stringify(payload) };
+      const apiPayload = payload
+        ? { ...commons, body: JSON.stringify(payload) }
+        : commons;
 
       setTimeout(() => {
         controller.abort();
@@ -119,7 +116,7 @@ export class FTPController {
       }
 
       return reply;
-    } catch (error) {
+    } catch {
       const reply = {
         status: ApiStatus.TIMEOUT,
         message: "Connection broked, please try again later",
@@ -129,7 +126,11 @@ export class FTPController {
     }
   }
 
-  public async generateToken(url: string, authorization: string, payload: Record<string, any>): Promise<boolean> {
+  public async generateToken(
+    url: string,
+    authorization: string,
+    payload: Record<string, any>
+  ): Promise<boolean> {
     const reply = await this.POST(url, authorization, payload);
 
     if (reply.status === ApiStatus.SUCCESS) return true;
