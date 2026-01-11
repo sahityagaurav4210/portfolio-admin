@@ -19,7 +19,6 @@ function Home(): ReactNode {
   useEffect(() => {
     if (!loginStatus) {
       navigate("/auth/login");
-      return;
     }
   }, []);
 
@@ -80,8 +79,8 @@ function Home(): ReactNode {
     }
 
     timer = setTimeout(() => {
-      callApis().catch((reason: Error) => {
-        if (reason.message === ApiStatus.LOGOUT) navigate("/");
+      callApis().catch((error_: Error) => {
+        if (error_.message === ApiStatus.LOGOUT) navigate("/");
       });
     }, 250);
 
@@ -101,102 +100,103 @@ function Home(): ReactNode {
   );
 
   return (
-    <>
-      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
+    <Paper
+      variant="elevation"
+      component="div"
+      className="p-4 m-1 border border-slate-400"
+    >
+      <Heading Icon={Dashboard} text="Dashboard" />
 
-        <Heading Icon={Dashboard} text="Dashboard" />
+      <Divider sx={{ mb: 4 }} />
 
-        <Divider sx={{ mb: 4 }} />
-
-        <Grid2 container spacing={2} px={2} my={2}>
-          {/* Daily views */}
-          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
-            <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
-              <Card sx={{ width: "100%" }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1
-                      className="text-2xl font-bold text-blue-700"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      <ViewCount count={cachedDailyViewsCount} />
-                    </h1>
-                  </Box>
-                  <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
-                  <Box>
-                    <p
-                      className="font-bold text-blue-400 text-xs"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      Today's views
-                    </p>
-                  </Box>
-                </CardContent>
-              </Card>
-            </div>
-          </Grid2>
-
-          {/* Total monthly views */}
-          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
-            <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
-              <Card sx={{ width: "100%" }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1
-                      className="text-2xl font-bold text-blue-700"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      <ViewCount count={cachedMonthlyViewsCount} />
-                    </h1>
-                  </Box>
-                  <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
-                  <Box>
-                    <p
-                      className="font-bold text-blue-400 text-xs"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      Total monthly views
-                    </p>
-                  </Box>
-                </CardContent>
-              </Card>
-            </div>
-          </Grid2>
-
-          {/* Total views */}
-          <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
-            <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
-              <Card sx={{ width: "100%" }}>
-                <CardContent>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                    <h1
-                      className="text-2xl font-bold text-blue-700"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      <ViewCount count={cachedTotalViewsCount} />
-                    </h1>
-                  </Box>
-                  <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
-                  <Box>
-                    <p
-                      className="font-bold text-blue-400 text-xs"
-                      style={{ fontFamily: "Roboto" }}
-                    >
-                      Total views
-                    </p>
-                  </Box>
-                </CardContent>
-              </Card>
-            </div>
-          </Grid2>
+      <Grid2 container spacing={2} px={2} my={2}>
+        {/* Daily views */}
+        <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
+          <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
+                  <h1
+                    className="text-2xl font-bold text-blue-700"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    <ViewCount count={cachedDailyViewsCount} />
+                  </h1>
+                </Box>
+                <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                <Box>
+                  <p
+                    className="font-bold text-blue-400 text-xs"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    Today's views
+                  </p>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
         </Grid2>
 
-        <WebsiteUpdate />
-      </Paper>
-    </>
+        {/* Total monthly views */}
+        <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
+          <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
+                  <h1
+                    className="text-2xl font-bold text-blue-700"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    <ViewCount count={cachedMonthlyViewsCount} />
+                  </h1>
+                </Box>
+                <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                <Box>
+                  <p
+                    className="font-bold text-blue-400 text-xs"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    Total monthly views
+                  </p>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
+        </Grid2>
+
+        {/* Total views */}
+        <Grid2 justifyItems="center" size={{ xs: 6, md: 4 }} mx="auto">
+          <div className="border-amber-600 border-2 ring-2 ring-offset-2 ring-amber-400 w-full rounded-sm shadow-xl shadow-neutral-800">
+            <Card sx={{ width: "100%" }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
+                  <h1
+                    className="text-2xl font-bold text-blue-700"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    <ViewCount count={cachedTotalViewsCount} />
+                  </h1>
+                </Box>
+                <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
+                <Box>
+                  <p
+                    className="font-bold text-blue-400 text-xs"
+                    style={{ fontFamily: "Roboto" }}
+                  >
+                    Total views
+                  </p>
+                </Box>
+              </CardContent>
+            </Card>
+          </div>
+        </Grid2>
+      </Grid2>
+
+      <WebsiteUpdate />
+    </Paper>
   );
 }
 

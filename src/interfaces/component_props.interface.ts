@@ -1,7 +1,8 @@
 import { CSSProperties, ReactNode } from "react";
-import { AppIcon, BtnClick } from ".";
+import { AlertType, AppIcon, BtnClick } from ".";
 import { ISkillForm } from "./models.interface";
 import { IAlert } from "./hooks.interface";
+import { Breakpoint } from "@mui/material";
 
 export interface INavbarProp {
   username: string;
@@ -18,7 +19,7 @@ export interface ITableRowProp {
 }
 
 export interface INoDataTableRow {
-  colspan: number,
+  colspan: number;
   text: string;
 }
 
@@ -43,7 +44,7 @@ export interface INavItem {
   segment?: string;
   title?: string;
   icon?: React.ReactNode;
-};
+}
 
 export interface IRenderOpts {
   mini: boolean;
@@ -86,4 +87,22 @@ export interface INotesProp {
 export interface ICWPSAlertProp {
   alert: IAlert;
   handleAlertOnClose: VoidFunction;
+  maxWidth?: Breakpoint;
+  alertType?: AlertType;
+}
+
+export interface IIPLocModalProp {
+  clientIp: string;
+  isOpen: boolean;
+  handleModalOnClose: VoidFunction;
+}
+
+export interface IConfirmationDialogProps {
+  open: boolean;
+  isLoading: boolean;
+  text: ReactNode;
+  heading: string;
+  Icon: AppIcon;
+  onSuccess: (event: BtnClick) => void | Promise<void>;
+  onCancel?: (event: BtnClick) => void | Promise<void>;
 }

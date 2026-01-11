@@ -1,11 +1,13 @@
-import { Box } from '@mui/material';
-import React from 'react';
-import { IAppImgContainerProp } from '../interfaces/component_props.interface';
+import { Box } from "@mui/material";
+import React from "react";
+import { IAppImgContainerProp } from "../interfaces/component_props.interface";
 
-function ImgContainer({ url }: IAppImgContainerProp): React.ReactNode {
+function ImgContainer({
+  url,
+}: Readonly<IAppImgContainerProp>): React.ReactNode {
   return (
-    <Box component="div" className='max-w-20 max-h-20'>
-      <img src={url} alt="Image" className='rounded-xl' />
+    <Box component="div" className="max-w-20 max-h-20">
+      <img src={url} alt="Logo" className="rounded-xl" />
     </Box>
   );
 }

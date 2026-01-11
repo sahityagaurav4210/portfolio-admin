@@ -1,5 +1,22 @@
-import { Box, CircularProgress, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography, useMediaQuery, useTheme } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useCallback, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
@@ -22,9 +39,11 @@ function ProtectedLayout() {
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
-  const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
+  const [changePwdModalVisibility, setChangePwdModalVisibility] =
+    useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -48,13 +67,17 @@ function ProtectedLayout() {
     }
   };
 
-  const handleChangePwdModal = useCallback(function () {
-    setChangePwdModalVisibility(prev => !prev);
-  }, [changePwdModalVisibility]);
+  const handleChangePwdModal = useCallback(
+    function () {
+      setChangePwdModalVisibility((prev) => !prev);
+    },
+    [changePwdModalVisibility]
+  );
 
   async function logout(): Promise<void> {
-    const authorization = `Bearer ${localStorage.getItem("authorization") as string
-      }`;
+    const authorization = `Bearer ${
+      localStorage.getItem("authorization") as string
+    }`;
     const token = localStorage.getItem("token") as string;
 
     try {
@@ -64,7 +87,6 @@ function ProtectedLayout() {
         token,
       });
 
-
       if (reply.status === ApiStatus.SUCCESS) {
         localStorage.clear();
         toast.success(reply.message, getGlobalToastConfig());
@@ -73,10 +95,11 @@ function ProtectedLayout() {
         toast.error(reply.message, getGlobalToastConfig());
       }
     } catch (error: any) {
-      const message = error?.message || "Something went wrong while processing your request, please try again!!!";
+      const message =
+        error?.message ||
+        "Something went wrong while processing your request, please try again!!!";
       toast.error(message, getGlobalToastConfig());
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
   }
@@ -89,7 +112,6 @@ function ProtectedLayout() {
       const controller = new ApiController();
       const reply = await controller.GET("user/profile", authorization);
 
-
       if (reply.status === ApiStatus.SUCCESS) {
         setProfileDetails(reply.data);
         setProfileDialogView(true);
@@ -97,11 +119,12 @@ function ProtectedLayout() {
         toast.error(reply.message, getGlobalToastConfig());
       }
     } catch (error: any) {
-      const message = error?.message || "Something went wrong while processing your request, please try again!!!";
+      const message =
+        error?.message ||
+        "Something went wrong while processing your request, please try again!!!";
       toast.error(message, getGlobalToastConfig());
-    }
-    finally {
-      setIsLoading(false);
+    } finally {
+      setIsProfileLoading(false);
     }
   }
 
@@ -111,7 +134,7 @@ function ProtectedLayout() {
   }, []);
 
   const handleProfileBtnClick = useCallback(async function () {
-    setIsLoading(true);
+    setIsProfileLoading(true);
     await fetchProfile();
   }, []);
 
@@ -135,43 +158,80 @@ function ProtectedLayout() {
   return (
     <>
       <Box component="div" className="flex flex-col min-h-screen">
-        <Box component="header" className="flex justify-between items-center min-h-[4vh]">
+        <Box
+          component="header"
+          className="flex justify-between items-center min-h-[4vh]"
+        >
           <Box component="div" className="max-w-max p-1 mx-1">
-            <Typography variant={!isMobile ? "h4" : "h5"} fontWeight={900} className="text-center" color="warning">Coding Works</Typography>
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              fontWeight={900}
+              className="text-center"
+              color="warning"
+            >
+              Coding Works
+            </Typography>
 
             <Divider className="bg-blue-800 font-black h-1" />
 
-            <Typography variant={!isMobile ? "h6" : "body1"} fontWeight={900} className="text-center" color="success">Portfolio Services</Typography>
+            <Typography
+              variant={isMobile ? "body1" : "h6"}
+              fontWeight={900}
+              className="text-center"
+              color="success"
+            >
+              Portfolio Services
+            </Typography>
           </Box>
 
-          <Box component="div" sx={{ display: "flex", alignItems: "center", p: 1 }}>
+          <Box
+            component="div"
+            sx={{ display: "flex", alignItems: "center", p: 1 }}
+          >
             <ImgContainer url="/logo.jpeg" />
           </Box>
         </Box>
 
-        <Box component="div" sx={{ display: "flex", gap: 1, px: 1, alignItems: "center", justifyContent: "space-between" }}>
+        <Box
+          component="div"
+          sx={{
+            display: "flex",
+            gap: 1,
+            px: 1,
+            my: 1,
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <Box component="div" className="flex items-center">
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={handleDrawerToggle}
-              sx={{ display: { sm: 'none' } }}
+              sx={{ display: { sm: "none" } }}
             >
               <MenuIcon />
             </IconButton>
 
-            <Typography variant="h6" fontWeight={900} className="text-blue-800">Portfolio CMS</Typography>
+            <Typography variant="h6" fontWeight={900} className="text-blue-800">
+              Portfolio CMS
+            </Typography>
           </Box>
 
           <Box component="div">
             <IconButton
-              sx={{ backgroundColor: '#ea580c', color: "white", "&:hover": { color: "#ea580c" } }}
+              sx={{
+                backgroundColor: "#ea580c",
+                color: "white",
+                "&:hover": { color: "#ea580c" },
+              }}
               id="account-menu"
-              aria-controls={open ? 'demo-positioned-menu' : undefined}
+              aria-controls={open ? "demo-positioned-menu" : undefined}
               aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
-              onClick={handleClick}>
+              aria-expanded={open ? "true" : undefined}
+              onClick={handleClick}
+            >
               <Person fontSize="small" color="inherit" />
             </IconButton>
 
@@ -182,19 +242,26 @@ function ProtectedLayout() {
               open={open}
               onClose={handleClose}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
             >
-              <MenuItem>
+              <MenuItem
+                onClick={handleProfileBtnClick}
+                disabled={isProfileLoading}
+              >
                 <List>
-                  <ListItemButton onClick={handleProfileBtnClick} disabled={isLoading}>
+                  <ListItemButton>
                     <ListItemIcon>
-                      {!isLoading ? <Person /> : <CircularProgress size={16} color="secondary" />}
+                      {isProfileLoading ? (
+                        <CircularProgress size={16} color="secondary" />
+                      ) : (
+                        <Person />
+                      )}
                     </ListItemIcon>
 
                     <ListItemText>Profile</ListItemText>
@@ -206,7 +273,11 @@ function ProtectedLayout() {
                 <List>
                   <ListItemButton>
                     <ListItemIcon>
-                      {!isLoading ? <Logout /> : <CircularProgress size={16} color="secondary" />}
+                      {isLoading ? (
+                        <CircularProgress size={16} color="secondary" />
+                      ) : (
+                        <Logout />
+                      )}
                     </ListItemIcon>
 
                     <ListItemText>Logout</ListItemText>
@@ -236,19 +307,19 @@ function ProtectedLayout() {
             component="aside"
             sx={{
               width: { sm: `${drawerWidth}px` },
-              borderRight: { md: '1px solid gainsboro', xs: "none" },
+              borderRight: { md: "1px solid gainsboro", xs: "none" },
               mr: 1,
-              position: "relative"
-            }}>
-
+              position: "relative",
+            }}
+          >
             <Drawer
               variant="temporary"
               open={mobileOpen}
               onTransitionEnd={handleDrawerTransitionEnd}
               onClose={handleDrawerClose}
               sx={{
-                display: { xs: 'block', sm: 'none' },
-                '& .MuiDrawer-paper': { boxSizing: 'border-box', },
+                display: { xs: "block", sm: "none" },
+                "& .MuiDrawer-paper": { boxSizing: "border-box" },
               }}
               slotProps={{
                 root: {
@@ -264,11 +335,11 @@ function ProtectedLayout() {
             <Drawer
               variant="permanent"
               sx={{
-                display: { xs: 'none', sm: 'block', },
-                '& .MuiDrawer-paper': {
-                  position: 'relative',
-                  boxSizing: 'border-box',
-                  border: 'none',
+                display: { xs: "none", sm: "block" },
+                "& .MuiDrawer-paper": {
+                  position: "relative",
+                  boxSizing: "border-box",
+                  border: "none",
                 },
               }}
               open
@@ -277,7 +348,10 @@ function ProtectedLayout() {
             </Drawer>
           </Box>
 
-          <Box component="div" sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}>
+          <Box
+            component="div"
+            sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}
+          >
             <Outlet />
           </Box>
         </Box>
@@ -287,23 +361,21 @@ function ProtectedLayout() {
         </Box>
       </Box>
 
-      {
-        profileDialogView &&
+      {profileDialogView && (
         <ProfileModal
           details={profileDetails}
           handleDialogCloseBtnClick={() => setProfileDialogView(false)}
           open={profileDialogView}
           text="Profile Details"
         />
-      }
+      )}
 
-      {
-        changePwdModalVisibility &&
+      {changePwdModalVisibility && (
         <ChangePwdModal
           callback={handleChangePwdModal}
           open={changePwdModalVisibility}
         />
-      }
+      )}
     </>
   );
 }

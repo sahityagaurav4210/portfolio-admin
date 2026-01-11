@@ -1,26 +1,39 @@
-import { Button, Card, CardActionArea, CardContent, CardMedia, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Grid2, TextField } from '@mui/material';
-import { memo, ReactNode, useState } from 'react';
-import { IoMdCreate } from 'react-icons/io';
-import { ApiController, ApiStatus } from '../api';
-import { toast } from 'react-toastify';
-import { getGlobalToastConfig } from '../configs/toasts.config';
-import { useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid2,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { memo, ReactNode, useState } from "react";
+import { IoMdCreate } from "react-icons/io";
+import { ApiController, ApiStatus } from "../api";
+import { toast } from "react-toastify";
+import { getGlobalToastConfig } from "../configs/toasts.config";
+import { useNavigate } from "react-router-dom";
 
-import WebUpdates from '../assets/web-updates.jpg';
-import AppSecrets from '../assets/app-secrets.jpg';
-import Docs from '../assets/docs.jpg';
-
-import { TbHandFingerRight } from 'react-icons/tb';
-import { FaRegClipboard } from 'react-icons/fa';
-import { FaCircleInfo } from 'react-icons/fa6';
-import { AppStrings } from '../i18n';
-import { Link } from '@mui/icons-material';
-import { BtnClick } from '../interfaces';
-import { FTPController } from '../controllers/ftp.controller';
+import { TbHandFingerRight } from "react-icons/tb";
+import { FaRegClipboard } from "react-icons/fa";
+import { FaCircleInfo } from "react-icons/fa6";
+import { AppStrings } from "../i18n";
+import { Build, Link } from "@mui/icons-material";
+import { BtnClick } from "../interfaces";
+import { FTPController } from "../controllers/ftp.controller";
+import useAppCss from "../hooks/useAppCss";
 
 function WebsiteUpdate(): ReactNode {
   const { HOME } = AppStrings;
-  const [websiteUpdateStatus, setWebsiteUpdateStatus] = useState<boolean>(false);
+  const [websiteUpdateStatus, setWebsiteUpdateStatus] =
+    useState<boolean>(false);
   const [tokenGenerationStatus, setTokenGenerationStatus] =
     useState<boolean>(false);
   const [clientToken, setClientToken] = useState<string>("");
@@ -32,6 +45,7 @@ function WebsiteUpdate(): ReactNode {
   const [loading, setLoading] = useState<boolean>(false);
   const [showCVUpdateForm, setShowCVUpdateForm] = useState<boolean>(false);
   const [url, setUrl] = useState<string>("");
+  const { CardActionAreaCss, CardCss } = useAppCss();
 
   const navigate = useNavigate();
 
@@ -40,7 +54,11 @@ function WebsiteUpdate(): ReactNode {
     const controller = new ApiController();
     const authorization = localStorage.getItem("authorization") as string;
 
-    const reply = await controller.POST("update-website", `Bearer ${authorization}`, { portfolio_url: import.meta.env.VITE_PORTFOLIO_URL });
+    const reply = await controller.POST(
+      "update-website",
+      `Bearer ${authorization}`,
+      { portfolio_url: import.meta.env.VITE_PORTFOLIO_URL }
+    );
     setWebsiteUpdateStatus(false);
 
     if (reply.status === ApiStatus.LOGOUT) {
@@ -60,7 +78,8 @@ function WebsiteUpdate(): ReactNode {
     const authorization = localStorage.getItem("authorization") as string;
     const reply = await controller.POST(
       "authentication/tokens/refresh-client-token",
-      `Bearer ${authorization}`, { url: "https://www.sgaurav.me" }
+      `Bearer ${authorization}`,
+      { url: "https://www.sgaurav.me" }
     );
 
     setTokenGenerationStatus(false);
@@ -89,19 +108,35 @@ function WebsiteUpdate(): ReactNode {
     const controller = new FTPController();
     const email = localStorage.getItem("email");
     const auth = localStorage.getItem("authorization") as string;
-    const payload = { email, fileName: 'documents', fileType: "application/pdf" };
+    const payload = {
+      email,
+      fileName: "documents",
+      fileType: "application/pdf",
+    };
 
-    const status = await controller.generateToken(`${import.meta.env.VITE_FTP_API_BASE_URL}/tokens/generate`, `Bearer ${auth}`, payload);
+    const status = await controller.generateToken(
+      `${import.meta.env.VITE_FTP_API_BASE_URL}/tokens/generate`,
+      `Bearer ${auth}`,
+      payload
+    );
 
     setLoading(false);
 
     if (status) {
       setShowCVUpdateForm(true);
-      window.open(`${import.meta.env.VITE_FTP_URL}/?fileName=${payload.fileName}&fileType=${payload.fileType}&email=${email}`, "_blank");
+      window.open(
+        `${import.meta.env.VITE_FTP_URL}/?fileName=${
+          payload.fileName
+        }&fileType=${payload.fileType}&email=${email}`,
+        "_blank"
+      );
       return;
     }
 
-    toast.error("Something went wrong, please try again after sometime...", getGlobalToastConfig());
+    toast.error(
+      "Something went wrong, please try again after sometime...",
+      getGlobalToastConfig()
+    );
   }
 
   async function handleUpdateCVBtn(event: BtnClick) {
@@ -111,7 +146,7 @@ function WebsiteUpdate(): ReactNode {
     const api = new ApiController();
     const auth = localStorage.getItem("authorization") as string;
 
-    const reply = await api.POST('files/save-cv', `Bearer ${auth}`, { url });
+    const reply = await api.POST("files/save-cv", `Bearer ${auth}`, { url });
 
     setLoading(false);
 
@@ -126,26 +161,54 @@ function WebsiteUpdate(): ReactNode {
 
   return (
     <>
+      <Box
+        component="div"
+        display="flex"
+        columnGap={1}
+        alignItems="center"
+        mt={5}
+      >
+        <Build fontSize="small" color="warning" />
+        <Typography variant="h5" color="primary" fontWeight={700}>
+          PORTAL TOOLS
+        </Typography>
+      </Box>
+
       <Grid2 container spacing={2} px={2} my={2} mt={5}>
         <Grid2 size={{ xs: 12, lg: 6 }}>
-          <Card>
-            <CardMedia image={WebUpdates} sx={{ height: 250 }} />
+          <Card sx={CardCss}>
+            <CardMedia image="/website.jpg" sx={{ minHeight: 300 }} />
+
             <CardContent
               sx={{ fontFamily: "Roboto", width: "100%", height: "100%" }}
-              className="flex items-center justify-between"
             >
-              <h1 className="text-xl text-amber-600 font-bold">
-                Update website
-              </h1>
+              <Typography variant="h6" fontWeight={700} color="warning">
+                Website
+              </Typography>
 
+              <Typography
+                variant="body2"
+                fontWeight={700}
+                color="textSecondary"
+                className="text-justify"
+              >
+                This section provides a simple way to keep the portfolio up to
+                date by allowing the last updated status to be refreshed with a
+                single click. It ensures visitors always see the most recent
+                update timestamp, reflecting active maintenance and ongoing
+                improvements without any manual changes.
+              </Typography>
+            </CardContent>
+
+            <CardActionArea sx={CardActionAreaCss}>
               <Button
                 variant="outlined"
                 color="warning"
                 startIcon={
-                  !websiteUpdateStatus ? (
-                    <IoMdCreate />
-                  ) : (
+                  websiteUpdateStatus ? (
                     <CircularProgress size={16} />
+                  ) : (
+                    <IoMdCreate />
                   )
                 }
                 disabled={websiteUpdateStatus}
@@ -153,29 +216,43 @@ function WebsiteUpdate(): ReactNode {
               >
                 Update
               </Button>
-            </CardContent>
+            </CardActionArea>
           </Card>
         </Grid2>
 
         <Grid2 size={{ xs: 12, lg: 6 }}>
-          <Card>
-            <CardMedia image={AppSecrets} sx={{ height: 250 }} />
-            <CardContent
-              sx={{ fontFamily: "Roboto" }}
-              className="flex items-center w-full justify-between"
-            >
-              <h1 className="text-xl text-amber-600 font-bold">
-                Client tokens
-              </h1>
+          <Card sx={CardCss}>
+            <CardMedia image="/identity.png" sx={{ minHeight: 300 }} />
 
+            <CardContent sx={{ fontFamily: "Roboto" }}>
+              <Typography variant="h6" fontWeight={700} color="warning">
+                CLIENT TOKENS
+              </Typography>
+
+              <Typography
+                variant="body2"
+                fontWeight={700}
+                color="textSecondary"
+                className="text-justify"
+              >
+                This section manages client secrets that enable secure
+                communication between the client and the backend. By using
+                protected keys for authentication and request validation, it
+                ensures that only authorized clients can access backend
+                services, safeguarding data exchange and preventing unauthorized
+                connections.
+              </Typography>
+            </CardContent>
+
+            <CardActionArea sx={CardActionAreaCss}>
               <Button
                 variant="outlined"
                 color="warning"
                 startIcon={
-                  !tokenGenerationStatus ? (
-                    <IoMdCreate />
-                  ) : (
+                  tokenGenerationStatus ? (
                     <CircularProgress size={16} />
+                  ) : (
+                    <IoMdCreate />
                   )
                 }
                 disabled={tokenGenerationStatus}
@@ -183,40 +260,61 @@ function WebsiteUpdate(): ReactNode {
               >
                 Generate
               </Button>
-            </CardContent>
+            </CardActionArea>
           </Card>
         </Grid2>
       </Grid2>
 
       <Grid2 container spacing={2} px={2} my={2}>
         <Grid2 size={{ xs: 12, lg: 6 }} mx="auto">
-          <Card>
-            <CardMedia image={Docs} sx={{ height: 300 }} />
-            <CardContent
-              sx={{ fontFamily: "Roboto" }}
-            >
+          <Card sx={CardCss}>
+            <CardMedia image="/books.jpg" sx={{ height: 300 }} />
+
+            <CardContent sx={{ fontFamily: "Roboto" }}>
               <h1 className="text-xl text-amber-600 font-bold">Update CV</h1>
 
-              <p>Upload your CV on the FTP portal by clicking on the button given below and then paste the url obtained in the below form.</p>
+              <p>
+                Upload your CV on the FTP portal by clicking on the button given
+                below and then paste the url obtained in the below form.
+              </p>
 
-              {showCVUpdateForm && <Grid2 container spacing={1} mt={2}>
-                <Grid2 size={8}>
-                  <TextField label="URL" fullWidth placeholder='Ex:- www.sgaurav.me/cv.pdf' focused value={url} onChange={event => setUrl(event.target.value)}></TextField>
+              {showCVUpdateForm && (
+                <Grid2 container spacing={1} mt={2}>
+                  <Grid2 size={8}>
+                    <TextField
+                      label="URL"
+                      fullWidth
+                      placeholder="Ex:- www.sgaurav.me/cv.pdf"
+                      focused
+                      value={url}
+                      onChange={(event) => setUrl(event.target.value)}
+                    ></TextField>
+                  </Grid2>
+                  <Grid2 size={4} alignItems={"center"} display={"flex"}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      disabled={loading}
+                      onClick={handleUpdateCVBtn}
+                    >
+                      Update
+                    </Button>
+                  </Grid2>
                 </Grid2>
-                <Grid2 size={4} alignItems={"center"} display={"flex"}>
-                  <Button fullWidth variant='outlined' disabled={loading} onClick={handleUpdateCVBtn}>Update</Button>
-                </Grid2>
-              </Grid2>
-              }
-
+              )}
             </CardContent>
-            <CardActionArea sx={{ p: 1, display: "flex", justifyContent: "flex-end", background: "#f5f5f5" }}>
+
+            <CardActionArea sx={CardActionAreaCss}>
               <Button
                 variant="outlined"
                 color="warning"
                 onClick={handleFTPButton}
                 startIcon={
-                  !loading ? <Link /> : <CircularProgress size={16} />
+                  loading ? (
+                    <CircularProgress size={16} color="secondary" />
+                  ) : (
+                    <Link />
+                  )
                 }
               >
                 FTP Portal
