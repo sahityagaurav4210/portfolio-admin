@@ -2,11 +2,12 @@ import { Box, Card, CardContent, Divider, Grid2, Paper } from "@mui/material";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoStatsChartOutline } from "react-icons/io5";
-import { ApiController, ApiStatus } from "../api";
+import { ApiStatus } from "../api";
 import WebsiteUpdate from "../views/WebsiteUpdate";
 import ViewCount from "../components/ViewCount";
 import Heading from "../components/Heading";
 import { Dashboard } from "@mui/icons-material";
+import HomeController from "../controllers/home.controller";
 
 function Home(): ReactNode {
   const [dailyViewCount, setDailyViewCount] = useState<number>(-2);
@@ -25,12 +26,8 @@ function Home(): ReactNode {
   useEffect(() => {
     let timer: any;
     async function getTodayViews() {
-      const controller = new ApiController();
-      const authorization = localStorage.getItem("authorization") as string;
-      const views = await controller.GET(
-        "today-website-views",
-        `Bearer ${authorization}`
-      );
+      const controller = new HomeController();
+      const views = await controller.makeTodayWebsiteViewsReq();
 
       if (views.status === ApiStatus.LOGOUT) {
         localStorage.clear();
@@ -41,12 +38,8 @@ function Home(): ReactNode {
     }
 
     async function getMonthlyViews() {
-      const controller = new ApiController();
-      const authorization = localStorage.getItem("authorization") as string;
-      const views = await controller.GET(
-        "monthly-website-views",
-        `Bearer ${authorization}`
-      );
+      const controller = new HomeController();
+      const views = await controller.makeMonthlyWebsiteViewsReq();
 
       if (views.status === ApiStatus.LOGOUT) {
         localStorage.clear();
@@ -57,12 +50,8 @@ function Home(): ReactNode {
     }
 
     async function getTotalViews() {
-      const controller = new ApiController();
-      const authorization = localStorage.getItem("authorization") as string;
-      const views = await controller.GET(
-        "total-website-views",
-        `Bearer ${authorization}`
-      );
+      const controller = new HomeController();
+      const views = await controller.makeTotalWebsiteViewsReq();
 
       if (views.status === ApiStatus.LOGOUT) {
         localStorage.clear();
@@ -90,21 +79,11 @@ function Home(): ReactNode {
   }, []);
 
   const cachedDailyViewsCount = useMemo(() => dailyViewCount, [dailyViewCount]);
-  const cachedMonthlyViewsCount = useMemo(
-    () => monthlyViewCount,
-    [monthlyViewCount]
-  );
-  const cachedTotalViewsCount = useMemo(
-    () => totalViewsCount,
-    [totalViewsCount]
-  );
+  const cachedMonthlyViewsCount = useMemo(() => monthlyViewCount, [monthlyViewCount]);
+  const cachedTotalViewsCount = useMemo(() => totalViewsCount, [totalViewsCount]);
 
   return (
-    <Paper
-      variant="elevation"
-      component="div"
-      className="p-4 m-1 border border-slate-400"
-    >
+    <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
       <Heading Icon={Dashboard} text="Dashboard" />
 
       <Divider sx={{ mb: 4 }} />
@@ -117,19 +96,13 @@ function Home(): ReactNode {
               <CardContent>
                 <Box display="flex" alignItems="center" gap={1}>
                   <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                  <h1
-                    className="text-2xl font-bold text-blue-700"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
                     <ViewCount count={cachedDailyViewsCount} />
                   </h1>
                 </Box>
                 <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                 <Box>
-                  <p
-                    className="font-bold text-blue-400 text-xs"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>
                     Today's views
                   </p>
                 </Box>
@@ -145,19 +118,13 @@ function Home(): ReactNode {
               <CardContent>
                 <Box display="flex" alignItems="center" gap={1}>
                   <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                  <h1
-                    className="text-2xl font-bold text-blue-700"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
                     <ViewCount count={cachedMonthlyViewsCount} />
                   </h1>
                 </Box>
                 <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                 <Box>
-                  <p
-                    className="font-bold text-blue-400 text-xs"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>
                     Total monthly views
                   </p>
                 </Box>
@@ -173,19 +140,13 @@ function Home(): ReactNode {
               <CardContent>
                 <Box display="flex" alignItems="center" gap={1}>
                   <IoStatsChartOutline size={24} className="text-amber-800" />{" "}
-                  <h1
-                    className="text-2xl font-bold text-blue-700"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <h1 className="text-2xl font-bold text-blue-700" style={{ fontFamily: "Roboto" }}>
                     <ViewCount count={cachedTotalViewsCount} />
                   </h1>
                 </Box>
                 <Divider sx={{ borderBottom: "2px solid #1d4ed8 " }} />
                 <Box>
-                  <p
-                    className="font-bold text-blue-400 text-xs"
-                    style={{ fontFamily: "Roboto" }}
-                  >
+                  <p className="font-bold text-blue-400 text-xs" style={{ fontFamily: "Roboto" }}>
                     Total views
                   </p>
                 </Box>

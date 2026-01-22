@@ -4,16 +4,15 @@ import { AppStrings } from "../i18n";
 import { IProtected } from "../interfaces/component_props.interface";
 import Loader from "../pages/Loader";
 
-function ProtectedView({ children }: IProtected): ReactNode {
+function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
   const [loading, setLoading] = useState<boolean>(false);
   const loginStatus = Boolean(localStorage.getItem("login_status"));
   const navigate = useNavigate();
 
-
   useEffect(() => {
     if (!loginStatus) navigate(AppStrings.ROUTES.LOGIN);
 
-    setLoading(prev => !prev);
+    setLoading((prev) => !prev);
   }, []);
 
   if (loading) return children;

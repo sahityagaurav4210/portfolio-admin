@@ -38,6 +38,8 @@ export interface IProtected {
 
 export interface IAppImgContainerProp {
   url: string;
+  width?: string;
+  height?: string;
 }
 
 export interface INavItem {
@@ -65,7 +67,6 @@ export interface IViewDialogProp {
   open: boolean;
   handleDialogCloseBtnClick: (e: BtnClick) => void;
   details: Record<string, any> | undefined;
-  text: string;
 }
 
 export interface IEditSkillDialogProp {
@@ -105,4 +106,9 @@ export interface IConfirmationDialogProps {
   Icon: AppIcon;
   onSuccess: (event: BtnClick) => void | Promise<void>;
   onCancel?: (event: BtnClick) => void | Promise<void>;
+}
+
+export interface IContactActionsProp {
+  row: Record<string, any>;
+  handleViewBtnClick: (id: number) => void;
 }

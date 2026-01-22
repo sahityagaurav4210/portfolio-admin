@@ -22,12 +22,14 @@ import { Outlet, useNavigate } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
 import Footer from "../views/Footer";
 import ImgContainer from "../components/ImgContainer";
-import { Logout, Password, Person } from "@mui/icons-material";
-import { ApiController, ApiStatus } from "../api";
+import { HelpCenter, Logout, Password, Person } from "@mui/icons-material";
+import { ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import ProfileModal from "../models/ProfileModal";
 import ChangePwdModal from "../models/ChangePwdModal";
+import LayoutController from "../controllers/layout.controller";
+import ConfirmationDialog from "../components/ConfirmationDialog";
 
 function ProtectedLayout() {
   const theme = useTheme();
@@ -42,8 +44,8 @@ function ProtectedLayout() {
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
-  const [changePwdModalVisibility, setChangePwdModalVisibility] =
-    useState(false);
+  const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
+  const [isCnfDialogOpen, setIsCnfDialogOpen] = useState(false);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -71,33 +73,21 @@ function ProtectedLayout() {
     function () {
       setChangePwdModalVisibility((prev) => !prev);
     },
-    [changePwdModalVisibility]
+    [changePwdModalVisibility],
   );
 
   async function logout(): Promise<void> {
-    const authorization = `Bearer ${
-      localStorage.getItem("authorization") as string
-    }`;
-    const token = localStorage.getItem("token") as string;
-
     try {
-      const controller = new ApiController();
-      const reply = await controller.logout("authentication/logout", {
-        authorization,
-        token,
-      });
+      const controller = new LayoutController();
+      const reply = await controller.makeLogoutReq();
 
       if (reply.status === ApiStatus.SUCCESS) {
         localStorage.clear();
         toast.success(reply.message, getGlobalToastConfig());
-        navigate("/auth/login");
-      } else {
-        toast.error(reply.message, getGlobalToastConfig());
-      }
+        await navigate("/auth/login");
+      } else throw new Error(reply.message);
     } catch (error: any) {
-      const message =
-        error?.message ||
-        "Something went wrong while processing your request, please try again!!!";
+      const message = error?.message || "Something went wrong while processing your request, please try again!!!";
       toast.error(message, getGlobalToastConfig());
     } finally {
       setIsLoading(false);
@@ -105,23 +95,16 @@ function ProtectedLayout() {
   }
 
   async function fetchProfile(): Promise<void> {
-    const token = localStorage.getItem("authorization") as string;
-    const authorization = `Bearer ${token}`;
-
     try {
-      const controller = new ApiController();
-      const reply = await controller.GET("user/profile", authorization);
+      const controller = new LayoutController();
+      const reply = await controller.makeGetProfileReq();
 
       if (reply.status === ApiStatus.SUCCESS) {
         setProfileDetails(reply.data);
         setProfileDialogView(true);
-      } else {
-        toast.error(reply.message, getGlobalToastConfig());
-      }
+      } else throw new Error(reply.message);
     } catch (error: any) {
-      const message =
-        error?.message ||
-        "Something went wrong while processing your request, please try again!!!";
+      const message = error?.message || "Something went wrong while processing your request, please try again!!!";
       toast.error(message, getGlobalToastConfig());
     } finally {
       setIsProfileLoading(false);
@@ -129,6 +112,7 @@ function ProtectedLayout() {
   }
 
   const handleLogoutBtnClick = useCallback(async function () {
+    setIsCnfDialogOpen(false);
     setIsLoading(true);
     await logout();
   }, []);
@@ -158,36 +142,20 @@ function ProtectedLayout() {
   return (
     <>
       <Box component="div" className="flex flex-col min-h-screen">
-        <Box
-          component="header"
-          className="flex justify-between items-center min-h-[4vh]"
-        >
+        <Box component="header" className="flex justify-between items-center min-h-[4vh]">
           <Box component="div" className="max-w-max p-1 mx-1">
-            <Typography
-              variant={isMobile ? "h5" : "h4"}
-              fontWeight={900}
-              className="text-center"
-              color="warning"
-            >
+            <Typography variant={isMobile ? "h5" : "h4"} fontWeight={900} className="text-center" color="warning">
               Coding Works
             </Typography>
 
             <Divider className="bg-blue-800 font-black h-1" />
 
-            <Typography
-              variant={isMobile ? "body1" : "h6"}
-              fontWeight={900}
-              className="text-center"
-              color="success"
-            >
+            <Typography variant={isMobile ? "body1" : "h6"} fontWeight={900} className="text-center" color="success">
               Portfolio Services
             </Typography>
           </Box>
 
-          <Box
-            component="div"
-            sx={{ display: "flex", alignItems: "center", p: 1 }}
-          >
+          <Box component="div" sx={{ display: "flex", alignItems: "center", p: 1 }}>
             <ImgContainer url="/logo.jpeg" />
           </Box>
         </Box>
@@ -250,18 +218,11 @@ function ProtectedLayout() {
                 horizontal: "left",
               }}
             >
-              <MenuItem
-                onClick={handleProfileBtnClick}
-                disabled={isProfileLoading}
-              >
+              <MenuItem onClick={handleProfileBtnClick} disabled={isProfileLoading}>
                 <List>
                   <ListItemButton>
                     <ListItemIcon>
-                      {isProfileLoading ? (
-                        <CircularProgress size={16} color="secondary" />
-                      ) : (
-                        <Person />
-                      )}
+                      {isProfileLoading ? <CircularProgress size={16} color="secondary" /> : <Person />}
                     </ListItemIcon>
 
                     <ListItemText>Profile</ListItemText>
@@ -269,15 +230,11 @@ function ProtectedLayout() {
                 </List>
               </MenuItem>
 
-              <MenuItem disabled={isLoading} onClick={handleLogoutBtnClick}>
+              <MenuItem disabled={isLoading} onClick={() => setIsCnfDialogOpen(true)}>
                 <List>
                   <ListItemButton>
                     <ListItemIcon>
-                      {isLoading ? (
-                        <CircularProgress size={16} color="secondary" />
-                      ) : (
-                        <Logout />
-                      )}
+                      {isLoading ? <CircularProgress size={16} color="secondary" /> : <Logout />}
                     </ListItemIcon>
 
                     <ListItemText>Logout</ListItemText>
@@ -348,10 +305,7 @@ function ProtectedLayout() {
             </Drawer>
           </Box>
 
-          <Box
-            component="div"
-            sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}
-          >
+          <Box component="div" sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}>
             <Outlet />
           </Box>
         </Box>
@@ -366,14 +320,23 @@ function ProtectedLayout() {
           details={profileDetails}
           handleDialogCloseBtnClick={() => setProfileDialogView(false)}
           open={profileDialogView}
-          text="Profile Details"
         />
       )}
 
-      {changePwdModalVisibility && (
-        <ChangePwdModal
-          callback={handleChangePwdModal}
-          open={changePwdModalVisibility}
+      {changePwdModalVisibility && <ChangePwdModal callback={handleChangePwdModal} open={changePwdModalVisibility} />}
+      {isCnfDialogOpen && (
+        <ConfirmationDialog
+          Icon={HelpCenter}
+          heading="Confirmation"
+          isLoading={false}
+          onSuccess={handleLogoutBtnClick}
+          open={isCnfDialogOpen}
+          text={
+            <Typography variant="body1">
+              You'll be logged out of your account and your session will be terminated. Do you want to continue?
+            </Typography>
+          }
+          onCancel={() => setIsCnfDialogOpen(false)}
         />
       )}
     </>

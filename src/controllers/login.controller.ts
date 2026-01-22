@@ -1,38 +1,19 @@
-import { ApiStatus, HttpVerbs } from "../api";
-import { AppUserAgent } from "../constants";
+import { ApiStatus, CWPBApiController } from "../api";
+import { getApiBaseUrl } from "../helpers";
 import { IApiReply } from "../interfaces/api.interface";
 import { ILoginModel } from "../interfaces/models.interface";
 
 export class LoginController {
-  public async makePostLoginReq(
-    loginUri: string,
-    loginFrmData: ILoginModel
-  ): Promise<IApiReply> {
+  public async makePostLoginReq(relativeUrl: string, loginFrmData: ILoginModel): Promise<IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/${relativeUrl}`;
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/${loginUri}`,
-        {
-          method: HttpVerbs.POST,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          body: JSON.stringify(loginFrmData),
-          signal: controller.signal,
-        }
-      );
-
-      const reply = (await rawReply.json()) as IApiReply;
+      const rawReply = await appController.POST(fullAbsUrl, {}, loginFrmData);
+      const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST, {}, loginFrmData);
 
       return reply;
     } catch {
@@ -45,31 +26,16 @@ export class LoginController {
     }
   }
 
-  public async makeGetCaptchaReq(captchaUri: string): Promise<IApiReply> {
+  public async makeGetCaptchaReq(captchaRelativeUri: string): Promise<IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/${captchaRelativeUri}`;
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/${captchaUri}`,
-        {
-          method: HttpVerbs.GET,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          signal: controller.signal,
-        }
-      );
-
-      const reply = (await rawReply.json()) as IApiReply;
+      const rawReply = await appController.GET(fullAbsUrl);
+      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
       return reply;
     } catch {
       const reply = {
@@ -81,36 +47,17 @@ export class LoginController {
     }
   }
 
-  public async makeGetRefCaptchaReq(
-    captchaUri: string,
-    captchaId: number
-  ): Promise<IApiReply> {
+  public async makeGetRefCaptchaReq(captchaRelativeUri: string, captchaId: number): Promise<IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/${captchaRelativeUri}`;
+      const qs = { captchaId };
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/${captchaUri}?captchaId=${captchaId}`,
-        {
-          method: HttpVerbs.GET,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          signal: controller.signal,
-        }
-      );
-
-      const reply = (await rawReply.json()) as IApiReply;
+      const rawReply = await appController.GET(fullAbsUrl, qs);
+      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET, qs);
       return reply;
     } catch {
       const reply = {
@@ -122,32 +69,15 @@ export class LoginController {
     }
   }
 
-  public async makeGetCaptchaImgReq(
-    captchaId: number
-  ): Promise<Blob | IApiReply> {
+  public async makeGetCaptchaImgReq(captchaId: number): Promise<Blob | IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/captcha/${captchaId}`;
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/captcha/${captchaId}`,
-        {
-          method: HttpVerbs.GET,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "*/*",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          signal: controller.signal,
-        }
-      );
-
+      const rawReply = await appController.GET(fullAbsUrl);
       const reply = await rawReply.blob();
       return reply;
     } catch {
@@ -160,32 +90,17 @@ export class LoginController {
     }
   }
 
-  public async makeGetCaptchaAudioReq(
-    captchaId: number
-  ): Promise<Blob | IApiReply> {
+  public async makeGetCaptchaAudioReq(captchaId: number): Promise<Blob | IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/captcha/audio/${captchaId}`;
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/captcha/audio/${captchaId}`,
-        {
-          method: HttpVerbs.GET,
-          headers: {
-            Accept: "audio/mpeg",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          signal: controller.signal,
-        }
-      );
-
+      const rawReply = await appController.GET(fullAbsUrl);
       const reply = await rawReply.blob();
+
       return reply;
     } catch {
       const reply = {
@@ -197,35 +112,18 @@ export class LoginController {
     }
   }
 
-  public async makeGetCaptchaValidateReq(
-    captchaId: number,
-    captcha: string
-  ): Promise<IApiReply> {
+  public async makeGetCaptchaValidateReq(captchaId: number, captcha: string): Promise<IApiReply> {
     try {
-      const controller = new AbortController();
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const appController = new CWPBApiController();
+      const fullAbsUrl = `${baseUrl}/captcha-validate`;
+      const qs = { captchaId, captcha };
 
-      const refToken = localStorage.getItem("token");
-
-      const rawReply = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/captcha-validate?captchaId=${captchaId}&captcha=${captcha}`,
-        {
-          method: HttpVerbs.GET,
-          headers: {
-            Accept: "application/json",
-            "x-user-id": AppUserAgent,
-            "x-token": refToken || "",
-          },
-          signal: controller.signal,
-        }
-      );
-
+      const rawReply = await appController.GET(fullAbsUrl, qs);
       const reply = (await rawReply.json()) as IApiReply;
+
       return reply;
     } catch {
       const reply = {

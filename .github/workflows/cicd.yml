@@ -38,8 +38,35 @@ jobs:
             -Dsonar.token=${SONARQUBE_TOKEN}
             -Dsonar.qualitygate.wait=true
 
-      - name: Preparing the image
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master'||github.ref == 'refs/heads/release')
+      - name: Preparing the development image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_DEV_URL }}
+          VITE_APP_ENV: "development"
+          VITE_API_TIMEOUT: ${{ secrets.VITE_API_TIMEOUT }}
+          VITE_PORTFOLIO_URL: ${{ secrets.VITE_PORTFOLIO_DEV_URL }}
+          VITE_FRONTEND_URL: ${{ secrets.VITE_FRONTEND_DEV_URL }}
+          VITE_FTP_URL: ${{ secrets.VITE_FTP_URL }}
+          VITE_FTP_API_BASE_URL: ${{ secrets.VITE_FTP_API_BASE_URL }}
+          VITE_PBADMIN_URL: ${{ secrets.VITE_PBADMIN_URL }}
+          VITE_CAPTCHA_TIMEOUT: ${{ secrets.VITE_CAPTCHA_TIMEOUT }}
+          VITE_APP_VERSION: ${{secrets.VITE_APP_VERSION}}
+        run: |
+          docker build --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} --build-arg VITE_APP_ENV=${VITE_APP_ENV} --build-arg VITE_API_TIMEOUT=${VITE_API_TIMEOUT} --build-arg VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}  --build-arg VITE_FRONTEND_URL=${VITE_FRONTEND_URL} --build-arg VITE_FTP_URL=${VITE_FTP_URL} --build-arg VITE_FTP_API_BASE_URL=${VITE_FTP_API_BASE_URL} -t portfolio-dev-admin-panel .
+          docker tag portfolio-dev-admin-panel ${DOCKER_USERNAME}/portfolio-dev-admin-panel:latest
+
+      - name: Publishing the development image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_SECRET }}
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
+        run: |
+          docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+          docker push ${DOCKER_USERNAME}/portfolio-dev-admin-panel:latest
+
+      - name: Preparing the production image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
@@ -56,11 +83,11 @@ jobs:
           docker build --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} --build-arg VITE_APP_ENV=${VITE_APP_ENV} --build-arg VITE_API_TIMEOUT=${VITE_API_TIMEOUT} --build-arg VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}  --build-arg VITE_FRONTEND_URL=${VITE_FRONTEND_URL} --build-arg VITE_FTP_URL=${VITE_FTP_URL} --build-arg VITE_FTP_API_BASE_URL=${VITE_FTP_API_BASE_URL} -t portfolio-admin-panel .
           docker tag portfolio-admin-panel ${DOCKER_USERNAME}/portfolio-admin-panel:latest
 
-      - name: Publishing the image
+      - name: Publishing the production image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_SECRET }}
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/master'||github.ref == 'refs/heads/release')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/release'
         run: |
           docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
           docker push ${DOCKER_USERNAME}/portfolio-admin-panel:latest
@@ -72,7 +99,7 @@ jobs:
           caprover deploy \
           --host ${{ secrets.CAPROVER_HOST }} \
           -p ${{ secrets.CAPROVER_PWD }} \
-          --imageName ${{ secrets.DOCKER_USERNAME }}/portfolio-admin-panel:latest \
+          --imageName ${{ secrets.DOCKER_USERNAME }}/portfolio-dev-admin-panel:latest \
           --appName portfolio-dev-admin
 
       - name: Deploying the code to production server
@@ -83,4 +110,4 @@ jobs:
           --host ${{ secrets.CAPROVER_PROD_HOST }} \
           -p ${{ secrets.CAPROVER_PROD_PWD }} \
           --imageName ${{ secrets.DOCKER_USERNAME }}/portfolio-admin-panel:latest \
-          --appName portfolio
+          --appName pb-admin

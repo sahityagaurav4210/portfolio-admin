@@ -1,19 +1,17 @@
 import { Box, Button, Divider, Fab, Paper } from "@mui/material";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { ApiController, ApiStatus } from "../api";
+import { ApiStatus } from "../api";
 import { Add, Edit, Visibility, Widgets } from "@mui/icons-material";
 import { ISkillForm } from "../interfaces/models.interface";
 import { getArrayRecords } from "../helpers";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
 import Heading from "../components/Heading";
 import AddSkillModal from "../models/skills/AddSkillModal";
 import ViewModal from "../models/ViewModal";
 import EditSkillModal from "../models/skills/EditSkillModal";
 import useAppCss from "../hooks/useAppCss";
+import SkillController from "../controllers/skills.controller";
 
 function Skills(): ReactNode {
   const [skills, setSkills] = useState<ISkillForm[]>([]);
@@ -25,13 +23,9 @@ function Skills(): ReactNode {
   const { GlobalTableCss } = useAppCss();
 
   async function getDetails() {
-    const controller = new ApiController();
+    const controller = new SkillController();
 
-    const authorization = localStorage.getItem("authorization") as string;
-    const details = await controller.GET(
-      `portfolio/skills/list`,
-      `Bearer ${authorization}`
-    );
+    const details = await controller.makeGetSkillListReq();
 
     if (details.status === ApiStatus.SUCCESS) {
       const list = getArrayRecords<ISkillForm>(details);
@@ -95,19 +89,11 @@ function Skills(): ReactNode {
         Cell: ({ row }: Record<string, any>) => {
           return (
             <Box component="div" className="flex gap-2">
-              <Fab
-                color="primary"
-                size="small"
-                onClick={() => handleViewBtnClick(row?.original?.id)}
-              >
+              <Fab color="primary" size="small" onClick={() => handleViewBtnClick(row?.original?.id)}>
                 <Visibility fontSize="small" />
               </Fab>
 
-              <Fab
-                color="warning"
-                size="small"
-                onClick={() => handleEditBtnClick(row?.original?.id)}
-              >
+              <Fab color="warning" size="small" onClick={() => handleEditBtnClick(row?.original?.id)}>
                 <Edit fontSize="small" />
               </Fab>
             </Box>
@@ -128,22 +114,13 @@ function Skills(): ReactNode {
 
   return (
     <>
-      <Paper
-        variant="elevation"
-        component="div"
-        className="p-4 m-0 sm:m-1 border border-slate-400"
-      >
+      <Paper variant="elevation" component="div" className="p-4 m-0 sm:m-1 border border-slate-400">
         <Heading Icon={Widgets} text="Skills" />
 
         <Divider sx={{ mb: 4 }} />
 
         <Box component="div" className="flex items-center justify-end my-2">
-          <Button
-            size="small"
-            startIcon={<Add fontSize="small" />}
-            variant="contained"
-            onClick={handleAddBtnClick}
-          >
+          <Button size="small" startIcon={<Add fontSize="small" />} variant="contained" onClick={handleAddBtnClick}>
             Add
           </Button>
         </Box>
@@ -152,12 +129,7 @@ function Skills(): ReactNode {
       </Paper>
 
       {detailDialogOpen && (
-        <ViewModal
-          details={details}
-          handleDialogCloseBtnClick={handleDialogCloseBtnClick}
-          open={detailDialogOpen}
-          text="Skill Details"
-        />
+        <ViewModal details={details} handleDialogCloseBtnClick={handleDialogCloseBtnClick} open={detailDialogOpen} />
       )}
 
       {addDialogBoxView && (

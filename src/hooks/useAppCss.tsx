@@ -10,21 +10,18 @@ function useAppCss() {
         color: "red",
       },
     }),
-    []
+    [],
   );
 
   const FlexCss = useMemo(
     () => ({
       display: "flex",
     }),
-    []
+    [],
   );
 
   const AlignItemsCss = useMemo(() => ({ alignItems: "center" }), []);
-  const JustifyItemsEndCss = useMemo(
-    () => ({ justifyContent: "flex-end" }),
-    []
-  );
+  const JustifyItemsEndCss = useMemo(() => ({ justifyContent: "flex-end" }), []);
   const CardActionAreaCss = useMemo(
     () => ({
       p: 1,
@@ -32,14 +29,14 @@ function useAppCss() {
       justifyContent: "flex-end",
       background: "#f5f5f5",
     }),
-    []
+    [],
   );
 
   const CardCss = useMemo(
     () => ({
       border: `1px solid ${theme.palette.secondary.A100}`,
     }),
-    []
+    [],
   );
 
   const GlobalTableCss = useMemo(
@@ -74,8 +71,10 @@ function useAppCss() {
       },
       enableStickyHeader: true,
     }),
-    [theme]
+    [theme],
   );
+
+  const GlobalDialogDividerCss = useMemo(() => ({ borderTop: `1px solid ${theme.palette.secondary.A100}` }), []);
 
   return {
     RequiredFieldCss,
@@ -85,6 +84,7 @@ function useAppCss() {
     CardActionAreaCss,
     CardCss,
     GlobalTableCss,
+    GlobalDialogDividerCss,
   };
 }
 

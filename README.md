@@ -1,50 +1,35 @@
-# React + TypeScript + Vite
+# PORTFOLIO BUILDER ADMIN PANEL
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### INTRODUCTION
 
-Currently, two official plugins are available:
+Portfolio admin is a lightweight admin panel built to manage and update all content for a personal portfolio website. It provides an easy interface to edit sections like projects, skills, experience, and other site details—making portfolio updates fast, structured, and hassle-free.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### PREREQUISITE
 
-## Expanding the ESLint configuration
+Before installing the dependencies of project, make the `.env` file for your project from the `.env` file present in the project's root directory.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### INSTALLATION
 
-- Configure the top-level `parserOptions` property like this:
+Please run the following commands to install the necessary dependencies of this project. Please keep in mind that `Node.js` should be installed in your system prior running the following commands.
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```sh
+  npm ci
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Once the build command runs, a build folder will appear in your project directory. Now, run the following command to start the project.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```sh
+  npm run dev
 ```
+
+**Note:** In case the installation fails due to some legacy peer dependency issue kindly run the following command.
+
+```sh
+
+  npm ci --legacy-peer-deps
+
+```
+
+### AUTHOR
+
+This project is developed, maintained, and designed by Gaurav Sahitya. I am a software engineer with more than 2.5 years of experience developing software systems. I am currently working at **C-DAC (Meity, GoI)** in Delhi, India. For more information, please visit [www.sgaurav.me](https://www.sgaurav.me).
