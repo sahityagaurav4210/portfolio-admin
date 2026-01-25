@@ -8,7 +8,7 @@ export class FTPController {
       const appEnv = import.meta.env.VITE_APP_ENV;
       const baseUrl = getApiBaseUrl(appEnv);
 
-      const fullAbsUrl = `${baseUrl}//authentication/tokens/refresh-access-token`;
+      const fullAbsUrl = `${baseUrl}/authentication/tokens/refresh-access-token`;
       const headers = { ...getApiHeaders("application/json"), "x-ref-token": token };
 
       const rawReply = await fetch(fullAbsUrl, {
@@ -29,9 +29,12 @@ export class FTPController {
       const controller = new AbortController();
       const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+      );
 
       const rawReply = await fetch(url, {
         method: HttpVerbs.GET,
@@ -76,9 +79,12 @@ export class FTPController {
       };
       const apiPayload = payload ? { ...commons, body: JSON.stringify(payload) } : commons;
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+      );
 
       const rawReply = await fetch(url, apiPayload);
       const reply = (await rawReply.json()) as IApiReply;

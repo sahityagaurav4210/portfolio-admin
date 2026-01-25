@@ -11,7 +11,7 @@ class HomeController {
     const fullAbsUrl = `${baseUrl}/today-website-views`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }
@@ -24,7 +24,7 @@ class HomeController {
     const fullAbsUrl = `${baseUrl}/monthly-website-views`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }
@@ -37,7 +37,7 @@ class HomeController {
     const fullAbsUrl = `${baseUrl}/total-website-views`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }

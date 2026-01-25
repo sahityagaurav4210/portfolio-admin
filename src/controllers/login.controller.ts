@@ -13,7 +13,13 @@ export class LoginController {
       const fullAbsUrl = `${baseUrl}/${relativeUrl}`;
 
       const rawReply = await appController.POST(fullAbsUrl, {}, loginFrmData);
-      const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST, {}, loginFrmData);
+      const reply = await appController.getSafePostReply(
+        rawReply,
+        fullAbsUrl,
+        appController.POST.bind(appController),
+        {},
+        loginFrmData,
+      );
 
       return reply;
     } catch {
@@ -35,7 +41,7 @@ export class LoginController {
       const fullAbsUrl = `${baseUrl}/${captchaRelativeUri}`;
 
       const rawReply = await appController.GET(fullAbsUrl);
-      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
       return reply;
     } catch {
       const reply = {
@@ -57,7 +63,7 @@ export class LoginController {
       const qs = { captchaId };
 
       const rawReply = await appController.GET(fullAbsUrl, qs);
-      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET, qs);
+      const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController), qs);
       return reply;
     } catch {
       const reply = {

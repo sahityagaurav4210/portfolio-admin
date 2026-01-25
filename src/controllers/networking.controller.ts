@@ -15,12 +15,15 @@ class NetworkingController {
       const qs = { clientIp };
       const controller = new AbortController();
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+      );
 
       const rawReply = await appController.GET(fullAbsUrl, qs);
-      reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET, qs);
+      reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController), qs);
 
       return reply;
     } catch {

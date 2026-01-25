@@ -24,7 +24,13 @@ class SkillController {
     const fullAbsUrl = `${baseUrl}/portfolio/skills/add`;
 
     const rawReply = await appController.POST(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST, {}, payload);
+    const reply = await appController.getSafePostReply(
+      rawReply,
+      fullAbsUrl,
+      appController.POST.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }
@@ -37,7 +43,13 @@ class SkillController {
     const fullAbsUrl = `${baseUrl}/portfolio/skills/update/${_id}`;
 
     const rawReply = await appController.PUT(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePutReply(rawReply, fullAbsUrl, appController.PUT, {}, payload);
+    const reply = await appController.getSafePutReply(
+      rawReply,
+      fullAbsUrl,
+      appController.PUT.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }

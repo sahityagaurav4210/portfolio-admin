@@ -21,7 +21,7 @@ import useAppCss from "../hooks/useAppCss";
 import ContactController from "../controllers/contact.controller";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
-import ContactActions from "../components/actions/ContactActions";
+import useAppMRTFactory from "../hooks/useAppMRTFactory";
 
 function Contact(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IContactDetails[]>([]);
@@ -29,13 +29,14 @@ function Contact(): ReactNode {
   const [detailDialogOpen, setDetailDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { GlobalTableCss } = useAppCss();
+  const { getContactColumns } = useAppMRTFactory();
 
   const handleViewBtnClick = useCallback(
     function (id: number) {
       setDetails(viewDetails[id - 1]);
       setDetailDialogOpen(true);
     },
-    [viewDetails]
+    [viewDetails],
   );
 
   const handleDialogCloseBtnClick = useCallback(function (e: BtnClick) {
@@ -64,20 +65,7 @@ function Contact(): ReactNode {
     getDetails();
   }, []);
 
-  const columns = useMemo(
-    () => [
-      { accessorKey: "id", header: "S.No." },
-      { accessorKey: "first_name", header: "First Name" },
-      { accessorKey: "last_name", header: "Last Name" },
-      { accessorKey: "email", header: "Email" },
-      {
-        accessorKey: "actions",
-        header: "Actions",
-        Cell: ({ row }: Record<string, any>) => <ContactActions row={row} handleViewBtnClick={handleViewBtnClick} />,
-      },
-    ],
-    [viewDetails]
-  );
+  const columns = useMemo(() => getContactColumns(handleViewBtnClick), [handleViewBtnClick]);
 
   const table = useMaterialReactTable({
     columns,
@@ -122,7 +110,7 @@ function Contact(): ReactNode {
                 <TextField
                   label="First Name"
                   className="uppercase"
-                  value={details?.first_name.toUpperCase()}
+                  value={details?.first_name?.toUpperCase()}
                   disabled
                   fullWidth
                 />

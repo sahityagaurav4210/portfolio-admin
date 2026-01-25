@@ -11,7 +11,7 @@ class LayoutController {
     const fullAbsUrl = `${baseUrl}/authentication/logout`;
 
     const rawReply = await appController.POST(fullAbsUrl);
-    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST);
+    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST.bind(appController));
 
     return reply;
   }
@@ -24,7 +24,7 @@ class LayoutController {
     const fullAbsUrl = `${baseUrl}/user/profile`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }
@@ -37,7 +37,13 @@ class LayoutController {
     const fullAbsUrl = `${baseUrl}/user/edit-profile`;
 
     const rawReply = await appController.PUT(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePutReply(rawReply, fullAbsUrl, appController.PUT, {}, payload);
+    const reply = await appController.getSafePutReply(
+      rawReply,
+      fullAbsUrl,
+      appController.PUT.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }
@@ -50,7 +56,13 @@ class LayoutController {
     const fullAbsUrl = `${baseUrl}/user/change-pwd`;
 
     const rawReply = await appController.PUT(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePutReply(rawReply, fullAbsUrl, appController.PUT, {}, payload);
+    const reply = await appController.getSafePutReply(
+      rawReply,
+      fullAbsUrl,
+      appController.PUT.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }

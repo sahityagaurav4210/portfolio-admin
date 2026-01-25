@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { memo, ReactNode, useState } from "react";
 import { IoMdCreate } from "react-icons/io";
-import { ApiController, ApiStatus } from "../api";
+import { ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import { useNavigate } from "react-router-dom";
@@ -98,10 +98,8 @@ function WebsiteUpdate(): ReactNode {
     event.preventDefault();
     setLoading(true);
 
-    const api = new ApiController();
-    const auth = localStorage.getItem("authorization") as string;
-
-    const reply = await api.POST("files/save-cv", `Bearer ${auth}`, { url });
+    const api = new ToolsController();
+    const reply = await api.makeUpdateCVReq({ url });
 
     setLoading(false);
 

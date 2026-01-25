@@ -40,7 +40,9 @@ The format is based on **Keep a Changelog**, and this project adheres to **Seman
 
 ### Removed
 
-- Nothing has been removed in this change.
+- ApiController has been removed
+- route.helpers.ts has been removed
+- Logout.tsx view has been removed
 
 ### Fixed
 

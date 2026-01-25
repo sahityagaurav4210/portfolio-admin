@@ -1,6 +1,6 @@
 import { AppUserAgent } from "../constants";
 import { FTPController } from "../controllers/ftp.controller";
-import { GETCallbackFn, POSTCallbackFn, QueryString } from "../interfaces";
+import { ApiPayload, GETCallbackFn, POSTCallbackFn, QueryString } from "../interfaces";
 import { IApiReply } from "../interfaces/api.interface";
 
 export enum ApiStatus {
@@ -32,208 +32,10 @@ export function getApiHeaders(acceptPayloadType?: string): HeadersInit {
   };
 }
 
-export class ApiController {
-  public async GET(loginUri: string, authorization?: string): Promise<IApiReply> {
-    try {
-      const controller = new AbortController();
-      const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
-
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, {
-        method: HttpVerbs.GET,
-        headers,
-        signal: controller.signal,
-      });
-
-      const reply = (await rawReply.json()) as IApiReply;
-
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        const status = await this.refreshAccessToken(token);
-
-        if (status === ApiStatus.FORBIDDEN) {
-          return { status: ApiStatus.LOGOUT, message: "Logout" };
-        }
-
-        const authorization = localStorage.getItem("authorization") as string;
-        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
-        return reply;
-      }
-
-      return reply;
-    } catch {
-      const reply = {
-        status: ApiStatus.TIMEOUT,
-        message: "Connection broked, please try again later",
-      };
-
-      return reply;
-    }
-  }
-
-  public async POST(loginUri: string, authorization?: string, payload?: Record<string, any>): Promise<IApiReply> {
-    try {
-      const controller = new AbortController();
-      const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
-      const commons = {
-        method: HttpVerbs.POST,
-        headers,
-        signal: controller.signal,
-      };
-      const apiPayload = payload ? { ...commons, body: JSON.stringify(payload) } : commons;
-
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, apiPayload);
-
-      const reply = (await rawReply.json()) as IApiReply;
-
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        const status = await this.refreshAccessToken(token);
-
-        if (status === ApiStatus.FORBIDDEN) {
-          return { status: ApiStatus.LOGOUT, message: "Logout" };
-        }
-
-        const authorization = localStorage.getItem("authorization") as string;
-        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
-        return reply;
-      }
-
-      return reply;
-    } catch {
-      const reply = {
-        status: ApiStatus.TIMEOUT,
-        message: "Connection broked, please try again later",
-      };
-
-      return reply;
-    }
-  }
-
-  public async PUT(loginUri: string, authorization?: string, payload?: Record<string, any>): Promise<IApiReply> {
-    try {
-      const controller = new AbortController();
-      const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
-      const commons = {
-        method: HttpVerbs.PUT,
-        headers,
-        signal: controller.signal,
-      };
-      const apiPayload = payload ? { ...commons, body: JSON.stringify(payload) } : commons;
-
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, apiPayload);
-
-      if (rawReply.status === 204) {
-        return { status: ApiStatus.SUCCESS, message: "Updated" };
-      }
-
-      const reply = (await rawReply.json()) as IApiReply;
-
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        const status = await this.refreshAccessToken(token);
-
-        if (status === ApiStatus.FORBIDDEN) {
-          return { status: ApiStatus.LOGOUT, message: "Logout" };
-        }
-
-        const authorization = localStorage.getItem("authorization") as string;
-        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
-        return reply;
-      }
-
-      return reply;
-    } catch {
-      const reply = {
-        status: ApiStatus.TIMEOUT,
-        message: "Connection broked, please try again later",
-      };
-
-      return reply;
-    }
-  }
-
-  public async logout(loginUri: string, tokens: Record<string, any>): Promise<IApiReply> {
-    try {
-      const controller = new AbortController();
-      const headers = {
-        ...getApiHeaders(),
-        Authorization: tokens.authorization,
-        "x-ref-token": tokens.token,
-      };
-      const commons = {
-        method: HttpVerbs.POST,
-        headers,
-        signal: controller.signal,
-      };
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${loginUri}`, commons);
-
-      const reply = (await rawReply.json()) as IApiReply;
-
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        await this.refreshAccessToken(token);
-
-        const authorization = localStorage.getItem("authorization") as string;
-        const reply = await this.GET(loginUri, `Bearer ${authorization}`);
-        return reply;
-      }
-
-      return reply;
-    } catch {
-      const reply = {
-        status: ApiStatus.TIMEOUT,
-        message: "Connection broked, please try again later",
-      };
-
-      return reply;
-    }
-  }
-
-  private async refreshAccessToken(token: string): Promise<void | string> {
-    try {
-      const controller = new AbortController();
-      const headers = { ...getApiHeaders(), "x-ref-token": token };
-
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-      const rawReply = await fetch(`${import.meta.env.VITE_API_BASE_URL}/authentication/tokens/refresh-access-token`, {
-        method: HttpVerbs.GET,
-        headers,
-        signal: controller.signal,
-      });
-
-      const reply = (await rawReply.json()) as IApiReply;
-
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        return reply.status;
-      }
-      localStorage.setItem("authorization", reply?.data?.access_token);
-    } catch {}
-  }
-}
-
 export class CWPBApiController {
-  public async GET(url: string, queryStrings?: Record<string, string | number>): Promise<Response> {
-    const queryKeys = Object.keys(queryStrings || {});
-    const queryValues = Object.values(queryStrings || {});
+  private urlBuilder(url: string, qs?: Record<string, string | number>): string {
+    const queryKeys = Object.keys(qs || {});
+    const queryValues = Object.values(qs || {});
 
     let uri = url;
 
@@ -246,116 +48,99 @@ export class CWPBApiController {
       uri += `&${queryKeys[index]}=${queryValues[index]}`;
     }
 
-    const controller = new AbortController();
-    const headers = getApiHeaders("application/json");
+    return uri;
+  }
 
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+  private async makeApiRequest(url: string, apiConfig: RequestInit, controller: AbortController): Promise<Response> {
+    const timeoutId = setTimeout(
+      () => {
+        controller.abort();
+      },
+      Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+    );
 
-    const rawReply = await fetch(uri, {
-      method: HttpVerbs.GET,
-      headers,
-      credentials: "include",
-      signal: controller.signal,
-    });
+    const rawReply = await fetch(url, apiConfig);
     clearTimeout(timeoutId);
 
     return rawReply;
   }
 
-  public async POST(
+  private async handleTokenExpiry(
     url: string,
-    queryStrings?: Record<string, string | number>,
-    body?: Record<string, any>
-  ): Promise<Response> {
-    const queryKeys = Object.keys(queryStrings || {});
-    const queryValues = Object.values(queryStrings || {});
+    callback: Function,
+    qs?: QueryString,
+    payload?: ApiPayload,
+  ): Promise<IApiReply> {
+    const refAccessToken = localStorage.getItem("token") || "";
+    const ftpController = new FTPController();
+    const tokenRefReply = await ftpController.refreshAccessToken(refAccessToken);
 
-    let uri = url;
+    if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
+    if (tokenRefReply === ApiStatus.EXCEPTION)
+      return { status: ApiStatus.EXCEPTION, message: "Something went wrong at our end." };
 
-    for (let index = 0; index < queryKeys.length; index++) {
-      if (index === 0) {
-        uri += `?${queryKeys[index]}=${queryValues[index]}`;
-        continue;
-      }
+    const retry = await callback(url, qs, payload);
+    return (await retry.json()) as IApiReply;
+  }
 
-      uri += `&${queryKeys[index]}=${queryValues[index]}`;
-    }
+  public async GET(url: string, queryStrings?: Record<string, string | number>): Promise<Response> {
+    let uri = this.urlBuilder(url, queryStrings);
+    const headers = getApiHeaders("application/json");
+    const controller = new AbortController();
+    const apiConfig: RequestInit = {
+      method: HttpVerbs.GET,
+      headers,
+      credentials: "include",
+      signal: controller.signal,
+    };
 
+    const rawReply = await this.makeApiRequest(uri, apiConfig, controller);
+    return rawReply;
+  }
+
+  public async POST(url: string, queryStrings?: QueryString, body?: ApiPayload): Promise<Response> {
+    let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
     const headers = getApiHeaders("application/json");
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-    const rawReply = await fetch(uri, {
+    const apiConfig: RequestInit = {
       method: HttpVerbs.POST,
       headers,
       body: JSON.stringify(body),
       credentials: "include",
       signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    };
 
+    const rawReply = await this.makeApiRequest(uri, apiConfig, controller);
     return rawReply;
   }
 
-  public async PUT(
-    url: string,
-    queryStrings?: Record<string, string | number>,
-    body?: Record<string, any>
-  ): Promise<Response> {
-    const queryKeys = Object.keys(queryStrings || {});
-    const queryValues = Object.values(queryStrings || {});
-
-    let uri = url;
-
-    for (let index = 0; index < queryKeys.length; index++) {
-      if (index === 0) {
-        uri += `?${queryKeys[index]}=${queryValues[index]}`;
-        continue;
-      }
-
-      uri += `&${queryKeys[index]}=${queryValues[index]}`;
-    }
-
+  public async PUT(url: string, queryStrings?: QueryString, body?: ApiPayload): Promise<Response> {
+    let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
     const headers = getApiHeaders("application/json");
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-    const rawReply = await fetch(uri, {
+    const apiConfig: RequestInit = {
       method: HttpVerbs.PUT,
       headers,
       body: JSON.stringify(body),
       credentials: "include",
       signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    };
 
+    const rawReply = await this.makeApiRequest(uri, apiConfig, controller);
     return rawReply;
   }
 
   public async DELETE(url: string): Promise<Response> {
     const controller = new AbortController();
     const headers = getApiHeaders("application/json");
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
-
-    const rawReply = await fetch(url, {
+    const apiConfig: RequestInit = {
       method: HttpVerbs.DELETE,
       headers,
       credentials: "include",
       signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+    };
 
+    const rawReply = await this.makeApiRequest(url, apiConfig, controller);
     return rawReply;
   }
 
@@ -363,26 +148,14 @@ export class CWPBApiController {
     rawReply: Response,
     url: string,
     callbackFn: GETCallbackFn,
-    qs?: QueryString
+    qs?: QueryString,
   ): Promise<IApiReply> {
     let reply: IApiReply;
 
     reply = (await rawReply.json()) as IApiReply;
 
     if (reply.status === ApiStatus.FORBIDDEN && reply.message === "Token expired") {
-      const refAccessToken = localStorage.getItem("token") || "";
-      const ftpController = new FTPController();
-
-      const tokenRefReply = await ftpController.refreshAccessToken(refAccessToken);
-
-      if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
-      if (tokenRefReply === ApiStatus.EXCEPTION)
-        return {
-          status: ApiStatus.EXCEPTION,
-          message: "Something went wrong at our end.",
-        };
-
-      reply = (await (await callbackFn(url, qs)).json()) as IApiReply;
+      reply = await this.handleTokenExpiry(url, callbackFn, qs);
     }
 
     return reply;
@@ -393,26 +166,14 @@ export class CWPBApiController {
     url: string,
     callbackFn: POSTCallbackFn,
     qs?: QueryString,
-    payload?: Record<string, any>
+    payload?: Record<string, any>,
   ): Promise<IApiReply> {
     let reply: IApiReply;
 
     reply = (await rawReply.json()) as IApiReply;
 
     if (reply.status === ApiStatus.FORBIDDEN && reply.message === "Token expired") {
-      const refAccessToken = localStorage.getItem("token") || "";
-      const ftpController = new FTPController();
-
-      const tokenRefReply = await ftpController.refreshAccessToken(refAccessToken);
-
-      if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
-      if (tokenRefReply === ApiStatus.EXCEPTION)
-        return {
-          status: ApiStatus.EXCEPTION,
-          message: "Something went wrong at our end.",
-        };
-
-      reply = (await (await callbackFn(url, qs, payload)).json()) as IApiReply;
+      reply = await this.handleTokenExpiry(url, callbackFn, qs, payload);
     }
 
     return reply;
@@ -423,7 +184,7 @@ export class CWPBApiController {
     url: string,
     callbackFn: POSTCallbackFn,
     qs?: QueryString,
-    payload?: Record<string, any>
+    payload?: Record<string, any>,
   ): Promise<IApiReply> {
     let reply: IApiReply;
 

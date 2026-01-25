@@ -11,7 +11,13 @@ class ToolsController {
     const fullAbsUrl = `${baseUrl}/update-website`;
 
     const rawReply = await appController.POST(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST, {}, payload);
+    const reply = await appController.getSafePostReply(
+      rawReply,
+      fullAbsUrl,
+      appController.POST.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }
@@ -24,7 +30,32 @@ class ToolsController {
     const fullAbsUrl = `${baseUrl}/authentication/tokens/refresh-client-token`;
 
     const rawReply = await appController.POST(fullAbsUrl, {}, payload);
-    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST, {}, payload);
+    const reply = await appController.getSafePostReply(
+      rawReply,
+      fullAbsUrl,
+      appController.POST.bind(appController),
+      {},
+      payload,
+    );
+
+    return reply;
+  }
+
+  public async makeUpdateCVReq(payload: Record<string, any>): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/files/save-cv`;
+
+    const rawReply = await appController.POST(fullAbsUrl, {}, payload);
+    const reply = await appController.getSafePostReply(
+      rawReply,
+      fullAbsUrl,
+      appController.POST.bind(appController),
+      {},
+      payload,
+    );
 
     return reply;
   }

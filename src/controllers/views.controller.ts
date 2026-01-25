@@ -11,7 +11,7 @@ class ViewsController {
     const fullAbsUrl = `${baseUrl}/today-views-details`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }
