@@ -27,6 +27,7 @@ import "react-quill/dist/quill.snow.css";
 import SkillController from "../../controllers/skills.controller";
 import CWPSAlert from "../../components/CWPSAlert";
 import useAppAlert from "../../hooks/useAppAlert";
+import useAppTextfieldValue from "../../hooks/useAppTextfieldValue";
 
 function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readonly<IGlobalDialogProp>): ReactNode {
   const theme = useTheme();
@@ -43,12 +44,14 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
       ["clean"],
     ],
   };
+  const { editSkillModalTextfields } = useAppTextfieldValue();
+  const addFormInputValues = editSkillModalTextfields(skillFormData);
 
   const handleTextFieldOnChange = useCallback(
     function (e: InputChange) {
       setSkillFormData((prev) => ({ ...(prev as ISkillForm), [e.target.name]: e.target.value }));
     },
-    [setSkillFormData]
+    [setSkillFormData],
   );
 
   const handleAddBtnClick = useCallback(
@@ -97,7 +100,7 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
         setIsSaving(false);
       }
     },
-    [skillFormData]
+    [skillFormData],
   );
 
   return (
@@ -116,43 +119,20 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
           <CWPSAlert alert={alert} handleAlertOnClose={handleAlertOnClose} maxWidth="md" />
 
           <Grid container rowSpacing={2} columnSpacing={2}>
-            <Grid size={{ xs: 12, md: 6 }} sx={{ mt: 1 }}>
-              <TextField
-                label="Name"
-                name="name"
-                value={skillFormData?.name}
-                required
-                onChange={handleTextFieldOnChange}
-                fullWidth
-                autoFocus
-                helperText="Only characters, digits and some special characters are allowed"
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }} sx={{ mt: { xs: 0, md: 1 } }}>
-              <TextField
-                label="Experience (in months)"
-                type="number"
-                name="experience"
-                required
-                value={skillFormData?.experience}
-                onChange={handleTextFieldOnChange}
-                fullWidth
-                helperText="Only positive natural numbers are allowed. Please enter the amount in months."
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                label="Url"
-                type="url"
-                name="url"
-                fullWidth
-                value={skillFormData?.url}
-                onChange={handleTextFieldOnChange}
-                helperText="Only string in url format is allowed. It should start with http or https"
-              />
-            </Grid>
+            {addFormInputValues.map((item) => (
+              <Grid size={item.size} {...(item.sx ? { sx: item.sx } : {})}>
+                <TextField
+                  label={item.label}
+                  name={item.name}
+                  value={item.value}
+                  required={item.required}
+                  onChange={handleTextFieldOnChange}
+                  fullWidth={item.fullWidth}
+                  autoFocus={item.autoFocus}
+                  helperText={item.helperText}
+                />
+              </Grid>
+            ))}
 
             <Grid size={{ xs: 12, md: 6 }} sx={{ display: "flex", alignItems: "center" }}>
               <Button
