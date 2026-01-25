@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  Fab,
   IconButton,
   Paper,
   TextField,
@@ -12,40 +11,32 @@ import {
 } from "@mui/material";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { IContactDetails } from "../interfaces/models.interface";
-import { ApiController, ApiStatus } from "../api";
+import { ApiStatus } from "../api";
 import { getArrayRecords } from "../helpers";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
-import {
-  Close,
-  ContactEmergency,
-  InfoOutlined,
-  ListAlt,
-  LocationOn,
-  Visibility,
-} from "@mui/icons-material";
+import { Close, ContactEmergency, InfoOutlined, ListAlt } from "@mui/icons-material";
 import Heading from "../components/Heading";
-import IPLocModal from "../models/IPLocModal";
 import useAppCss from "../hooks/useAppCss";
+import ContactController from "../controllers/contact.controller";
+import { toast } from "react-toastify";
+import { getGlobalToastConfig } from "../configs/toasts.config";
+import useAppMRTFactory from "../hooks/useAppMRTFactory";
 
 function Contact(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IContactDetails[]>([]);
   const [details, setDetails] = useState<IContactDetails>();
   const [detailDialogOpen, setDetailDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [clientIp, setClientIp] = useState<string>("");
-  const [ipLocDialogOpen, setIpLocDialogOpen] = useState<boolean>(false);
   const { GlobalTableCss } = useAppCss();
+  const { getContactColumns } = useAppMRTFactory();
 
   const handleViewBtnClick = useCallback(
     function (id: number) {
       setDetails(viewDetails[id - 1]);
       setDetailDialogOpen(true);
     },
-    [viewDetails]
+    [viewDetails],
   );
 
   const handleDialogCloseBtnClick = useCallback(function (e: BtnClick) {
@@ -54,81 +45,39 @@ function Contact(): ReactNode {
     setDetailDialogOpen(false);
   }, []);
 
-  useEffect(() => {
-    async function getDetails() {
-      const controller = new ApiController();
+  async function getDetails() {
+    const controller = new ContactController();
+    const details = await controller.makeGetContactListReq();
 
-      const authorization = localStorage.getItem("authorization") as string;
-      const details = await controller.GET(
-        "contract/all",
-        `Bearer ${authorization}`
-      );
-
-      if (details.status === ApiStatus.SUCCESS) {
-        const list = getArrayRecords<IContactDetails>(details);
-        setViewDetails(list);
-      }
-
+    if (details.status === ApiStatus.SUCCESS) {
+      const list = getArrayRecords<IContactDetails>(details);
+      setViewDetails(list);
       setIsLoading(false);
+      return;
     }
 
+    setIsLoading(false);
+    toast.error(details.message, getGlobalToastConfig());
+  }
+
+  useEffect(() => {
     setIsLoading(true);
     getDetails();
   }, []);
 
-  const columns = useMemo(
-    () => [
-      { accessorKey: "id", header: "S.No." },
-      { accessorKey: "first_name", header: "First Name" },
-      { accessorKey: "last_name", header: "Last Name" },
-      { accessorKey: "email", header: "Email" },
-      {
-        accessorKey: "actions",
-        header: "Actions",
-        Cell: ({ row }: Record<string, any>) => {
-          return (
-            <Box component="div" display="flex" columnGap={1}>
-              <Fab
-                color="primary"
-                size="small"
-                onClick={() => handleViewBtnClick(row?.original?.id)}
-              >
-                <Visibility fontSize="small" />
-              </Fab>
-
-              <Fab
-                color="warning"
-                size="small"
-                onClick={() => {
-                  setClientIp(row?.original?.ipAddress);
-                  setIpLocDialogOpen(true);
-                }}
-              >
-                <LocationOn fontSize="small" />
-              </Fab>
-            </Box>
-          );
-        },
-      },
-    ],
-    [viewDetails]
-  );
+  const columns = useMemo(() => getContactColumns(handleViewBtnClick), [handleViewBtnClick]);
 
   const table = useMaterialReactTable({
     columns,
     data: viewDetails,
     ...GlobalTableCss,
-    initialState: { pagination: { pageSize: 5, pageIndex: 0 } },
+    initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
     state: { isLoading },
   });
 
   return (
     <>
-      <Paper
-        variant="elevation"
-        component="div"
-        className="p-4 m-1 border border-slate-400"
-      >
+      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
         <Heading Icon={ContactEmergency} text="Contacts" />
 
         <Divider sx={{ mb: 4 }} />
@@ -149,10 +98,7 @@ function Contact(): ReactNode {
 
         <DialogContent sx={{ mt: 2 }}>
           <Box component="div">
-            <fieldset
-              disabled
-              className="py-4 border border-dashed rounded-md border-slate-400"
-            >
+            <fieldset disabled className="py-4 border border-dashed rounded-md border-slate-400">
               <legend>
                 <Box component="div" className="flex gap-1">
                   <InfoOutlined />
@@ -160,14 +106,11 @@ function Contact(): ReactNode {
                 </Box>
               </legend>
 
-              <Box
-                component="div"
-                className="flex items-center justify-center gap-x-2 gap-y-4 flex-wrap p-2"
-              >
+              <Box component="div" className="flex items-center justify-center gap-x-2 gap-y-4 flex-wrap p-2">
                 <TextField
                   label="First Name"
                   className="uppercase"
-                  value={details?.first_name.toUpperCase()}
+                  value={details?.first_name?.toUpperCase()}
                   disabled
                   fullWidth
                 />
@@ -178,20 +121,8 @@ function Contact(): ReactNode {
                   disabled
                   fullWidth
                 />
-                <TextField
-                  label="Email"
-                  className="uppercase"
-                  value={details?.email}
-                  disabled
-                  fullWidth
-                />
-                <TextField
-                  label="Identity"
-                  className="uppercase"
-                  value={details?.ipAddress}
-                  disabled
-                  fullWidth
-                />
+                <TextField label="Email" className="uppercase" value={details?.email} disabled fullWidth />
+                <TextField label="Identity" className="uppercase" value={details?.ipAddress} disabled fullWidth />
                 <TextField
                   label="Message"
                   className="uppercase"
@@ -205,14 +136,6 @@ function Contact(): ReactNode {
           </Box>
         </DialogContent>
       </Dialog>
-
-      {ipLocDialogOpen && (
-        <IPLocModal
-          clientIp={clientIp}
-          handleModalOnClose={() => setIpLocDialogOpen(false)}
-          isOpen={ipLocDialogOpen}
-        />
-      )}
     </>
   );
 }

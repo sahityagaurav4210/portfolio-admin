@@ -1,32 +1,23 @@
 import { ApiStatus, getApiHeaders, HttpVerbs } from "../api";
+import { getApiBaseUrl } from "../helpers";
 import { IApiReply } from "../interfaces/api.interface";
 
 export class FTPController {
   public async refreshAccessToken(token: string): Promise<void | string> {
     try {
-      const controller = new AbortController();
-      const headers = { ...getApiHeaders(), "x-ref-token": token };
+      const appEnv = import.meta.env.VITE_APP_ENV;
+      const baseUrl = getApiBaseUrl(appEnv);
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      const fullAbsUrl = `${baseUrl}/authentication/tokens/refresh-access-token`;
+      const headers = { ...getApiHeaders("application/json"), "x-ref-token": token };
 
-      const rawReply = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/authentication/tokens/refresh-access-token`,
-        {
-          method: HttpVerbs.GET,
-          headers,
-          signal: controller.signal,
-        }
-      );
-
+      const rawReply = await fetch(fullAbsUrl, {
+        method: HttpVerbs.GET,
+        headers,
+      });
       const reply = (await rawReply.json()) as IApiReply;
 
-      if (reply.status === ApiStatus.FORBIDDEN) {
-        return reply.status;
-      }
+      if (reply.status === ApiStatus.FORBIDDEN) return reply.status;
       localStorage.setItem("authorization", reply?.data?.access_token);
     } catch {
       return ApiStatus.EXCEPTION;
@@ -36,13 +27,14 @@ export class FTPController {
   private async GET(url: string, authorization?: string): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = authorization
-        ? { ...getApiHeaders(), Authorization: authorization }
-        : getApiHeaders();
+      const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+      );
 
       const rawReply = await fetch(url, {
         method: HttpVerbs.GET,
@@ -76,28 +68,23 @@ export class FTPController {
     }
   }
 
-  private async POST(
-    url: string,
-    authorization?: string,
-    payload?: Record<string, any>
-  ): Promise<IApiReply> {
+  private async POST(url: string, authorization?: string, payload?: Record<string, any>): Promise<IApiReply> {
     try {
       const controller = new AbortController();
-      const headers = authorization
-        ? { ...getApiHeaders(), Authorization: authorization }
-        : getApiHeaders();
+      const headers = authorization ? { ...getApiHeaders(), Authorization: authorization } : getApiHeaders();
       const commons = {
         method: HttpVerbs.POST,
         headers,
         signal: controller.signal,
       };
-      const apiPayload = payload
-        ? { ...commons, body: JSON.stringify(payload) }
-        : commons;
+      const apiPayload = payload ? { ...commons, body: JSON.stringify(payload) } : commons;
 
-      setTimeout(() => {
-        controller.abort();
-      }, Number(import.meta.env.VITE_API_TIMEOUT) || 5000);
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        Number(import.meta.env.VITE_API_TIMEOUT) || 5000,
+      );
 
       const rawReply = await fetch(url, apiPayload);
       const reply = (await rawReply.json()) as IApiReply;
@@ -126,11 +113,7 @@ export class FTPController {
     }
   }
 
-  public async generateToken(
-    url: string,
-    authorization: string,
-    payload: Record<string, any>
-  ): Promise<boolean> {
+  public async generateToken(url: string, authorization: string, payload: Record<string, any>): Promise<boolean> {
     const reply = await this.POST(url, authorization, payload);
 
     if (reply.status === ApiStatus.SUCCESS) return true;

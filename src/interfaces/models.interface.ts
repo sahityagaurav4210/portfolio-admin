@@ -53,3 +53,8 @@ export interface IChangePwd {
   newPwd: string;
   cnfNewPwd: string;
 }
+
+export interface IToolsModalProp {
+  open: boolean;
+  setOpen: (value: React.SetStateAction<boolean>) => void;
+}

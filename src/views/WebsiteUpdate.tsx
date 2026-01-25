@@ -6,42 +6,27 @@ import {
   CardContent,
   CardMedia,
   CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Grid2,
   TextField,
   Typography,
 } from "@mui/material";
 import { memo, ReactNode, useState } from "react";
 import { IoMdCreate } from "react-icons/io";
-import { ApiController, ApiStatus } from "../api";
+import { ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import { useNavigate } from "react-router-dom";
 
-import { TbHandFingerRight } from "react-icons/tb";
-import { FaRegClipboard } from "react-icons/fa";
-import { FaCircleInfo } from "react-icons/fa6";
-import { AppStrings } from "../i18n";
 import { Build, Link } from "@mui/icons-material";
 import { BtnClick } from "../interfaces";
 import { FTPController } from "../controllers/ftp.controller";
 import useAppCss from "../hooks/useAppCss";
+import ToolsController from "../controllers/tools.controller";
+import TokenModal from "../models/tools/TokenModal";
 
 function WebsiteUpdate(): ReactNode {
-  const { HOME } = AppStrings;
-  const [websiteUpdateStatus, setWebsiteUpdateStatus] =
-    useState<boolean>(false);
-  const [tokenGenerationStatus, setTokenGenerationStatus] =
-    useState<boolean>(false);
-  const [clientToken, setClientToken] = useState<string>("");
-  const [clipboardBtnTxt, setClipboardBtnTxt] = useState<string>(
-    HOME.CLIENT_TOKEN_DIALOG.COPY_BTN
-  );
-  const [tokenDialogOpenFlag, setTokenDialogOpenFlag] =
-    useState<boolean>(false);
+  const [websiteUpdateStatus, setWebsiteUpdateStatus] = useState<boolean>(false);
+  const [tokenDialogOpenFlag, setTokenDialogOpenFlag] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [showCVUpdateForm, setShowCVUpdateForm] = useState<boolean>(false);
   const [url, setUrl] = useState<string>("");
@@ -51,54 +36,29 @@ function WebsiteUpdate(): ReactNode {
 
   async function handleWebsiteUpdate() {
     setWebsiteUpdateStatus(true);
-    const controller = new ApiController();
-    const authorization = localStorage.getItem("authorization") as string;
 
-    const reply = await controller.POST(
-      "update-website",
-      `Bearer ${authorization}`,
-      { portfolio_url: import.meta.env.VITE_PORTFOLIO_URL }
-    );
-    setWebsiteUpdateStatus(false);
+    try {
+      const controller = new ToolsController();
+      const reply = await controller.makeUpdateWebsiteReq({ portfolio_url: import.meta.env.VITE_PORTFOLIO_URL });
 
-    if (reply.status === ApiStatus.LOGOUT) {
-      localStorage.clear();
-      navigate("/");
-      return;
+      if (reply.status === ApiStatus.LOGOUT) {
+        localStorage.clear();
+        await navigate("/");
+        return;
+      }
+
+      if (reply.status === ApiStatus.SUCCESS) {
+        toast.success(reply.message, getGlobalToastConfig());
+        return;
+      }
+
+      throw new Error(reply.message);
+    } catch (error: any) {
+      const message = error?.message || "Something went wrong at our end.";
+      toast.error(message, getGlobalToastConfig());
+    } finally {
+      setWebsiteUpdateStatus(false);
     }
-    toast.success("Website updated successfully", getGlobalToastConfig());
-  }
-
-  async function handleTokenGeneration(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
-    event.preventDefault();
-    setTokenGenerationStatus(true);
-    const controller = new ApiController();
-    const authorization = localStorage.getItem("authorization") as string;
-    const reply = await controller.POST(
-      "authentication/tokens/refresh-client-token",
-      `Bearer ${authorization}`,
-      { url: "https://www.sgaurav.me" }
-    );
-
-    setTokenGenerationStatus(false);
-
-    if (reply.status === ApiStatus.SUCCESS) {
-      setClientToken(reply?.data?.token);
-      setTokenDialogOpenFlag(true);
-    } else toast.error(reply.message, getGlobalToastConfig());
-  }
-
-  async function handleClipboardBtnTxt(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {
-    event.preventDefault();
-    await navigator.clipboard.writeText(clientToken);
-    setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN);
-    setTimeout(() => {
-      setClipboardBtnTxt(HOME.CLIENT_TOKEN_DIALOG.COPY_BTN);
-    }, HOME.CLIENT_TOKEN_DIALOG.COPIED_BTN_TTL);
   }
 
   async function handleFTPButton(event: BtnClick) {
@@ -117,7 +77,7 @@ function WebsiteUpdate(): ReactNode {
     const status = await controller.generateToken(
       `${import.meta.env.VITE_FTP_API_BASE_URL}/tokens/generate`,
       `Bearer ${auth}`,
-      payload
+      payload,
     );
 
     setLoading(false);
@@ -125,28 +85,21 @@ function WebsiteUpdate(): ReactNode {
     if (status) {
       setShowCVUpdateForm(true);
       window.open(
-        `${import.meta.env.VITE_FTP_URL}/?fileName=${
-          payload.fileName
-        }&fileType=${payload.fileType}&email=${email}`,
-        "_blank"
+        `${import.meta.env.VITE_FTP_URL}/?fileName=${payload.fileName}&fileType=${payload.fileType}&email=${email}`,
+        "_blank",
       );
       return;
     }
 
-    toast.error(
-      "Something went wrong, please try again after sometime...",
-      getGlobalToastConfig()
-    );
+    toast.error("Something went wrong, please try again after sometime...", getGlobalToastConfig());
   }
 
   async function handleUpdateCVBtn(event: BtnClick) {
     event.preventDefault();
     setLoading(true);
 
-    const api = new ApiController();
-    const auth = localStorage.getItem("authorization") as string;
-
-    const reply = await api.POST("files/save-cv", `Bearer ${auth}`, { url });
+    const api = new ToolsController();
+    const reply = await api.makeUpdateCVReq({ url });
 
     setLoading(false);
 
@@ -161,13 +114,7 @@ function WebsiteUpdate(): ReactNode {
 
   return (
     <>
-      <Box
-        component="div"
-        display="flex"
-        columnGap={1}
-        alignItems="center"
-        mt={5}
-      >
+      <Box component="div" display="flex" columnGap={1} alignItems="center" mt={5}>
         <Build fontSize="small" color="warning" />
         <Typography variant="h5" color="primary" fontWeight={700}>
           PORTAL TOOLS
@@ -179,24 +126,15 @@ function WebsiteUpdate(): ReactNode {
           <Card sx={CardCss}>
             <CardMedia image="/website.jpg" sx={{ minHeight: 300 }} />
 
-            <CardContent
-              sx={{ fontFamily: "Roboto", width: "100%", height: "100%" }}
-            >
+            <CardContent sx={{ fontFamily: "Roboto", width: "100%", height: "100%" }}>
               <Typography variant="h6" fontWeight={700} color="warning">
                 Website
               </Typography>
 
-              <Typography
-                variant="body2"
-                fontWeight={700}
-                color="textSecondary"
-                className="text-justify"
-              >
-                This section provides a simple way to keep the portfolio up to
-                date by allowing the last updated status to be refreshed with a
-                single click. It ensures visitors always see the most recent
-                update timestamp, reflecting active maintenance and ongoing
-                improvements without any manual changes.
+              <Typography variant="body2" fontWeight={700} color="textSecondary" className="text-justify">
+                This section provides a simple way to keep the portfolio up to date by allowing the last updated status
+                to be refreshed with a single click. It ensures visitors always see the most recent update timestamp,
+                reflecting active maintenance and ongoing improvements without any manual changes.
               </Typography>
             </CardContent>
 
@@ -204,13 +142,7 @@ function WebsiteUpdate(): ReactNode {
               <Button
                 variant="outlined"
                 color="warning"
-                startIcon={
-                  websiteUpdateStatus ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <IoMdCreate />
-                  )
-                }
+                startIcon={websiteUpdateStatus ? <CircularProgress size={16} /> : <IoMdCreate />}
                 disabled={websiteUpdateStatus}
                 onClick={handleWebsiteUpdate}
               >
@@ -229,18 +161,10 @@ function WebsiteUpdate(): ReactNode {
                 CLIENT TOKENS
               </Typography>
 
-              <Typography
-                variant="body2"
-                fontWeight={700}
-                color="textSecondary"
-                className="text-justify"
-              >
-                This section manages client secrets that enable secure
-                communication between the client and the backend. By using
-                protected keys for authentication and request validation, it
-                ensures that only authorized clients can access backend
-                services, safeguarding data exchange and preventing unauthorized
-                connections.
+              <Typography variant="body2" fontWeight={700} color="textSecondary" className="text-justify">
+                This section manages client secrets that enable secure communication between the client and the backend.
+                By using protected keys for authentication and request validation, it ensures that only authorized
+                clients can access backend services, safeguarding data exchange and preventing unauthorized connections.
               </Typography>
             </CardContent>
 
@@ -248,15 +172,8 @@ function WebsiteUpdate(): ReactNode {
               <Button
                 variant="outlined"
                 color="warning"
-                startIcon={
-                  tokenGenerationStatus ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <IoMdCreate />
-                  )
-                }
-                disabled={tokenGenerationStatus}
-                onClick={handleTokenGeneration}
+                startIcon={<IoMdCreate size={16} />}
+                onClick={() => setTokenDialogOpenFlag(true)}
               >
                 Generate
               </Button>
@@ -274,8 +191,8 @@ function WebsiteUpdate(): ReactNode {
               <h1 className="text-xl text-amber-600 font-bold">Update CV</h1>
 
               <p>
-                Upload your CV on the FTP portal by clicking on the button given
-                below and then paste the url obtained in the below form.
+                Upload your CV on the FTP portal by clicking on the button given below and then paste the url obtained
+                in the below form.
               </p>
 
               {showCVUpdateForm && (
@@ -291,12 +208,7 @@ function WebsiteUpdate(): ReactNode {
                     ></TextField>
                   </Grid2>
                   <Grid2 size={4} alignItems={"center"} display={"flex"}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      disabled={loading}
-                      onClick={handleUpdateCVBtn}
-                    >
+                    <Button fullWidth variant="outlined" disabled={loading} onClick={handleUpdateCVBtn}>
                       Update
                     </Button>
                   </Grid2>
@@ -309,13 +221,7 @@ function WebsiteUpdate(): ReactNode {
                 variant="outlined"
                 color="warning"
                 onClick={handleFTPButton}
-                startIcon={
-                  loading ? (
-                    <CircularProgress size={16} color="secondary" />
-                  ) : (
-                    <Link />
-                  )
-                }
+                startIcon={loading ? <CircularProgress size={16} color="secondary" /> : <Link />}
               >
                 FTP Portal
               </Button>
@@ -324,51 +230,7 @@ function WebsiteUpdate(): ReactNode {
         </Grid2>
       </Grid2>
 
-      <Dialog
-        open={tokenDialogOpenFlag}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle className="bg-blue-200 inline-flex items-center gap-1">
-          <FaCircleInfo className="text-blue-800" /> Your token
-        </DialogTitle>
-        <DialogContent className="my-2">
-          <Grid2 container spacing={2} display="flex" alignItems="center">
-            <Grid2 size={{ xs: 8, md: 9 }}>
-              <input
-                type="text"
-                disabled
-                value={"*****************************"}
-                className="border p-2 font-bold text-xl rounded-lg bg-neutral-100 border-neutral-400 outline-none w-full"
-              />
-            </Grid2>
-
-            <Grid2 size={{ xs: 4, md: 3 }}>
-              <Button
-                variant="outlined"
-                color="success"
-                startIcon={<FaRegClipboard />}
-                onClick={handleClipboardBtnTxt}
-                fullWidth
-              >
-                {clipboardBtnTxt}
-              </Button>
-            </Grid2>
-          </Grid2>
-          <p className="text-justify text-zinc-600 text-[10px] mt-1 inline-flex">
-            <TbHandFingerRight className="mx-1 text-neutral-500" size={16} />
-            {HOME.CLIENT_TOKEN_DIALOG.FOOTER_NOTE}
-          </p>
-        </DialogContent>
-        <DialogActions className="bg-neutral-50">
-          <Button
-            variant="outlined"
-            onClick={() => setTokenDialogOpenFlag((prev) => !prev)}
-          >
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {tokenDialogOpenFlag && <TokenModal open={tokenDialogOpenFlag} setOpen={setTokenDialogOpenFlag} />}
     </>
   );
 }

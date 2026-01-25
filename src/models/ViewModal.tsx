@@ -1,55 +1,89 @@
-import { memo, ReactNode } from 'react';
-import { IViewDialogProp } from '../interfaces/component_props.interface';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, TextField, Typography } from '@mui/material';
-import { Close, InfoOutlined, ListAlt } from '@mui/icons-material';
-import Heading from '../components/Heading';
-import AppImage from '../components/AppImage';
+import { memo, ReactNode, useCallback, useState } from "react";
+import { IViewDialogProp } from "../interfaces/component_props.interface";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { Cancel, ListAlt, Visibility, VisibilityOff } from "@mui/icons-material";
+import Heading from "../components/Heading";
+import AppImage from "../components/AppImage";
+import { BtnClick } from "../interfaces";
+import { Grid } from "@mui/system";
 
-function ViewModal({ open, handleDialogCloseBtnClick, text, details }: IViewDialogProp): ReactNode {
+function ViewModal({ open, handleDialogCloseBtnClick, details }: Readonly<IViewDialogProp>): ReactNode {
+  const theme = useTheme();
+  const [showDesc, setShowDesc] = useState(false);
+
+  const handleShowDescBtn = useCallback(
+    function (e: BtnClick) {
+      e.preventDefault();
+      setShowDesc((prev) => !prev);
+    },
+    [showDesc]
+  );
+
   return (
-    <Dialog maxWidth="md" fullWidth open={open}>
+    <Dialog maxWidth="lg" fullWidth open={open}>
       <DialogTitle>
-        <Box component="div" className='flex justify-end'>
+        <Box component="div" className="flex justify-end">
           <IconButton onClick={handleDialogCloseBtnClick}>
-            <Close fontSize='small' color='error' />
+            <Cancel fontSize="medium" color="error" />
           </IconButton>
         </Box>
 
-        <Heading Icon={ListAlt} text='Details' />
+        <Heading Icon={ListAlt} text="Your skill" />
       </DialogTitle>
 
-      <DialogContent sx={{ mt: 2 }}>
-        <Box component="div" className='flex items-center justify-center'>
-          <AppImage url={details?.url || '/404.jpg'} />
+      <DialogContent sx={{ borderTop: `1px solid ${theme.palette.secondary.A100}` }}>
+        <Box component="div" className="flex justify-end my-2">
+          <Button
+            variant="contained"
+            startIcon={showDesc ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+            onClick={handleShowDescBtn}
+          >
+            {showDesc ? "Hide description" : "Show description"}
+          </Button>
         </Box>
 
-        <Box component="div">
-          <fieldset disabled className='py-4 border border-dashed rounded-md border-slate-400 my-2'>
-            <legend>
-              <Box component="div" className='flex gap-1'>
-                <InfoOutlined />
-                <Typography variant='button'>{text}</Typography>
-              </Box>
-            </legend>
+        <Grid container columnSpacing={1} rowSpacing={2}>
+          <Grid size={{ xs: 12, md: 8 }}>
+            <TextField label="Name" value={details?.name.toUpperCase()} disabled fullWidth />
+          </Grid>
 
+          <Grid size={{ xs: 12, md: 4 }}>
+            <TextField label="Experience (in months)" value={details?.experience} disabled fullWidth />
+          </Grid>
+        </Grid>
 
-            <Box component="div" className='flex items-center justify-center gap-x-2 gap-y-4 flex-wrap p-2'>
-              <TextField label="Name" value={details?.name.toUpperCase()} disabled fullWidth />
-              <TextField label="Experience (in months)" value={details?.experience} disabled fullWidth />
+        {showDesc && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              className="underline underline-offset-2 uppercase decoration-wavy"
+              color="primary"
+            >
+              Description
+            </Typography>
+            <Box component="div" className="flex items-center justify-evenly gap-x-2 flex-wrap md:flex-nowrap">
+              <AppImage url={details?.url || "/404.jpg"} width="128px" height="128px" />
+              <Box
+                component="div"
+                dangerouslySetInnerHTML={{ __html: details?.description }}
+                className="text-justify"
+              ></Box>
             </Box>
-          </fieldset>
-
-          <fieldset disabled className='p-2 border border-dashed rounded-md border-slate-400'>
-            <legend>
-              <Box component="div" className='flex gap-1'>
-                <InfoOutlined />
-                <Typography variant='button'>SKILL DESCRIPTION</Typography>
-              </Box>
-            </legend>
-
-            <Box component="div" dangerouslySetInnerHTML={{ __html: details?.description }} className='text-justify'></Box>
-          </fieldset>
-        </Box>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

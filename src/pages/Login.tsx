@@ -20,16 +20,7 @@ import { AppStrings } from "../i18n";
 import { LoginController } from "../controllers/login.controller";
 import { ApiStatus } from "../api";
 import { BtnClick } from "../interfaces";
-import {
-  Headset,
-  LockOpen,
-  LockReset,
-  Phone,
-  Replay,
-  Security,
-  Verified,
-  Visibility,
-} from "@mui/icons-material";
+import { Headset, LockOpen, LockReset, Phone, Replay, Security, Verified, Visibility } from "@mui/icons-material";
 import CaptchaValidated from "../components/CaptchaValidated";
 
 function Login(): ReactNode {
@@ -41,11 +32,9 @@ function Login(): ReactNode {
     captcha: "",
   });
   const [frmLoading, setFrmLoading] = useState<boolean>(false);
-  const [isCaptchaAudioLoading, setIsCaptchaAudioLoading] =
-    useState<boolean>(false);
+  const [isCaptchaAudioLoading, setIsCaptchaAudioLoading] = useState<boolean>(false);
   const [isCaptchaValidated, setIsCaptchaValidated] = useState<boolean>(false);
-  const [isCaptchaValidating, setIsCaptchaValidating] =
-    useState<boolean>(false);
+  const [isCaptchaValidating, setIsCaptchaValidating] = useState<boolean>(false);
   const [isCaptchaLoading, setIsCaptchaLoading] = useState<boolean>(false);
   const [captchaId, setCaptchaId] = useState<number>(0);
   const [captchaBlobUri, setCaptchaBlobUri] = useState<string>("");
@@ -91,22 +80,30 @@ function Login(): ReactNode {
   }, []);
 
   useEffect(() => {
+    const captchaTimeout = Number(import.meta.env.VITE_CAPTCHA_TIMEOUT) || 1;
+    const timeout = captchaTimeout * 60 * 1000;
+
+    const intervalId = setInterval(() => {
+      loadCaptcha();
+    }, timeout);
+
+    return function () {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
     if (captchaId) {
       loadCaptchaImage();
     }
   }, [captchaId]);
 
-  async function handleRefCaptcha(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): Promise<void> {
+  async function handleRefCaptcha(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
     event.preventDefault();
     setIsCaptchaLoading(true);
 
     const controller = new LoginController();
-    const response = await controller.makeGetRefCaptchaReq(
-      "ref-captcha",
-      captchaId
-    );
+    const response = await controller.makeGetRefCaptchaReq("ref-captcha", captchaId);
 
     if (response.status !== ApiStatus.SUCCESS) {
       setIsCaptchaLoading(false);
@@ -145,10 +142,7 @@ function Login(): ReactNode {
     setIsCaptchaValidating(true);
 
     const controller = new LoginController();
-    const response = await controller.makeGetCaptchaValidateReq(
-      captchaId,
-      loginFrmData.captcha
-    );
+    const response = await controller.makeGetCaptchaValidateReq(captchaId, loginFrmData.captcha);
 
     if (response.status !== ApiStatus.SUCCESS) {
       setIsCaptchaValidating(false);
@@ -160,25 +154,17 @@ function Login(): ReactNode {
     setIsCaptchaValidating(false);
   }
 
-  async function handleLogin(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): Promise<void> {
+  async function handleLogin(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
     event.preventDefault();
     const { phone, password } = loginFrmData || {};
 
     if (!phone || !password) {
-      toast.warning(
-        AppStrings.LOGIN.ERR_MSGS.FIELD_REQ,
-        getGlobalToastConfig()
-      );
+      toast.warning(AppStrings.LOGIN.ERR_MSGS.FIELD_REQ, getGlobalToastConfig());
       return;
     }
 
     if (!AppPatterns.phone.test(phone)) {
-      toast.warning(
-        AppStrings.LOGIN.ERR_MSGS.INV_PHONE,
-        getGlobalToastConfig()
-      );
+      toast.warning(AppStrings.LOGIN.ERR_MSGS.INV_PHONE, getGlobalToastConfig());
       return;
     }
     if (!AppPatterns.pwd.test(password)) {
@@ -189,10 +175,8 @@ function Login(): ReactNode {
     setFrmLoading(true);
 
     const controller = new LoginController();
-    const reply = await controller.makePostLoginReq(
-      "authentication/login",
-      loginFrmData
-    );
+    const payload = { phone: loginFrmData.phone, password: loginFrmData.password, captchaId };
+    const reply = await controller.makePostLoginReq("authentication/login", payload);
 
     setFrmLoading(false);
 
@@ -234,14 +218,8 @@ function Login(): ReactNode {
           LOGIN PORTAL
         </Typography>
 
-        <Typography
-          variant="body1"
-          my={2}
-          fontWeight={700}
-          className="text-justify"
-        >
-          Welcome back! Just pop in your phone number and password below to
-          quickly sign in and get started.
+        <Typography variant="body1" my={2} fontWeight={700} className="text-justify">
+          Welcome back! Just pop in your phone number and password below to quickly sign in and get started.
         </Typography>
 
         <Grid container spacing={1} marginTop={0.25}>
@@ -260,20 +238,12 @@ function Login(): ReactNode {
               id="email"
               inputMode="tel"
               value={loginFrmData?.phone}
-              onChange={(e) =>
-                setLoginFrmData((prev) => ({ ...prev, phone: e.target.value }))
-              }
+              onChange={(e) => setLoginFrmData((prev) => ({ ...prev, phone: e.target.value }))}
               color="warning"
               slotProps={{
                 input: {
                   startAdornment: (
-                    <Fab
-                      tabIndex={-1}
-                      color="warning"
-                      variant="extended"
-                      size="small"
-                      sx={{ mr: 1 }}
-                    >
+                    <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
                       <Phone fontSize="small" />
                     </Fab>
                   ),
@@ -303,12 +273,7 @@ function Login(): ReactNode {
               slotProps={{
                 input: {
                   endAdornment: (
-                    <Fab
-                      color="warning"
-                      variant="extended"
-                      size="small"
-                      onClick={handlePwdClick}
-                    >
+                    <Fab color="warning" variant="extended" size="small" onClick={handlePwdClick}>
                       <Visibility fontSize="small" />
                     </Fab>
                   ),
@@ -323,59 +288,25 @@ function Login(): ReactNode {
             </Grid>
           ) : (
             <>
-              <Grid
-                size={{ xs: 8, md: 3 }}
-                display="flex"
-                alignItems="center"
-                mt={2}
-              >
+              <Grid size={{ xs: 8, md: 3 }} display="flex" alignItems="center" mt={2}>
                 {isCaptchaLoading ? (
                   <>
                     <CircularProgress size={16} color="secondary" />
-                    <Typography variant="body1">
-                      Loading captcha, please wait...
-                    </Typography>
+                    <Typography variant="body1">Loading captcha, please wait...</Typography>
                   </>
                 ) : (
-                  <img
-                    src={captchaBlobUri}
-                    width={200}
-                    height={60}
-                    alt="Captcha"
-                  ></img>
+                  <img src={captchaBlobUri} width={200} height={60} alt="Captcha"></img>
                 )}
               </Grid>
 
-              <Grid
-                size={{ xs: 2, md: 1 }}
-                display="flex"
-                alignItems="center"
-                mt={2}
-              >
-                <Fab
-                  color="info"
-                  onClick={handleRefCaptcha}
-                  disabled={isCaptchaLoading}
-                >
-                  {isCaptchaLoading ? (
-                    <CircularProgress size={16} color="secondary" />
-                  ) : (
-                    <Replay fontSize="small" />
-                  )}
+              <Grid size={{ xs: 2, md: 1 }} display="flex" alignItems="center" mt={2}>
+                <Fab color="info" onClick={handleRefCaptcha} disabled={isCaptchaLoading}>
+                  {isCaptchaLoading ? <CircularProgress size={16} color="secondary" /> : <Replay fontSize="small" />}
                 </Fab>
               </Grid>
 
-              <Grid
-                size={{ xs: 2, md: 1 }}
-                display="flex"
-                alignItems="center"
-                mt={2}
-              >
-                <Fab
-                  color="info"
-                  onClick={handleCaptchaAudioBtn}
-                  disabled={isCaptchaAudioLoading || isCaptchaLoading}
-                >
+              <Grid size={{ xs: 2, md: 1 }} display="flex" alignItems="center" mt={2}>
+                <Fab color="info" onClick={handleCaptchaAudioBtn} disabled={isCaptchaAudioLoading || isCaptchaLoading}>
                   {isCaptchaAudioLoading ? (
                     <CircularProgress size={16} color="secondary" />
                   ) : (
@@ -395,34 +326,8 @@ function Login(): ReactNode {
                   slotProps={{
                     input: {
                       startAdornment: (
-                        <Fab
-                          tabIndex={-1}
-                          color="warning"
-                          variant="extended"
-                          size="small"
-                          sx={{ mr: 1 }}
-                        >
+                        <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
                           <Security fontSize="small" sx={{ color: "white" }} />
-                        </Fab>
-                      ),
-                      endAdornment: (
-                        <Fab
-                          tabIndex={-1}
-                          color="success"
-                          variant="extended"
-                          size="small"
-                          sx={{ mr: 1 }}
-                          onClick={handleCaptchaValidateBtn}
-                          disabled={isCaptchaValidated || isCaptchaValidating}
-                        >
-                          {isCaptchaValidating ? (
-                            <CircularProgress size={16} color="secondary" />
-                          ) : (
-                            <Verified
-                              fontSize="small"
-                              sx={{ color: "white" }}
-                            />
-                          )}
                         </Fab>
                       ),
                     },
@@ -441,39 +346,37 @@ function Login(): ReactNode {
             </>
           )}
 
-          <Grid size={{ xs: 4, md: 6 }}>
-            <Button
-              variant="contained"
-              sx={{ width: { xs: "100%", md: "50%" } }}
-              onClick={handleLogin}
-              startIcon={
-                frmLoading ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <LockOpen fontSize="small" />
-                )
-              }
-              disabled={frmLoading}
-              color="warning"
-              fullWidth
-            >
-              LOGIN
-            </Button>
-          </Grid>
-
-          <Grid
-            size={{ xs: 8, md: 6 }}
-            display="flex"
-            justifyContent="flex-end"
-            alignItems="center"
-          >
+          <Grid size={4} offset={8} display="flex" justifyContent="flex-end" alignItems="center">
             <LockReset fontSize="small" color="warning" />
-            <Link
-              to="/forgot-pwd"
-              className="text-base text-orange-500 underline underline-offset-2 font-semibold"
-            >
+            <Link to="/forgot-pwd" className="text-base text-orange-500 underline underline-offset-2 font-semibold">
               Forgot your password
             </Link>
+          </Grid>
+
+          <Grid size={12} display="flex" columnGap={2}>
+            {!isCaptchaValidated && (
+              <Button
+                variant="contained"
+                onClick={handleCaptchaValidateBtn}
+                startIcon={isCaptchaValidating ? <CircularProgress size={16} /> : <Verified fontSize="small" />}
+                disabled={isCaptchaValidated || isCaptchaValidating}
+                fullWidth
+                color="success"
+              >
+                I am not a robot
+              </Button>
+            )}
+
+            <Button
+              variant="contained"
+              onClick={handleLogin}
+              startIcon={frmLoading ? <CircularProgress size={16} /> : <LockOpen fontSize="small" />}
+              disabled={frmLoading}
+              fullWidth
+              autoFocus={isCaptchaValidated}
+            >
+              Login in your account
+            </Button>
           </Grid>
 
           <Grid size={12}>
