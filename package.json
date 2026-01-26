@@ -1,7 +1,7 @@
 {
   "name": "portfolio-admin",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy:linux": "pwsh scripts/linux/deploy.ps1",
-    "deploy:win": "powershell -ExecutionPolicy Bypass -File .\\scripts\\windows\\deploy.ps1"
+    "deploy:win": "powershell -ExecutionPolicy Bypass -File .\\scripts\\windows\\deploy.ps1",
+    "version:patch": "npm version patch --no-git-tag-version && node ./scripts/update-version.mjs",
+    "version:minor": "npm version minor --no-git-tag-version && node ./scripts/update-version.mjs",
+    "version:major": "npm version major --no-git-tag-version && node ./scripts/update-version.mjs"
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",
