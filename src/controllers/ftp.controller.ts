@@ -14,6 +14,7 @@ export class FTPController {
       const rawReply = await fetch(fullAbsUrl, {
         method: HttpVerbs.GET,
         headers,
+        credentials: "include",
       });
       const reply = (await rawReply.json()) as IApiReply;
 
