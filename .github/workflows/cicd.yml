@@ -79,18 +79,28 @@ jobs:
           VITE_PBADMIN_URL: ${{ secrets.VITE_PBADMIN_URL }}
           VITE_CAPTCHA_TIMEOUT: ${{ secrets.VITE_CAPTCHA_TIMEOUT }}
           VITE_APP_VERSION: ${{secrets.VITE_APP_VERSION}}
+          GH_PWD: ${{ secrets.GH_SECRET }}
+          GH_USERNAME: ${{ vars.GH_USERNAME }}
         run: |
-          docker build --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} --build-arg VITE_APP_ENV=${VITE_APP_ENV} --build-arg VITE_API_TIMEOUT=${VITE_API_TIMEOUT} --build-arg VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}  --build-arg VITE_FRONTEND_URL=${VITE_FRONTEND_URL} --build-arg VITE_FTP_URL=${VITE_FTP_URL} --build-arg VITE_FTP_API_BASE_URL=${VITE_FTP_API_BASE_URL} -t portfolio-admin-panel .
-          docker tag portfolio-admin-panel ${DOCKER_USERNAME}/portfolio-admin-panel:latest
+          docker build --build-arg VITE_API_BASE_URL=${VITE_API_BASE_URL} --build-arg VITE_APP_ENV=${VITE_APP_ENV} --build-arg VITE_API_TIMEOUT=${VITE_API_TIMEOUT} --build-arg VITE_PORTFOLIO_URL=${VITE_PORTFOLIO_URL}  --build-arg VITE_FRONTEND_URL=${VITE_FRONTEND_URL} --build-arg VITE_FTP_URL=${VITE_FTP_URL} --build-arg VITE_FTP_API_BASE_URL=${VITE_FTP_API_BASE_URL} -t ${DOCKER_USERNAME}/portfolio-admin-panel:latest -t ghcr.io/${GH_USERNAME}/portfolio-admin-panel:0.2.0 .
 
       - name: Publishing the production image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_SECRET }}
+          GH_PWD: ${{ secrets.GH_SECRET }}
+          GH_USERNAME: ${{ vars.GH_USERNAME }}
         if: github.event_name == 'push' && github.ref == 'refs/heads/release'
         run: |
+          echo "Logging and pushing the image to DockerHub"
+
           docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
           docker push ${DOCKER_USERNAME}/portfolio-admin-panel:latest
+
+          echo "Logging and pushing the image to GHCR"
+
+          docker login ghcr.io -u ${GH_USERNAME} -p ${GH_PWD}
+          docker push ghcr.io/${GH_USERNAME}/portfolio-admin-panel:0.2.0
 
       - name: Deploying the code to development server
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
