@@ -6,7 +6,7 @@ The format is based on **Keep a Changelog**, and this project adheres to **Seman
 
 ---
 
-## [Unreleased]
+## [0.2.0]
 
 ### Summary
 
