@@ -6,7 +6,7 @@ function Footer() {
       className="w-full overflow-hidden bg-gradient-to-tr from-amber-950 to-orange-950 via-yellow-900 py-4 text-xs px-1 sm:px-0 font-bold"
       style={{ fontFamily: "Roboto" }}
     >
-      <div className="flex text-white justify-center">
+      <div className="flex flex-col sm:flex-row text-white justify-center items-center gap-1 text-center">
         <p className="flex justify-center items-center h-full flex-wrap">
           Made in{" "}
           <span className="font-extrabold text-white flex items-center">

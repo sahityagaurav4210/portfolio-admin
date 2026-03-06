@@ -98,14 +98,21 @@ export class CWPBApiController {
     return rawReply;
   }
 
-  public async POST(url: string, queryStrings?: QueryString, body?: ApiPayload): Promise<Response> {
+  public async POST(url: string, queryStrings?: QueryString, body?: ApiPayload | FormData): Promise<Response> {
     let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
-    const headers = getApiHeaders("application/json");
+    const isFormData = body instanceof FormData;
+
+    // For FormData, do NOT set Content-Type manually — the browser must set it
+    // automatically so it can append the required multipart boundary parameter.
+    const headers = isFormData
+      ? (({ "Content-Type": _, ...rest }) => rest)(getApiHeaders() as Record<string, string>)
+      : getApiHeaders("application/json");
+
     const apiConfig: RequestInit = {
       method: HttpVerbs.POST,
       headers,
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
       credentials: "include",
       signal: controller.signal,
     };

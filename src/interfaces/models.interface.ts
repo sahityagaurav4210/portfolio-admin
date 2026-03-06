@@ -58,3 +58,8 @@ export interface IToolsModalProp {
   open: boolean;
   setOpen: (value: React.SetStateAction<boolean>) => void;
 }
+
+export interface IUploadCVModalProp {
+  open: boolean;
+  setOpen: (value: React.SetStateAction<boolean>) => void;
+}
