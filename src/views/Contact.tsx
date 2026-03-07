@@ -65,6 +65,14 @@ function Contact(): ReactNode {
     getDetails();
   }, []);
 
+  useEffect(() => {
+    document.title = "Portfolio Admin || Contacts";
+
+    return function () {
+      document.title = "Portfolio Admin";
+    };
+  }, []);
+
   const columns = useMemo(() => getContactColumns(handleViewBtnClick), [handleViewBtnClick]);
 
   const table = useMaterialReactTable({

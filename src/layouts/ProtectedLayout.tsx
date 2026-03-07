@@ -12,13 +12,17 @@ import {
   Menu,
   MenuItem,
   Toolbar,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useCallback, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
 import Footer from "../views/Footer";
 import ImgContainer from "../components/ImgContainer";
@@ -35,17 +39,26 @@ function ProtectedLayout() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const drawerWidth = 250;
+  const collapsedWidth = 60;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  // exact match for root, prefix match for everything else
+  const isActive = (url: string) =>
+    url === "/" ? pathname === "/" : pathname.startsWith(url);
   const [isLoading, setIsLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
   const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
   const [isCnfDialogOpen, setIsCnfDialogOpen] = useState(false);
+
+  const currentDesktopWidth = sidebarCollapsed ? collapsedWidth : drawerWidth;
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -122,19 +135,119 @@ function ProtectedLayout() {
     await fetchProfile();
   }, []);
 
-  const DrawerItems = (
+  // Mobile drawer items — always show label
+  const MobileDrawerItems = (
     <div>
       <List>
-        {SIDEBAR_ITEMS.map((text) => (
-          <ListItem key={text.url} disablePadding>
-            <ListItemButton href={text.url}>
-              <ListItemIcon>
-                <text.Icon />
-              </ListItemIcon>
-              <ListItemText primary={text.name} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {SIDEBAR_ITEMS.map((text) => {
+          const active = isActive(text.url);
+          return (
+            <ListItem key={text.url} disablePadding>
+              <ListItemButton
+                href={text.url}
+                sx={{
+                  backgroundColor: active ? theme.palette.primary.main : "transparent",
+                  "&:hover": {
+                    backgroundColor: active
+                      ? theme.palette.primary.dark
+                      : "action.hover",
+                  },
+                  borderRadius: 1,
+                  mx: 0.5,
+                  my: 0.25,
+                }}
+              >
+                <ListItemIcon sx={{ color: active ? "#fff" : "inherit" }}>
+                  <text.Icon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={text.name}
+                  slotProps={{
+                    primary: { style: { color: active ? "#fff" : "inherit", fontWeight: active ? 700 : 400 } },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </div>
+  );
+
+  // Desktop drawer items — respects collapsed state
+  const DesktopDrawerItems = (
+    <div>
+      {/* Collapse toggle button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: sidebarCollapsed ? "center" : "flex-end",
+          px: 0.5,
+          py: 0.5,
+          borderBottom: "1px solid gainsboro",
+        }}
+      >
+        <Tooltip title={sidebarCollapsed ? "Expand" : "Collapse"} placement="right">
+          <IconButton
+            size="small"
+            onClick={() => setSidebarCollapsed((prev) => !prev)}
+            aria-label={sidebarCollapsed ? "expand sidebar" : "collapse sidebar"}
+            sx={theme => ({
+              backgroundColor: theme.palette.warning.main,
+              "&:hover": { backgroundColor: theme.palette.warning.dark },
+              transition: "background-color 0.2s",
+              color: "whitesmoke"
+            })}
+          >
+            {sidebarCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      <List>
+        {SIDEBAR_ITEMS.map((text) => {
+          const active = isActive(text.url);
+          return (
+            <ListItem key={text.url} disablePadding>
+              <Tooltip title={sidebarCollapsed ? text.name : ""} placement="right">
+                <ListItemButton
+                  href={text.url}
+                  sx={{
+                    justifyContent: sidebarCollapsed ? "center" : "flex-start",
+                    px: sidebarCollapsed ? 0 : 2,
+                    backgroundColor: active ? theme.palette.primary.main : "transparent",
+                    "&:hover": {
+                      backgroundColor: active
+                        ? theme.palette.primary.dark
+                        : "action.hover",
+                    },
+                    borderRadius: 1,
+                    mx: 0.5,
+                    my: 0.25,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: sidebarCollapsed ? 0 : 56,
+                      justifyContent: "center",
+                      color: active ? "#fff" : "inherit",
+                    }}
+                  >
+                    <text.Icon />
+                  </ListItemIcon>
+                  {!sidebarCollapsed && (
+                    <ListItemText
+                      primary={text.name}
+                      slotProps={{
+                        primary: { style: { color: active ? "#fff" : "inherit", fontWeight: active ? 700 : 400 } },
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          );
+        })}
       </List>
     </div>
   );
@@ -263,12 +376,15 @@ function ProtectedLayout() {
           <Box
             component="aside"
             sx={{
-              width: { sm: `${drawerWidth}px` },
-              borderRight: { md: "1px solid gainsboro", xs: "none" },
+              width: { sm: `${currentDesktopWidth}px` },
+              flexShrink: 0,
+              borderRight: `1px solid ${alpha(theme.palette.primary.main, 0.45)}`,
               mr: 1,
               position: "relative",
+              transition: "width 0.25s ease",
             }}
           >
+            {/* Mobile: temporary overlay drawer (unchanged) */}
             <Drawer
               variant="temporary"
               open={mobileOpen}
@@ -286,9 +402,10 @@ function ProtectedLayout() {
             >
               <Toolbar />
               <Divider />
-              {DrawerItems}
+              {MobileDrawerItems}
             </Drawer>
 
+            {/* Desktop: permanent sidebar with collapse support */}
             <Drawer
               variant="permanent"
               sx={{
@@ -296,16 +413,30 @@ function ProtectedLayout() {
                 "& .MuiDrawer-paper": {
                   position: "relative",
                   boxSizing: "border-box",
-                  border: "none",
+                  borderTop: "none",
+                  borderLeft: "none",
+                  borderBottom: "none",
+                  borderRight: `1px solid ${alpha(theme.palette.primary.main, 0.45)}`,
+                  width: `${currentDesktopWidth}px`,
+                  overflowX: "hidden",
+                  transition: "width 0.25s ease",
                 },
               }}
               open
             >
-              {DrawerItems}
+              {DesktopDrawerItems}
             </Drawer>
           </Box>
 
-          <Box component="div" sx={{ width: { xs: "100%", md: `calc(100% - ${drawerWidth}px)` } }}>
+          <Box
+            component="div"
+            sx={{
+              flexGrow: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              transition: "width 0.25s ease",
+            }}
+          >
             <Outlet />
           </Box>
         </Box>

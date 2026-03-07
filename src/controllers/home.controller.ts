@@ -16,6 +16,19 @@ class HomeController {
     return reply;
   }
 
+  public async makeGetLoggedInUserProfileReq(): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/authentication/get-me`;
+
+    const rawReply = await appController.GET(fullAbsUrl);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
   public async makeMonthlyWebsiteViewsReq(): Promise<IApiReply> {
     const appEnv = import.meta.env.VITE_APP_ENV;
     const baseUrl = getApiBaseUrl(appEnv);

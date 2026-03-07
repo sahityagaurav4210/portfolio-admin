@@ -40,12 +40,20 @@ function Skills(): ReactNode {
     getDetails();
   }, []);
 
+  useEffect(() => {
+    document.title = "Portfolio Admin || Skills";
+
+    return function () {
+      document.title = "Portfolio Admin";
+    };
+  }, []);
+
   const handleViewBtnClick = useCallback(
     function (id: number) {
       setDetails(skills[id - 1]);
       setDetailDialogOpen(true);
     },
-    [skills]
+    [skills],
   );
 
   const handleEditBtnClick = useCallback(
@@ -53,21 +61,21 @@ function Skills(): ReactNode {
       setDetails(skills[id - 1]);
       setEditDialogBoxView(true);
     },
-    [skills]
+    [skills],
   );
 
   const handleAddDialogBoxClickBtn = useCallback(
     function () {
       setAddDialogBoxView(false);
     },
-    [addDialogBoxView]
+    [addDialogBoxView],
   );
 
   const handleAddBtnClick = useCallback(
     function () {
       setAddDialogBoxView(true);
     },
-    [addDialogBoxView]
+    [addDialogBoxView],
   );
 
   const handleDialogCloseBtnClick = useCallback(function (e: BtnClick) {
@@ -101,7 +109,7 @@ function Skills(): ReactNode {
         },
       },
     ],
-    [skills]
+    [skills],
   );
 
   const table = useMaterialReactTable({

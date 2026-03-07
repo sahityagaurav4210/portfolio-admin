@@ -1,22 +1,36 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppStrings } from "../i18n";
 import { IProtected } from "../interfaces/component_props.interface";
-import Loader from "../pages/Loader";
+import AuthLoader from "../components/AuthLoader";
+import HomeController from "../controllers/home.controller";
+import { ApiStatus } from "../api";
 
 function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
   const [loading, setLoading] = useState<boolean>(false);
-  const loginStatus = Boolean(localStorage.getItem("login_status"));
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!loginStatus) navigate(AppStrings.ROUTES.LOGIN);
+  async function checkLoginStatus() {
+    const controller = new HomeController();
+    const profile = await controller.makeGetLoggedInUserProfileReq();
 
-    setLoading((prev) => !prev);
+    setLoading(false);
+
+    if (profile.status === ApiStatus.UNAUTHORISED) {
+      localStorage.clear();
+      return await navigate("/auth/login");
+    }
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    checkLoginStatus();
   }, []);
 
-  if (loading) return children;
-  else return <Loader />;
+  if (loading) {
+    return <AuthLoader />;
+  } else {
+    return children;
+  }
 }
 
 export default ProtectedView;
