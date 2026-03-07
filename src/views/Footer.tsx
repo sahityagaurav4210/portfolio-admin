@@ -1,9 +1,9 @@
-import React from "react";
+import React, { ReactNode } from "react";
 
-function Footer() {
+function Footer(): ReactNode {
   return (
     <section
-      className="w-full overflow-hidden bg-gradient-to-tr from-amber-950 to-orange-950 via-yellow-900 py-4 text-xs px-1 sm:px-0 font-bold"
+      className="w-full overflow-hidden bg-gradient-to-tr from-blue-950 to-blue-950 via-blue-900 py-4 text-xs px-1 sm:px-0 font-bold"
       style={{ fontFamily: "Roboto" }}
     >
       <div className="flex flex-col sm:flex-row text-white justify-center items-center gap-1 text-center">

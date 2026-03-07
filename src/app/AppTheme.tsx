@@ -32,6 +32,12 @@ const AppTheme = createTheme({
         containedSizeSmall: {
           padding: "0.5rem",
         },
+        containedPrimary: {
+          transition: "all 0.34s ease-in-out",
+          "&:active": {
+            transform: "scale(0.98)",
+          },
+        },
       },
     },
   },

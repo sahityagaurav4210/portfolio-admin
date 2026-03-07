@@ -10,6 +10,7 @@ import ForgetPwd from "../pages/ForgetPwd";
 import { AppStrings } from "../i18n";
 import NotFound from "../pages/NotFound";
 import Error from "../pages/Error";
+import ProtectedView from "../views/Protected";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -18,14 +19,14 @@ const AppRoutes = createBrowserRouter([
     children: [
       {
         path: `/${AppStrings.ROUTES.LOGIN}`,
-        element: <Login />
+        element: <Login />,
       },
       {
         path: `/${AppStrings.ROUTES.FORGET_PWD}`,
-        element: <ForgetPwd />
-      }
+        element: <ForgetPwd />,
+      },
     ],
-    errorElement: <Error />
+    errorElement: <Error />,
   },
   {
     path: "/",
@@ -33,31 +34,51 @@ const AppRoutes = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />
+        element: (
+          <ProtectedView>
+            <Home />
+          </ProtectedView>
+        ),
       },
       {
         path: `/${AppStrings.ROUTES.HIRINGS}`,
-        element: <Hirings />
+        element: (
+          <ProtectedView>
+            <Hirings />
+          </ProtectedView>
+        ),
       },
       {
         path: `/${AppStrings.ROUTES.CONTACTS}`,
-        element: <Contact />
+        element: (
+          <ProtectedView>
+            <Contact />
+          </ProtectedView>
+        ),
       },
       {
         path: `/${AppStrings.ROUTES.SKILLS}`,
-        element: <Skills />
+        element: (
+          <ProtectedView>
+            <Skills />
+          </ProtectedView>
+        ),
       },
       {
         path: `/${AppStrings.ROUTES.VIEW_DETAILS}`,
-        element: <TodayViewsDetails />
-      }
+        element: (
+          <ProtectedView>
+            <TodayViewsDetails />
+          </ProtectedView>
+        ),
+      },
     ],
-    errorElement: <Error />
+    errorElement: <Error />,
   },
   {
     path: "*",
-    element: <NotFound />
-  }
+    element: <NotFound />,
+  },
 ]);
 
 export default AppRoutes;
