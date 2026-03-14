@@ -14,13 +14,14 @@ function Home(): ReactNode {
   const [totalViewsCount, setTotalViewsCount] = useState<number>(-2);
   const [monthlyViewCount, setMonthlyViewCount] = useState<number>(-2);
 
-  const loginStatus = Boolean(localStorage.getItem("login_status"));
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loginStatus) {
-      navigate("/auth/login");
-    }
+    document.title = "Portfolio Admin || Dashboard";
+
+    return function () {
+      document.title = "Portfolio Admin";
+    };
   }, []);
 
   useEffect(() => {

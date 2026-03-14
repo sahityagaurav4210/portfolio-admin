@@ -10,14 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {
-  memo,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { memo, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { IHiringDetails } from "../interfaces/models.interface";
 import { ApiStatus } from "../api";
 import Heading from "../components/Heading";
@@ -35,10 +28,7 @@ import {
   Visibility,
   Work,
 } from "@mui/icons-material";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-} from "material-react-table";
+import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
 import { getArrayRecords } from "../helpers";
 import { Grid } from "@mui/system";
@@ -86,7 +76,7 @@ function Hirings(): ReactNode {
       setDetails(viewDetails[id - 1]);
       setDetailDialogOpen(true);
     },
-    [viewDetails]
+    [viewDetails],
   );
 
   const handleDialogCloseBtnClick = useCallback(function (e: BtnClick) {
@@ -103,10 +93,7 @@ function Hirings(): ReactNode {
         setIsDeleting(false);
         setIsCnfDialogOpen(false);
 
-        toast.warning(
-          "Please select a proper hiring table row",
-          getGlobalToastConfig()
-        );
+        toast.warning("Please select a proper hiring table row", getGlobalToastConfig());
         return;
       }
 
@@ -132,7 +119,7 @@ function Hirings(): ReactNode {
       setIsCnfDialogOpen(false);
       await getDetails();
     },
-    [isCnfDialogOpen, isDeleting, getDetails]
+    [isCnfDialogOpen, isDeleting, getDetails],
   );
 
   const columns = useMemo(
@@ -147,11 +134,7 @@ function Hirings(): ReactNode {
         header: "Actions",
         Cell: ({ row }: Record<string, any>) => (
           <Box component="div" display="flex" columnGap={1} alignItems="center">
-            <Fab
-              color="primary"
-              size="small"
-              onClick={() => handleViewBtnClick(row?.original?.id)}
-            >
+            <Fab color="primary" size="small" onClick={() => handleViewBtnClick(row?.original?.id)}>
               <Visibility fontSize="small" />
             </Fab>
 
@@ -180,7 +163,7 @@ function Hirings(): ReactNode {
         ),
       },
     ],
-    [viewDetails]
+    [viewDetails],
   );
 
   const table = useMaterialReactTable({
@@ -196,13 +179,17 @@ function Hirings(): ReactNode {
     getDetails();
   }, []);
 
+  useEffect(() => {
+    document.title = "Portfolio Admin || Hirings";
+
+    return function () {
+      document.title = "Portfolio Admin";
+    };
+  }, []);
+
   return (
     <>
-      <Paper
-        variant="elevation"
-        component="div"
-        className="p-4 m-1 border border-slate-400"
-      >
+      <Paper variant="elevation" component="div" className="p-4 m-1 border border-slate-400">
         <Heading Icon={Work} text="Hirings" />
 
         <Divider sx={{ mb: 4 }} />
@@ -264,9 +251,7 @@ function Hirings(): ReactNode {
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <AlternateEmail fontSize="small" sx={{ mx: 0.5 }} />
-                    ),
+                    startAdornment: <AlternateEmail fontSize="small" sx={{ mx: 0.5 }} />,
                   },
                 }}
               />
@@ -281,9 +266,7 @@ function Hirings(): ReactNode {
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <CurrencyRupee fontSize="small" sx={{ mx: 0.5 }} />
-                    ),
+                    startAdornment: <CurrencyRupee fontSize="small" sx={{ mx: 0.5 }} />,
                   },
                 }}
               />
@@ -298,9 +281,7 @@ function Hirings(): ReactNode {
                 fullWidth
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <AccessTime fontSize="small" sx={{ mx: 0.5 }} />
-                    ),
+                    startAdornment: <AccessTime fontSize="small" sx={{ mx: 0.5 }} />,
                   },
                 }}
               />
@@ -330,9 +311,7 @@ function Hirings(): ReactNode {
                 multiline
                 slotProps={{
                   input: {
-                    startAdornment: (
-                      <Description fontSize="small" sx={{ mx: 0.5 }} />
-                    ),
+                    startAdornment: <Description fontSize="small" sx={{ mx: 0.5 }} />,
                   },
                 }}
               />
@@ -342,11 +321,7 @@ function Hirings(): ReactNode {
       </Dialog>
 
       {ipLocDialogOpen && (
-        <IPLocModal
-          clientIp={clientIp}
-          handleModalOnClose={() => setIpLocDialogOpen(false)}
-          isOpen={ipLocDialogOpen}
-        />
+        <IPLocModal clientIp={clientIp} handleModalOnClose={() => setIpLocDialogOpen(false)} isOpen={ipLocDialogOpen} />
       )}
 
       {isCnfDialogOpen && (
@@ -357,8 +332,8 @@ function Hirings(): ReactNode {
           open={isCnfDialogOpen}
           text={
             <Typography variant="body1" fontWeight={700} textAlign="justify">
-              <span className="text-red-700 font-bold">CAUTION:</span> You're
-              deleting a hiring record. Are you sure you want to continue?
+              <span className="text-red-700 font-bold">CAUTION:</span> You're deleting a hiring record. Are you sure you
+              want to continue?
             </Typography>
           }
           onSuccess={handleCnfDialogOnSuccess}

@@ -39,6 +39,14 @@ function TodayViewsDetails(): ReactNode {
     getDetails();
   }, []);
 
+  useEffect(() => {
+    document.title = "Portfolio Admin || Views";
+
+    return function () {
+      document.title = "Portfolio Admin";
+    };
+  }, []);
+
   const columns = useMemo(
     () => [
       { accessorKey: "id", header: "S.No." },
@@ -71,7 +79,7 @@ function TodayViewsDetails(): ReactNode {
         },
       },
     ],
-    [viewDetails]
+    [viewDetails],
   );
 
   const table = useMaterialReactTable({
