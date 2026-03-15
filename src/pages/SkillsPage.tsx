@@ -122,7 +122,7 @@ function Skills(): ReactNode {
 
   return (
     <>
-      <Paper variant="elevation" component="div" className="p-4 m-0 sm:m-1 border border-slate-400">
+      <Paper variant="elevation" component="div" className="p-2 sm:p-4 m-2 border border-slate-400 overflow-x-auto box-border">
         <Heading Icon={Widgets} text="Skills" />
 
         <Divider sx={{ mb: 4 }} />
