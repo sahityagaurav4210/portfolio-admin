@@ -11,7 +11,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Toolbar,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -34,6 +33,7 @@ import ProfileModal from "../models/ProfileModal";
 import ChangePwdModal from "../models/ChangePwdModal";
 import LayoutController from "../controllers/layout.controller";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import { useAppSelector } from "../redux/hooks";
 
 function ProtectedLayout() {
   const theme = useTheme();
@@ -49,14 +49,16 @@ function ProtectedLayout() {
   const { pathname } = useLocation();
 
   // exact match for root, prefix match for everything else
-  const isActive = (url: string) =>
-    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
   const [isLoading, setIsLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
   const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
   const [isCnfDialogOpen, setIsCnfDialogOpen] = useState(false);
+
+  // Redux Auth Selector
+  const { user } = useAppSelector((state) => state.auth);
 
   const currentDesktopWidth = sidebarCollapsed ? collapsedWidth : drawerWidth;
 
@@ -138,6 +140,12 @@ function ProtectedLayout() {
   // Mobile drawer items — always show label
   const MobileDrawerItems = (
     <div>
+      <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
+        <Typography variant="h6" fontWeight={900} className="text-blue-800">
+          Portfolio CMS
+        </Typography>
+      </Box>
+      <Divider />
       <List>
         {SIDEBAR_ITEMS.map((text) => {
           const active = isActive(text.url);
@@ -148,9 +156,7 @@ function ProtectedLayout() {
                 sx={{
                   backgroundColor: active ? theme.palette.primary.main : "transparent",
                   "&:hover": {
-                    backgroundColor: active
-                      ? theme.palette.primary.dark
-                      : "action.hover",
+                    backgroundColor: active ? theme.palette.primary.dark : "action.hover",
                   },
                   borderRadius: 1,
                   mx: 0.5,
@@ -181,22 +187,29 @@ function ProtectedLayout() {
       <Box
         sx={{
           display: "flex",
-          justifyContent: sidebarCollapsed ? "center" : "flex-end",
-          px: 0.5,
+          justifyContent: sidebarCollapsed ? "center" : "space-between",
+          alignItems: "center",
+          px: sidebarCollapsed ? 0.5 : 2,
           py: 0.5,
+          minHeight: 48,
           borderBottom: "1px solid gainsboro",
         }}
       >
+        {!sidebarCollapsed && (
+          <Typography variant="h6" fontWeight={900} className="text-blue-800">
+            Portfolio CMS
+          </Typography>
+        )}
         <Tooltip title={sidebarCollapsed ? "Expand" : "Collapse"} placement="right">
           <IconButton
             size="small"
             onClick={() => setSidebarCollapsed((prev) => !prev)}
             aria-label={sidebarCollapsed ? "expand sidebar" : "collapse sidebar"}
-            sx={theme => ({
+            sx={(theme) => ({
               backgroundColor: theme.palette.warning.main,
               "&:hover": { backgroundColor: theme.palette.warning.dark },
               transition: "background-color 0.2s",
-              color: "whitesmoke"
+              color: "whitesmoke",
             })}
           >
             {sidebarCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
@@ -217,9 +230,7 @@ function ProtectedLayout() {
                     px: sidebarCollapsed ? 0 : 2,
                     backgroundColor: active ? theme.palette.primary.main : "transparent",
                     "&:hover": {
-                      backgroundColor: active
-                        ? theme.palette.primary.dark
-                        : "action.hover",
+                      backgroundColor: active ? theme.palette.primary.dark : "action.hover",
                     },
                     borderRadius: 1,
                     mx: 0.5,
@@ -295,12 +306,14 @@ function ProtectedLayout() {
               <MenuIcon />
             </IconButton>
 
-            <Typography variant="h6" fontWeight={900} className="text-blue-800">
-              Portfolio CMS
-            </Typography>
+            {user?.name && (
+              <Typography variant={isMobile ? "subtitle1" : "body1"} fontWeight={700} className="text-orange-600">
+                Welcome, {user.name}
+              </Typography>
+            )}
           </Box>
 
-          <Box component="div">
+          <Box component="div" className="flex items-center gap-2">
             <IconButton
               sx={{
                 backgroundColor: "#ea580c",
@@ -400,8 +413,6 @@ function ProtectedLayout() {
                 },
               }}
             >
-              <Toolbar />
-              <Divider />
               {MobileDrawerItems}
             </Drawer>
 
@@ -441,7 +452,7 @@ function ProtectedLayout() {
           </Box>
         </Box>
 
-        <Box component="footer" sx={{ display: "flex", flexShrink: 0 }}>
+        <Box component="footer" sx={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
           <Footer />
         </Box>
       </Box>

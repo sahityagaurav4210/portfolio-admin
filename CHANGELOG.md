@@ -6,6 +6,33 @@ The format is based on **Keep a Changelog**, and this project adheres to **Seman
 
 ---
 
+## [0.3.0]
+
+### Summary
+
+- Fixed various mobile UI layout issues and setup a global state layer using Redux Toolkit to present the logged-in User's profile name in the headers. 
+
+### Added
+
+- Brought in `@reduxjs/toolkit` and `react-redux` libraries.
+- Implemented `auth.slice` state and integrated `Store` provider for tracking the authenticated User.
+- Rendering the logged in profile's name directly in `ProtectedLayout.tsx` header section.
+
+### Changed
+
+- Renamed `src/store` architecture to `src/redux`.
+- Centralized the `Support` link view from `ProtectedLayout` down to the `Footer` component.
+- Display "Portfolio CMS" branding on the sidebar drawer top section instead of next to the hamburger icon.
+- `AuthUserPayload` interface and Redux payloads introduced.
+
+### Fixed
+
+- Handled responsive layout bugs for `SkillsPage.tsx` where tables overflowed beyond screen bounds.
+- Resolved spacing margins related to the `Toolbar` overlapping in the mobile sidebar.
+- Hide the text separator dot on mobile views inside `Footer.tsx`.
+
+---
+
 ## [0.2.0]
 
 ### Summary

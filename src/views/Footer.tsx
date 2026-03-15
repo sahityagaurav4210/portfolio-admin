@@ -1,33 +1,40 @@
 import React, { ReactNode } from "react";
+import Support from "../components/Support";
 
 function Footer(): ReactNode {
   return (
-    <section
-      className="w-full overflow-hidden bg-gradient-to-tr from-blue-950 to-blue-950 via-blue-900 py-4 text-xs px-1 sm:px-0 font-bold"
-      style={{ fontFamily: "Roboto" }}
-    >
-      <div className="flex flex-col sm:flex-row text-white justify-center items-center gap-1 text-center">
-        <p className="flex justify-center items-center h-full flex-wrap">
-          Made in{" "}
-          <span className="font-extrabold text-white flex items-center">
-            &nbsp;
-            <span className="text-orange-600">भा</span>
-            <span className="text-white">र</span>
-            <span className="text-green-600">त</span>
-            &nbsp;
-            <img
-              src="https://bookjn-bucket.s3.ap-south-1.amazonaws.com/country-flags/ind.svg"
-              alt="Indian Flag"
-              width={16}
-              height={16}
-            />
-          </span>
-          {""}&nbsp; •
-        </p>
-
-        <p>&nbsp; &copy; 2024-2026 Gaurav Sahitya • All rights are reserved</p>
+    <>
+      <div className="px-1">
+        <Support />
       </div>
-    </section>
+
+      <section
+        className="w-full overflow-hidden bg-gradient-to-tr from-blue-950 to-blue-950 via-blue-900 py-4 text-xs px-1 sm:px-0 font-bold flex flex-col items-center"
+        style={{ fontFamily: "Roboto" }}
+      >
+        <div className="flex flex-col sm:flex-row text-white justify-center items-center gap-1 text-center">
+          <p className="flex justify-center items-center h-full flex-wrap">
+            Made in{" "}
+            <span className="font-extrabold text-white flex items-center">
+              &nbsp;
+              <span className="text-orange-600">भा</span>
+              <span className="text-white">र</span>
+              <span className="text-green-600">त</span>
+              &nbsp;
+              <img
+                src="https://bookjn-bucket.s3.ap-south-1.amazonaws.com/country-flags/ind.svg"
+                alt="Indian Flag"
+                width={16}
+                height={16}
+              />
+            </span>
+            <span className="hidden sm:inline">&nbsp; •</span>
+          </p>
+
+          <p>&nbsp; &copy; 2024-2026 Gaurav Sahitya • All rights are reserved</p>
+        </div>
+      </section>
+    </>
   );
 }
 
