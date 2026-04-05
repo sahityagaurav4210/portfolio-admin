@@ -1,7 +1,7 @@
-import { Box, Button, Divider, Fab, Paper } from "@mui/material";
+import { Box, Button, Divider, Fab, Paper, Typography } from "@mui/material";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { ApiStatus } from "../api";
-import { Add, Edit, Visibility, Widgets } from "@mui/icons-material";
+import { Add, Delete, Edit, HelpCenter, Visibility, Widgets } from "@mui/icons-material";
 import { ISkillForm } from "../interfaces/models.interface";
 import { getArrayRecords } from "../helpers";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
@@ -10,8 +10,11 @@ import Heading from "../components/Heading";
 import AddSkillModal from "../models/skills/AddSkillModal";
 import ViewModal from "../models/ViewModal";
 import EditSkillModal from "../models/skills/EditSkillModal";
+import ConfirmationDialog from "../components/ConfirmationDialog";
 import useAppCss from "../hooks/useAppCss";
 import SkillController from "../controllers/skills.controller";
+import { toast } from "react-toastify";
+import { getGlobalToastConfig } from "../configs/toasts.config";
 
 function Skills(): ReactNode {
   const [skills, setSkills] = useState<ISkillForm[]>([]);
@@ -20,6 +23,9 @@ function Skills(): ReactNode {
   const [addDialogBoxView, setAddDialogBoxView] = useState<boolean>(false);
   const [editDialogBoxView, setEditDialogBoxView] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isCnfDialogOpen, setIsCnfDialogOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [skillToDeleteId, setSkillToDeleteId] = useState<string>("");
   const { GlobalTableCss } = useAppCss();
 
   async function getDetails() {
@@ -86,6 +92,48 @@ function Skills(): ReactNode {
     setEditDialogBoxView(false);
   }, []);
 
+  const handleDeleteBtnClick = useCallback(
+    function (_id: string) {
+      setSkillToDeleteId(_id);
+      setIsCnfDialogOpen(true);
+    },
+    [],
+  );
+
+  const handleCnfDialogOnSuccess = useCallback(
+    async function (e: BtnClick) {
+      e.preventDefault();
+
+      if (!skillToDeleteId) {
+        setIsCnfDialogOpen(false);
+        toast.warning("Please select a proper skill row", getGlobalToastConfig());
+        return;
+      }
+
+      setIsDeleting(true);
+
+      try {
+        const controller = new SkillController();
+        const response = await controller.makeDeleteSkillReq(skillToDeleteId);
+
+        if (response.status !== ApiStatus.SUCCESS) {
+          toast.error(response.message, getGlobalToastConfig());
+          return;
+        }
+
+        toast.success("Skill deleted successfully", getGlobalToastConfig());
+        await getDetails();
+      } catch {
+        toast.error("Something went wrong while deleting, please try again.", getGlobalToastConfig());
+      } finally {
+        setIsDeleting(false);
+        setIsCnfDialogOpen(false);
+        setSkillToDeleteId("");
+      }
+    },
+    [skillToDeleteId],
+  );
+
   const columns = useMemo(
     () => [
       { accessorKey: "id", header: "S.No." },
@@ -103,6 +151,14 @@ function Skills(): ReactNode {
 
               <Fab color="warning" size="small" onClick={() => handleEditBtnClick(row?.original?.id)}>
                 <Edit fontSize="small" />
+              </Fab>
+
+              <Fab
+                color="error"
+                size="small"
+                onClick={() => handleDeleteBtnClick(row?.original?._id)}
+              >
+                <Delete fontSize="small" />
               </Fab>
             </Box>
           );
@@ -137,7 +193,15 @@ function Skills(): ReactNode {
       </Paper>
 
       {detailDialogOpen && (
-        <ViewModal details={details} handleDialogCloseBtnClick={handleDialogCloseBtnClick} open={detailDialogOpen} />
+        <ViewModal
+          details={details}
+          handleDialogCloseBtnClick={handleDialogCloseBtnClick}
+          open={detailDialogOpen}
+          onEditHandler={() => {
+            setDetailDialogOpen(false);
+            setEditDialogBoxView(true);
+          }}
+        />
       )}
 
       {addDialogBoxView && (
@@ -154,6 +218,25 @@ function Skills(): ReactNode {
           handleDialogCloseBtnClick={handleDialogCloseBtnClick}
           details={details}
           onAddHandler={getDetails}
+        />
+      )}
+
+      {isCnfDialogOpen && (
+        <ConfirmationDialog
+          Icon={HelpCenter}
+          heading="Delete Skill"
+          isLoading={isDeleting}
+          open={isCnfDialogOpen}
+          text={
+            <Typography variant="body1" fontWeight={700} textAlign="justify">
+              <span className="text-red-700 font-bold">CAUTION:</span> You&apos;re about to delete this skill. Are you sure you want to continue?
+            </Typography>
+          }
+          onSuccess={handleCnfDialogOnSuccess}
+          onCancel={() => {
+            setIsCnfDialogOpen(false);
+            setSkillToDeleteId("");
+          }}
         />
       )}
     </>

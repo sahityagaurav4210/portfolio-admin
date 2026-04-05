@@ -21,7 +21,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useCallback, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
 import Footer from "../views/Footer";
 import ImgContainer from "../components/ImgContainer";
@@ -152,7 +152,8 @@ function ProtectedLayout() {
           return (
             <ListItem key={text.url} disablePadding>
               <ListItemButton
-                href={text.url}
+                component={Link}
+                to={text.url}
                 sx={{
                   backgroundColor: active ? theme.palette.primary.main : "transparent",
                   "&:hover": {
@@ -224,7 +225,8 @@ function ProtectedLayout() {
             <ListItem key={text.url} disablePadding>
               <Tooltip title={sidebarCollapsed ? text.name : ""} placement="right">
                 <ListItemButton
-                  href={text.url}
+                  component={Link}
+                  to={text.url}
                   sx={{
                     justifyContent: sidebarCollapsed ? "center" : "flex-start",
                     px: sidebarCollapsed ? 0 : 2,
@@ -453,7 +455,7 @@ function ProtectedLayout() {
         </Box>
 
         <Box component="footer" sx={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
-          <Footer />
+          <Footer showSupport />
         </Box>
       </Box>
 
