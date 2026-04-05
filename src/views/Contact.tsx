@@ -14,7 +14,7 @@ import { ApiStatus } from "../api";
 import { getArrayRecords } from "../helpers";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
-import { Close, ContactEmergency, HelpCenter, InfoOutlined, ListAlt } from "@mui/icons-material";
+import { Close, ContactEmergency, HelpCenter, ListAlt } from "@mui/icons-material";
 import Heading from "../components/Heading";
 import useAppCss from "../hooks/useAppCss";
 import ContactController from "../controllers/contact.controller";
