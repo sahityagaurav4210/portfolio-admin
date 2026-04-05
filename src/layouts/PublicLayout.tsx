@@ -20,7 +20,7 @@ function PublicLayout() {
     >
       <Box
         component="header"
-        className="flex justify-between items-center min-h-[4vh]"
+        className="flex justify-between items-center min-h-[4vh] border-b-2 border-blue-50"
       >
         <Box component="div" className="max-w-max p-1 mx-1">
           <Typography
@@ -49,7 +49,7 @@ function PublicLayout() {
         <Outlet />
       </Box>
 
-      <Box component="footer" sx={{ display: "flex", flexShrink: 0 }}>
+      <Box component="footer" sx={{ display: "flex", flexShrink: 0, flexDirection: "column" }}>
         <Footer />
       </Box>
     </Box>

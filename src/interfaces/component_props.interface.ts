@@ -67,6 +67,7 @@ export interface IViewDialogProp {
   open: boolean;
   handleDialogCloseBtnClick: (e: BtnClick) => void;
   details: Record<string, any> | undefined;
+  onEditHandler?: () => void;
 }
 
 export interface IEditSkillDialogProp {
@@ -111,4 +112,14 @@ export interface IConfirmationDialogProps {
 export interface IContactActionsProp {
   row: Record<string, any>;
   handleViewBtnClick: (id: number) => void;
+  handleDeleteBtnClick?: (_id: string) => void;
+}
+
+export interface IModalHeading {
+  text: string;
+  Icon: AppIcon;
+}
+
+export interface IFooterProp {
+  showSupport?: boolean;
 }

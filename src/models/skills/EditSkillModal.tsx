@@ -8,13 +8,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   TextField,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Cancel, Edit, Link } from "@mui/icons-material";
-import Heading from "../../components/Heading";
+import { Close, Edit } from "@mui/icons-material";
 import { Grid } from "@mui/system";
 import { ISkillForm } from "../../interfaces/models.interface";
 import { BtnClick, InputChange } from "../../interfaces";
@@ -28,6 +27,10 @@ import CWPSAlert from "../../components/CWPSAlert";
 import useAppAlert from "../../hooks/useAppAlert";
 import SkillController from "../../controllers/skills.controller";
 import useAppTextfieldValue from "../../hooks/useAppTextfieldValue";
+import FileUpload from "../../components/FileUpload";
+import ModalCloseButton from "../../components/styled/ModalCloseButton";
+import ModalHeading from "../../components/headings/ModalHeading";
+import useAppHelperFn from "../../hooks/useAppHelperFn";
 
 function EditSkillModal({
   open,
@@ -36,20 +39,26 @@ function EditSkillModal({
   onAddHandler,
 }: Readonly<IEditSkillDialogProp>): ReactNode {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [skillFormData, setSkillFormData] = useState<ISkillForm | undefined>(details);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [skillFile, setSkillFile] = useState<File | null>(null);
+  const [isReady, setIsReady] = useState<boolean>(true);
   const { alert, handleAlertOnClose, setAlert } = useAppAlert();
-  const formats = ["header", "bold", "italic", "underline", "link", "image", "list", "bullet"];
+  const formats = ["header", "bold", "italic", "underline", "link", "image", "list", "bullet", "align", "color", "background"];
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
       ["bold", "italic", "underline"],
       ["link", "image"],
       [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      [{ color: [] }, { background: [] }],
       ["clean"],
     ],
   };
   const { editSkillModalTextfields } = useAppTextfieldValue();
+  const { getDescriptionCount } = useAppHelperFn();
   const editFormInputValues = editSkillModalTextfields(skillFormData);
 
   const handleTextFieldOnChange = useCallback(
@@ -68,7 +77,7 @@ function EditSkillModal({
       try {
         const controller = new SkillController();
         const { _id, id, ...payload } = skillFormData || {};
-        const { name, url, experience, description } = payload as Record<string, any>;
+        const { name, experience, description } = payload as Record<string, any>;
 
         if (!_id) {
           const message = "Received a corrupted payload, please try again!!!";
@@ -82,11 +91,6 @@ function EditSkillModal({
           return;
         }
 
-        if (url && !AppPatterns.skillUrl.test(url)) {
-          const message = "Invalid skill url, it should begin with http:// or https://";
-          setAlert((prev) => ({ ...prev, isOpen: true, message }));
-          return;
-        }
 
         if (!AppPatterns.skillExp.test(experience)) {
           const message = "Invalid experience, it should be a positive natural number.";
@@ -100,7 +104,14 @@ function EditSkillModal({
           return;
         }
 
-        const reply = await controller.makePutSkillReq(_id, payload);
+        //Converting the received final skill edit payload into a FormData object
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("experience", String(skillFormData?.experience));
+        formData.append("description", String(skillFormData?.description));
+        if (skillFile) formData.append("skill", skillFile);
+
+        const reply = await controller.makePutSkillReq(_id, formData);
 
         if (reply.status === ApiStatus.SUCCESS) {
           await onAddHandler();
@@ -113,19 +124,19 @@ function EditSkillModal({
         setIsSaving(false);
       }
     },
-    [skillFormData],
+    [skillFormData, skillFile],
   );
 
   return (
     <Dialog maxWidth="lg" fullWidth open={open}>
-      <DialogTitle>
-        <Box component="div" className="flex justify-end">
-          <IconButton onClick={handleDialogCloseBtnClick}>
-            <Cancel fontSize="medium" color="error" />
-          </IconButton>
-        </Box>
+      <Box component="div" className="flex justify-end p-1">
+        <ModalCloseButton onClick={handleDialogCloseBtnClick}>
+          <Close fontSize="medium" />
+        </ModalCloseButton>
+      </Box>
 
-        <Heading Icon={Edit} text="Edit your skill" />
+      <DialogTitle>
+        <ModalHeading Icon={Edit} text="Update skill" />
       </DialogTitle>
 
       <DialogContent sx={{ borderTop: `1px solid ${theme.palette.secondary.A100}` }}>
@@ -133,6 +144,17 @@ function EditSkillModal({
           <CWPSAlert alert={alert} handleAlertOnClose={handleAlertOnClose} />
 
           <Grid container rowSpacing={2} columnSpacing={2}>
+            <Grid size={12}>
+              <FileUpload
+                onFileChange={setSkillFile}
+                accept="image/*"
+                maxSizeMB={5}
+                disabled={isSaving}
+                label="Upload skill icon (drag & drop or click to browse)"
+                onReadyChange={ready => setIsReady(ready)}
+              />
+            </Grid>
+
             {editFormInputValues.map((item) => (
               <Grid size={item.size} {...(item.sx ? { sx: item.sx } : {})}>
                 <TextField
@@ -148,32 +170,72 @@ function EditSkillModal({
               </Grid>
             ))}
 
-            <Grid size={{ xs: 12, md: 4 }} sx={{ py: 1, display: "flex", alignItems: "center" }}>
-              <Button
-                variant="contained"
-                startIcon={<Link fontSize="small" />}
-                color="warning"
-                LinkComponent="a"
-                href={import.meta.env.VITE_FTP_URL}
-                target="_blank"
-              >
-                FTP PORTAL
-              </Button>
-            </Grid>
-
             <Grid size={12}>
-              <ReactQuill
-                value={skillFormData?.description}
-                onChange={(value) => setSkillFormData((prev) => ({ ...(prev as ISkillForm), description: value }))}
-                placeholder="Ex:- description"
-                formats={formats}
-                modules={modules}
-              />
+              <Box sx={{ position: "relative", mt: 1 }}>
+                {/* Floating label — mimics MUI outlined TextField */}
+                <Typography
+                  component="label"
+                  variant="caption"
+                  sx={{
+                    position: "absolute",
+                    top: -9,
+                    left: 10,
+                    px: 0.5,
+                    bgcolor: "background.paper",
+                    color: "text.secondary",
+                    zIndex: 1,
+                    lineHeight: 1,
+                    pointerEvents: "none",
+                  }}
+                >
+                  Description
+                </Typography>
+
+                <Box
+                  sx={{
+                    border: "1px solid",
+                    borderColor: "rgba(0,0,0,0.23)",
+                    borderRadius: 1,
+                    transition: "border-color 0.2s, border-width 0.1s",
+                    "&:hover": { borderColor: "text.primary" },
+                    "&:focus-within": { borderColor: "primary.main", borderWidth: "2px" },
+                    "& .ql-toolbar": {
+                      border: "none",
+                      borderBottom: "1px solid rgba(0,0,0,0.15)",
+                      borderRadius: "4px 4px 0 0",
+                      fontFamily: "inherit",
+                    },
+                    "& .ql-container": {
+                      border: "none",
+                      borderRadius: "0 0 4px 4px",
+                      fontFamily: "inherit",
+                      fontSize: "0.875rem",
+                    },
+                    "& .ql-editor": {
+                      minHeight: "100px",
+                      px: 1.75,
+                      py: 1.25,
+                    },
+                    "& .ql-editor.ql-blank::before": {
+                      fontStyle: "normal",
+                      color: "rgba(0,0,0,0.42)",
+                    },
+                  }}
+                >
+                  <ReactQuill
+                    value={skillFormData?.description}
+                    onChange={(value) => setSkillFormData((prev) => ({ ...(prev as ISkillForm), description: value }))}
+                    placeholder="Ex:- description"
+                    formats={formats}
+                    modules={modules}
+                  />
+                </Box>
+              </Box>
             </Grid>
 
-            <Grid size={2} offset={10} display="flex" justifyContent="flex-end">
+            <Grid size={isMobile ? 6 : 2} offset={isMobile ? 6 : 10} display="flex" justifyContent="flex-end">
               <Typography variant="caption" fontWeight={700} color="warning">
-                {1000 - Number.parseInt((skillFormData?.description?.length || 0).toString(), 10)} characters left
+                {1000 - getDescriptionCount(skillFormData?.description || "")} characters left
               </Typography>
             </Grid>
           </Grid>
@@ -184,8 +246,8 @@ function EditSkillModal({
         <Box component="div" className="flex justify-end items-center">
           <Button
             variant="contained"
-            disabled={isSaving || 1000 - Number.parseInt((skillFormData?.description?.length || 0).toString(), 10) < 0}
-            color="warning"
+            disabled={isSaving || !isReady || 1000 - getDescriptionCount(skillFormData?.description || "") < 0}
+            color="success"
             startIcon={isSaving ? <CircularProgress size={16} color="secondary" /> : <Edit fontSize="small" />}
             sx={{ color: "white", fontWeight: 700 }}
             onClick={handleEditBtnClick}

@@ -10,7 +10,7 @@ const AppTheme = createTheme({
       A100: "#e2e8f0",
       A200: "#cbd5e1",
     },
-    warning: { main: "#ea580c" },
+    warning: { main: "#ea580c", A100: "#f4e0d2ff" },
     error: { main: "#fb2c36" },
     success: { A100: "#166534", main: "#065f46", A700: "#065f46" },
   },

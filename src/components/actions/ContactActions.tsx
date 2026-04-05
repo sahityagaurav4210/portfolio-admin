@@ -1,10 +1,10 @@
 import React, { ReactNode, useState } from "react";
 import { IContactActionsProp } from "../../interfaces/component_props.interface";
 import { Box, Fab } from "@mui/material";
-import { LocationOn, Visibility } from "@mui/icons-material";
+import { Delete, LocationOn, Visibility } from "@mui/icons-material";
 import IPLocModal from "../../models/IPLocModal";
 
-function ContactActions({ row, handleViewBtnClick }: Readonly<IContactActionsProp>): ReactNode {
+function ContactActions({ row, handleViewBtnClick, handleDeleteBtnClick }: Readonly<IContactActionsProp>): ReactNode {
   const [clientIp, setClientIp] = useState<string>("");
   const [ipLocDialogOpen, setIpLocDialogOpen] = useState<boolean>(false);
 
@@ -24,6 +24,14 @@ function ContactActions({ row, handleViewBtnClick }: Readonly<IContactActionsPro
           }}
         >
           <LocationOn fontSize="small" />
+        </Fab>
+
+        <Fab
+          color="error"
+          size="small"
+          onClick={() => handleDeleteBtnClick?.(row?.original?._id)}
+        >
+          <Delete fontSize="small" />
         </Fab>
       </Box>
 

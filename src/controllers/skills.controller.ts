@@ -11,7 +11,7 @@ class SkillController {
     const fullAbsUrl = `${baseUrl}/portfolio/skills/list`;
 
     const rawReply = await appController.GET(fullAbsUrl);
-    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;
   }
@@ -49,6 +49,23 @@ class SkillController {
       appController.PUT.bind(appController),
       {},
       payload,
+    );
+
+    return reply;
+  }
+
+  public async makeDeleteSkillReq(_id: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/portfolio/skills/delete/${_id}`;
+
+    const rawReply = await appController.DELETE(fullAbsUrl);
+    const reply = await appController.getSafeDeleteReply(
+      rawReply,
+      fullAbsUrl,
+      appController.DELETE.bind(appController),
     );
 
     return reply;

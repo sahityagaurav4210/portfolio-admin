@@ -6,22 +6,19 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  IconButton,
   TextField,
 } from "@mui/material";
 import React, { ReactNode, useState } from "react";
 import { IIPLocModalProp } from "../interfaces/component_props.interface";
 import {
-  Cancel,
+  Close,
   Flag,
-  LocalActivity,
   LocationCity,
   LocationOn,
   Public,
   RadioButtonUnchecked,
   Search,
 } from "@mui/icons-material";
-import Heading from "../components/Heading";
 import { Grid } from "@mui/system";
 import { IApiReply } from "../interfaces/api.interface";
 import { BtnClick } from "../interfaces";
@@ -29,6 +26,8 @@ import NetworkingController from "../controllers/networking.controller";
 import { ApiStatus } from "../api";
 import useAppAlert from "../hooks/useAppAlert";
 import CWPSAlert from "../components/CWPSAlert";
+import ModalCloseButton from "../components/styled/ModalCloseButton";
+import ModalHeading from "../components/headings/ModalHeading";
 
 function IPLocModal({
   clientIp,
@@ -63,14 +62,14 @@ function IPLocModal({
 
   return (
     <Dialog maxWidth="md" fullWidth open={isOpen}>
-      <DialogTitle>
-        <Box component="div" display="flex" justifyContent="flex-end">
-          <IconButton onClick={handleModalOnClose}>
-            <Cancel fontSize="medium" color="error" />
-          </IconButton>
-        </Box>
+      <Box component="div" display="flex" justifyContent="flex-end" p={1}>
+        <ModalCloseButton onClick={handleModalOnClose}>
+          <Close fontSize="small" />
+        </ModalCloseButton>
+      </Box>
 
-        <Heading Icon={LocalActivity} text="IP Location Details" />
+      <DialogTitle>
+        <ModalHeading Icon={LocationOn} text="IP Location Finder" />
       </DialogTitle>
 
       <DialogContent dividers>

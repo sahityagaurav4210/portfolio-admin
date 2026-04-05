@@ -7,8 +7,8 @@ import { IconType } from "react-icons/lib";
 export type BtnClick = React.MouseEvent<HTMLButtonElement, MouseEvent>;
 export type AppIcon =
   | (OverridableComponent<SvgIconTypeMap<{}, "svg">> & {
-      muiName: string;
-    })
+    muiName: string;
+  })
   | IconType;
 export type InputChange = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
 export type AlertType = "error" | "info" | "warning" | "success";
@@ -17,6 +17,7 @@ export type QueryString = Record<string, string | number>;
 export type ApiPayload = Record<string, any>;
 export type POSTCallbackFn = (url: string, qs?: QueryString, payload?: Record<string, any>) => Promise<Response>;
 export type GETCallbackFn = (url: string, qs?: QueryString) => Promise<Response>;
+export type DELETECallbackFn = (url: string) => Promise<Response>;
 
 export interface ILayout {
   url: string;

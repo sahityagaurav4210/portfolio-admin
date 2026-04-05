@@ -37,7 +37,6 @@ export interface ISkillForm {
   name: string;
   experience: number;
   description: string;
-  url?: string;
 }
 
 export interface ISkills {

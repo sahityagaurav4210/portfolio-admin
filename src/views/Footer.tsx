@@ -1,12 +1,15 @@
 import React, { ReactNode } from "react";
 import Support from "../components/Support";
+import { IFooterProp } from "../interfaces/component_props.interface";
 
-function Footer(): ReactNode {
+function Footer({ showSupport = false }: Readonly<IFooterProp>): ReactNode {
   return (
     <>
-      <div className="px-1">
-        <Support />
-      </div>
+      {showSupport && (
+        <div className="px-1">
+          <Support />
+        </div>
+      )}
 
       <section
         className="w-full overflow-hidden bg-gradient-to-tr from-blue-950 to-blue-950 via-blue-900 py-4 text-xs px-1 sm:px-0 font-bold flex flex-col items-center"

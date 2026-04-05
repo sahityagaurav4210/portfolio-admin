@@ -1,6 +1,6 @@
 import { AppUserAgent } from "../constants";
 import { FTPController } from "../controllers/ftp.controller";
-import { ApiPayload, GETCallbackFn, POSTCallbackFn, QueryString } from "../interfaces";
+import { ApiPayload, DELETECallbackFn, GETCallbackFn, POSTCallbackFn, QueryString } from "../interfaces";
 import { IApiReply } from "../interfaces/api.interface";
 
 export enum ApiStatus {
@@ -71,9 +71,8 @@ export class CWPBApiController {
     qs?: QueryString,
     payload?: ApiPayload,
   ): Promise<IApiReply> {
-    const refAccessToken = localStorage.getItem("token") || "";
     const ftpController = new FTPController();
-    const tokenRefReply = await ftpController.refreshAccessToken(refAccessToken);
+    const tokenRefReply = await ftpController.refreshAccessToken();
 
     if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
     if (tokenRefReply === ApiStatus.EXCEPTION)
@@ -102,9 +101,6 @@ export class CWPBApiController {
     let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
     const isFormData = body instanceof FormData;
-
-    // For FormData, do NOT set Content-Type manually — the browser must set it
-    // automatically so it can append the required multipart boundary parameter.
     const headers = isFormData
       ? (({ "Content-Type": _, ...rest }) => rest)(getApiHeaders() as Record<string, string>)
       : getApiHeaders("application/json");
@@ -121,14 +117,18 @@ export class CWPBApiController {
     return rawReply;
   }
 
-  public async PUT(url: string, queryStrings?: QueryString, body?: ApiPayload): Promise<Response> {
+  public async PUT(url: string, queryStrings?: QueryString, body?: ApiPayload | FormData): Promise<Response> {
     let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
-    const headers = getApiHeaders("application/json");
+    const isFormData = body instanceof FormData;
+    const headers = isFormData
+      ? (({ "Content-Type": _, ...rest }) => rest)(getApiHeaders() as Record<string, string>)
+      : getApiHeaders("application/json");
+
     const apiConfig: RequestInit = {
       method: HttpVerbs.PUT,
       headers,
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
       credentials: "include",
       signal: controller.signal,
     };
@@ -161,7 +161,7 @@ export class CWPBApiController {
 
     reply = (await rawReply.json()) as IApiReply;
 
-    if (reply.status === ApiStatus.FORBIDDEN && reply.message === "Token expired") {
+    if (reply.status === ApiStatus.FORBIDDEN || reply.status === ApiStatus.UNAUTHORISED) {
       reply = await this.handleTokenExpiry(url, callbackFn, qs);
     }
 
@@ -179,7 +179,7 @@ export class CWPBApiController {
 
     reply = (await rawReply.json()) as IApiReply;
 
-    if (reply.status === ApiStatus.FORBIDDEN && reply.message === "Token expired") {
+    if (reply.status === ApiStatus.FORBIDDEN || reply.status === ApiStatus.UNAUTHORISED) {
       reply = await this.handleTokenExpiry(url, callbackFn, qs, payload);
     }
 
@@ -199,11 +199,10 @@ export class CWPBApiController {
 
     reply = (await rawReply.json()) as IApiReply;
 
-    if (reply.status === ApiStatus.FORBIDDEN && reply.message === "Token expired") {
-      const refAccessToken = localStorage.getItem("token") || "";
+    if (reply.status === ApiStatus.FORBIDDEN || reply.status === ApiStatus.UNAUTHORISED) {
       const ftpController = new FTPController();
 
-      const tokenRefReply = await ftpController.refreshAccessToken(refAccessToken);
+      const tokenRefReply = await ftpController.refreshAccessToken();
 
       if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
       if (tokenRefReply === ApiStatus.EXCEPTION)
@@ -215,6 +214,38 @@ export class CWPBApiController {
       rawReply = await callbackFn(url, qs, payload);
 
       if (rawReply.status === 204) reply = { status: ApiStatus.SUCCESS, message: "Updated" };
+      else reply = { status: ApiStatus.LOGOUT, message: "Session expired, please try again!!!" };
+    }
+
+    return reply;
+  }
+
+  public async getSafeDeleteReply(
+    rawReply: Response,
+    url: string,
+    callbackFn: DELETECallbackFn,
+  ): Promise<IApiReply> {
+    let reply: IApiReply;
+
+    if (rawReply.status === 204) return { status: ApiStatus.SUCCESS, message: "Deleted" };
+
+    reply = (await rawReply.json()) as IApiReply;
+
+    if (reply.status === ApiStatus.FORBIDDEN || reply.status === ApiStatus.UNAUTHORISED) {
+      const ftpController = new FTPController();
+
+      const tokenRefReply = await ftpController.refreshAccessToken();
+
+      if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
+      if (tokenRefReply === ApiStatus.EXCEPTION)
+        return {
+          status: ApiStatus.EXCEPTION,
+          message: "Something went wrong at our end.",
+        };
+
+      rawReply = await callbackFn(url);
+
+      if (rawReply.status === 204) reply = { status: ApiStatus.SUCCESS, message: "Deleted" };
       else reply = { status: ApiStatus.LOGOUT, message: "Session expired, please try again!!!" };
     }
 

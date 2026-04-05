@@ -14,18 +14,26 @@ function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
 
   async function checkLoginStatus() {
     const controller = new HomeController();
-    const profile = await controller.makeGetLoggedInUserProfileReq();
+    const loginStatus = localStorage.getItem("login_status");
+
+    if (loginStatus !== "true") {
+      const profile = await controller.makeGetLoggedInUserProfileReq();
+
+      setLoading(false);
+
+      if (profile.status === ApiStatus.UNAUTHORISED) {
+        localStorage.clear();
+        return await navigate("/auth/login");
+      }
+
+      if (profile.status === ApiStatus.SUCCESS) {
+        dispatch(setAuthUser(profile.data.user));
+      }
+
+      localStorage.setItem("login_status", "true");
+    }
 
     setLoading(false);
-
-    if (profile.status === ApiStatus.UNAUTHORISED) {
-      localStorage.clear();
-      return await navigate("/auth/login");
-    }
-
-    if (profile.status === ApiStatus.SUCCESS) {
-      dispatch(setAuthUser(profile.data.user));
-    }
   }
 
   useEffect(() => {
