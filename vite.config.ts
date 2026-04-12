@@ -21,21 +21,14 @@ export default defineConfig({
     drop: ["console", "debugger"],
   },
   build: {
-    target: "esnext",
-    minify: "esbuild",
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("@mui/material")) return "mui-material";
-            if (id.includes("@mui/x-date-pickers")) return "mui-date-pickers";
-            if (id.includes("@mui/system")) return "mui-system";
-            if (id.includes("@mui")) return "mui-other";
-            if (id.includes("react")) return "vendor-react";
-            return "vendor";
-          }
+        manualChunks: {
+          "@mui/material": ["@mui/material"],
+          "@mui/x-date-pickers": ["@mui/x-date-pickers"],
+          "@mui/system": ["@mui/system"],
         },
       },
     },
