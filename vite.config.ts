@@ -17,9 +17,28 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@mui/system", "@mui/material", "@mui/x-date-pickers"],
   },
-  // build: {
-  //   rollupOptions: {
-  //     external: ['@mui/x-date-pickers/AdapterDayjs', '@mui/system', '@mui/system/RtlProvider'],
-  //   },
-  // }
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
+  build: {
+    target: "esnext",
+    minify: "esbuild",
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("@mui/material")) return "mui-material";
+            if (id.includes("@mui/x-date-pickers")) return "mui-date-pickers";
+            if (id.includes("@mui/system")) return "mui-system";
+            if (id.includes("@mui")) return "mui-other";
+            if (id.includes("react")) return "vendor-react";
+            return "vendor";
+          }
+        },
+      },
+    },
+    sourcemap: false
+  }
 });
