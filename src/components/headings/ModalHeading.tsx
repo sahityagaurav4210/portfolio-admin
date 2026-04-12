@@ -18,6 +18,8 @@ function ModalHeading({ text, Icon }: Readonly<IModalHeading>): ReactNode {
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
+          py: 2,
+          px: 3
         }}
       >
         <Icon fontSize={isMobile ? "medium" : "large"} sx={{ color: "white" }} />

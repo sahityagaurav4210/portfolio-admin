@@ -4,19 +4,20 @@ import { IProtected } from "../interfaces/component_props.interface";
 import AuthLoader from "../components/AuthLoader";
 import HomeController from "../controllers/home.controller";
 import { ApiStatus } from "../api";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setAuthUser } from "../redux/slices/auth.slice";
 
 function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
 
   async function checkLoginStatus() {
     const controller = new HomeController();
     const loginStatus = localStorage.getItem("login_status");
 
-    if (loginStatus !== "true") {
+    if (loginStatus !== "true" || !user) {
       const profile = await controller.makeGetLoggedInUserProfileReq();
 
       setLoading(false);

@@ -172,7 +172,7 @@ function Skills(): ReactNode {
     columns,
     data: skills,
     ...GlobalTableCss,
-    initialState: { pagination: { pageSize: 5, pageIndex: 0 } },
+    initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
     state: { isLoading },
   });
 

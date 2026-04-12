@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Divider,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { Close, Edit, Palette } from "@mui/icons-material";
 import AppImage from "../components/AppImage";
@@ -22,8 +23,10 @@ function ViewModal({
   details,
   onEditHandler,
 }: Readonly<IViewDialogProp>): ReactNode {
+  const theme = useTheme();
   const { getResourceUrl } = useAppHelperFn();
   const imageUrl = getResourceUrl(details?.url);
+  const isMobile = theme.breakpoints.down("sm");
 
   const experienceYears = details?.experience
     ? (Number(details.experience) / 12).toFixed(1).replace(/\.0$/, "")
@@ -58,7 +61,7 @@ function ViewModal({
             </Typography>
 
             <Box display="flex" alignItems="baseline" gap={0.5}>
-              <Typography variant="h4" fontWeight={700} lineHeight={1}>
+              <Typography variant={isMobile ? "h5" : "h4"} fontWeight={700} lineHeight={1}>
                 {experienceYears}
               </Typography>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
@@ -76,10 +79,11 @@ function ViewModal({
             <Box
               display="flex"
               alignItems="center"
+              flexWrap="wrap"
               gap={0.5}
               sx={{ color: "text.primary", textDecoration: "none", "&:hover": { color: "primary.main" } }}
             >
-              <Typography variant="h4" fontWeight={700}>
+              <Typography variant={isMobile ? "h5" : "h4"} fontWeight={700} sx={{ textWrap: "balance", wordBreak: "break-word" }}>
                 {details?.name}
               </Typography>
             </Box>

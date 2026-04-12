@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  IconButton,
   LinearProgress,
   TextField,
   Typography,
@@ -19,6 +18,11 @@ import { getGlobalToastConfig } from "../../configs/toasts.config";
 import { ApiStatus } from "../../api";
 import { FilesController } from "../../controllers/files.controller";
 import { IUploadCVModalProp } from "../../interfaces/models.interface";
+import ModalCloseButton from "../../components/styled/ModalCloseButton";
+import ModalHeading from "../../components/headings/ModalHeading";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import LayoutController from "../../controllers/layout.controller";
+import { setProfile } from "../../redux/slices/profile.slice";
 
 function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNode {
   const [cvFile, setCvFile] = useState<File | null>(null);
@@ -27,7 +31,10 @@ function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNo
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [fileProgress, setFileProgress] = useState<number>(0);
   const [isFileSimulating, setIsFileSimulating] = useState<boolean>(false);
+  const { profile: profileDetails } = useAppSelector(state => state.profile);
   const cvInputRef = useRef<HTMLInputElement>(null);
+
+  const dispatch = useAppDispatch();
 
   function handleDialogClose() {
     if (cvUploading) return;
@@ -36,6 +43,32 @@ function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNo
     setWebsites("");
     if (cvInputRef.current) cvInputRef.current.value = "";
   }
+
+  async function fetchProfile(): Promise<void> {
+    if (!profileDetails) {
+      try {
+        const controller = new LayoutController();
+        const reply = await controller.makeGetProfileReq();
+
+        if (reply.status === ApiStatus.SUCCESS) {
+          dispatch(setProfile(reply.data));
+          setWebsites(reply.data?.websites?.join(", ") || "");
+          return;
+        } else throw new Error(reply.message);
+      } catch (error: any) {
+        const message = error?.message || "Something went wrong while processing your request, please try again!!!";
+        toast.error(message, getGlobalToastConfig());
+      }
+    }
+
+    if (profileDetails?.websites?.length) {
+      setWebsites(profileDetails.websites.join(", "));
+    }
+  }
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   function simulateProgress(file: File) {
     setCvFile(file);
@@ -158,15 +191,14 @@ function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNo
 
   return (
     <Dialog open={open} onClose={handleDialogClose} maxWidth="sm" fullWidth>
+      <Box component="div" className="flex justify-end p-1">
+        <ModalCloseButton onClick={handleDialogClose}>
+          <Close fontSize="small" />
+        </ModalCloseButton>
+      </Box>
+
       <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" fontWeight={700}>
-            PDF Document Upload
-          </Typography>
-          <IconButton size="small" onClick={handleDialogClose} disabled={cvUploading}>
-            <Close fontSize="small" color="error" />
-          </IconButton>
-        </Box>
+        <ModalHeading Icon={CloudUpload} text="Resume Upload" />
       </DialogTitle>
 
       <Divider />
@@ -240,8 +272,8 @@ function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNo
                 <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   Selected file: {cvFile.name}
                 </Typography>
-                <Typography 
-                  variant="caption" 
+                <Typography
+                  variant="caption"
                   fontWeight={500}
                   color={(cvFile.size / (1024 * 1024)) > 5 ? "error" : "text.secondary"}
                 >
@@ -261,13 +293,13 @@ function UploadCVModal({ open, setOpen }: Readonly<IUploadCVModalProp>): ReactNo
         <TextField
           label="Website URLs"
           placeholder="Ex: https://sgaurav.me, https://github.com/sgaurav"
-          helperText="Enter one or more URLs separated by commas"
+          helperText="These are fetched based upon your profile, you can edit them if you want in your profile section."
           fullWidth
           multiline
           minRows={2}
           value={websites}
+          disabled
           onChange={(e) => setWebsites(e.target.value)}
-          disabled={cvUploading}
           sx={{ mt: 3, bgcolor: "transparent" }}
         />
 

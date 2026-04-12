@@ -33,7 +33,8 @@ import ProfileModal from "../models/ProfileModal";
 import ChangePwdModal from "../models/ChangePwdModal";
 import LayoutController from "../controllers/layout.controller";
 import ConfirmationDialog from "../components/ConfirmationDialog";
-import { useAppSelector } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setProfile } from "../redux/slices/profile.slice";
 
 function ProtectedLayout() {
   const theme = useTheme();
@@ -46,6 +47,7 @@ function ProtectedLayout() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { pathname } = useLocation();
 
   // exact match for root, prefix match for everything else
@@ -116,6 +118,7 @@ function ProtectedLayout() {
 
       if (reply.status === ApiStatus.SUCCESS) {
         setProfileDetails(reply.data);
+        dispatch(setProfile(reply.data));
         setProfileDialogView(true);
       } else throw new Error(reply.message);
     } catch (error: any) {
