@@ -17,9 +17,9 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@mui/system", "@mui/material", "@mui/x-date-pickers"],
   },
-  // esbuild: {
-  //   drop: ["console", "debugger"],
-  // },
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
   build: {
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
