@@ -211,9 +211,10 @@ function Login(): ReactNode {
           flex: { md: 1, lg: 1.2 },
           minHeight: "100vh",
           position: "relative",
-          backgroundImage: "url('/logo.jpeg')",
+          backgroundImage: "url('/login-bg.png')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "cover",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
@@ -391,7 +392,7 @@ function Login(): ReactNode {
             {/* Forgot password */}
             <Grid size={12} display="flex" justifyContent="flex-end" alignItems="center" gap={0.5}>
               <LockReset fontSize="small" color="warning" />
-              <Link to="/forgot-pwd" className="text-sm text-orange-500 underline underline-offset-2 font-semibold">
+              <Link to="/auth/forgot-pwd" className="text-sm text-orange-500 underline underline-offset-2 font-semibold">
                 Forgot password?
               </Link>
             </Grid>
