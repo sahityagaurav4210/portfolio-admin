@@ -6,16 +6,18 @@ import HomeController from "../controllers/home.controller";
 import { ApiStatus } from "../api";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setAuthUser } from "../redux/slices/auth.slice";
+import useAppHelperFn from "../hooks/useAppHelperFn";
 
 function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { getCookieValue } = useAppHelperFn();
 
   async function checkLoginStatus() {
     const controller = new HomeController();
-    const loginStatus = localStorage.getItem("login_status");
+    const loginStatus = getCookieValue("login_status");
 
     if (loginStatus !== "true" || !user) {
       const profile = await controller.makeGetLoggedInUserProfileReq();
@@ -31,7 +33,6 @@ function ProtectedView({ children }: Readonly<IProtected>): ReactNode {
         dispatch(setAuthUser(profile.data.user));
       }
 
-      localStorage.setItem("login_status", "true");
     }
 
     setLoading(false);
