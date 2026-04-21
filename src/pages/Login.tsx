@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   CircularProgress,
   Divider,
@@ -181,13 +182,6 @@ function Login(): ReactNode {
     setFrmLoading(false);
 
     if (reply.status === ApiStatus.SUCCESS) {
-      localStorage.setItem("token", reply?.data?.refresh_token);
-      localStorage.setItem("authorization", reply?.data?.access_token);
-      localStorage.setItem("username", reply?.data?.name);
-      localStorage.setItem("userId", reply?.data?._id);
-      localStorage.setItem("login_status", "true");
-      localStorage.setItem("email", reply?.data?.email);
-
       toast.success(reply.message, getGlobalToastConfig());
       navigate("/");
     } else {
@@ -202,191 +196,244 @@ function Login(): ReactNode {
   }
 
   return (
-    <Grid container className="min-h-screen login-bg py-2 md:py-0">
-      <Grid
-        size={{ xs: 12, md: 6 }}
-        px={1}
-        py={4}
-        borderRadius={2}
-        className="bg-white mx-1 md:mx-auto my-auto border-2 border-spacing-2 border-orange-400 ring-2 ring-offset-2 ring-orange-600"
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        bgcolor: "#f1f5f9",
+      }}
+    >
+      {/* ── Left panel: logo background ── */}
+      <Box
+        sx={{
+          display: { xs: "none", md: "flex" },
+          flex: { md: 1, lg: 1.2 },
+          minHeight: "100vh",
+          position: "relative",
+          backgroundImage: "url('/login-bg.png')",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "cover",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(160deg, rgba(15,23,42,0.45) 0%, rgba(15,23,42,0.78) 100%)",
+          },
+        }}
       >
-        <Typography
-          variant={isMobile ? "h4" : "h3"}
-          fontWeight={700}
-          className="text-orange-600 underline underline-offset-4 decoration-dotted"
-        >
-          LOGIN PORTAL
-        </Typography>
+      </Box>
 
-        <Typography variant="body1" my={2} fontWeight={700} className="text-justify">
-          Welcome back! Just pop in your phone number and password below to quickly sign in and get started.
-        </Typography>
+      {/* ── Right panel: form ── */}
+      <Box
+        sx={{
+          width: { xs: "100%", md: "45%", lg: "38%", xl: "32%" },
+          minWidth: { md: 360 },
+          // maxWidth: { md: 480 },
+          flexShrink: 0,
+          display: "flex",
+          alignItems: { xs: "flex-start", md: "center" },
+          justifyContent: "center",
+          minHeight: { xs: "auto", md: "100vh" },
+          py: { xs: 5, md: 4 },
+          px: { xs: 2.5, sm: 4, md: 4 },
+          bgcolor: "white",
+          boxShadow: { md: "-6px 0 32px rgba(0,0,0,0.07)" },
+          overflowY: "auto",
+        }}
+      >
+        <Box sx={{ width: "100%" }}>
 
-        <Grid container spacing={1} marginTop={0.25}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              label="Phone Number"
-              type="tel"
-              placeholder="Ex: +919646560135"
-              fullWidth
-              autoFocus
-              autoComplete="off"
-              className="font-bold"
-              focused
-              helperText="It should contain country code also"
-              error={false}
-              id="email"
-              inputMode="tel"
-              value={loginFrmData?.phone}
-              onChange={(e) => setLoginFrmData((prev) => ({ ...prev, phone: e.target.value }))}
-              color="warning"
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
-                      <Phone fontSize="small" />
-                    </Fab>
-                  ),
-                },
+          {/* Mobile: circular logo avatar */}
+          <Box sx={{ display: { xs: "flex", md: "none" }, justifyContent: "center", mb: 3 }}>
+            <Box
+              component="img"
+              src="/logo.jpeg"
+              alt="Logo"
+              sx={{
+                width: 90,
+                height: 90,
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "3px solid",
+                borderColor: "warning.main",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.13)",
               }}
             />
-          </Grid>
+          </Box>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              color="warning"
-              label="Password"
-              type={inputType}
-              fullWidth
-              autoComplete="off"
-              placeholder="Ex: Abc!123"
-              className="font-bold"
-              helperText="It should contain at least one capital, one small, one digit and one special character."
-              id="password"
-              value={loginFrmData?.password}
-              onChange={(e) =>
-                setLoginFrmData((prev) => ({
-                  ...prev,
-                  password: e.target.value,
-                }))
-              }
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <Fab color="warning" variant="extended" size="small" onClick={handlePwdClick}>
-                      <Visibility fontSize="small" />
-                    </Fab>
-                  ),
-                },
-              }}
-            />
-          </Grid>
+          {/* Headings */}
+          <Typography variant={isMobile ? "h5" : "h4"} fontWeight={800} color="warning.main" mb={0.5}>
+            Welcome back
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mb={3.5}>
+            Sign in to your admin account to continue.
+          </Typography>
 
-          {isCaptchaValidated ? (
+          {/* Form */}
+          <Grid container spacing={2}>
+            {/* Phone */}
             <Grid size={12}>
-              <CaptchaValidated />
-            </Grid>
-          ) : (
-            <>
-              <Grid size={{ xs: 8, md: 3 }} display="flex" alignItems="center" mt={2}>
-                {isCaptchaLoading ? (
-                  <>
-                    <CircularProgress size={16} color="secondary" />
-                    <Typography variant="body1">Loading captcha, please wait...</Typography>
-                  </>
-                ) : (
-                  <img src={captchaBlobUri} width={200} height={60} alt="Captcha"></img>
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 2, md: 1 }} display="flex" alignItems="center" mt={2}>
-                <Fab color="info" onClick={handleRefCaptcha} disabled={isCaptchaLoading}>
-                  {isCaptchaLoading ? <CircularProgress size={16} color="secondary" /> : <Replay fontSize="small" />}
-                </Fab>
-              </Grid>
-
-              <Grid size={{ xs: 2, md: 1 }} display="flex" alignItems="center" mt={2}>
-                <Fab color="info" onClick={handleCaptchaAudioBtn} disabled={isCaptchaAudioLoading || isCaptchaLoading}>
-                  {isCaptchaAudioLoading ? (
-                    <CircularProgress size={16} color="secondary" />
-                  ) : (
-                    <Headset fontSize="small" />
-                  )}
-                </Fab>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }} mt={2} offset={isMobile ? 0 : 1}>
-                <TextField
-                  label="Captcha"
-                  type="text"
-                  fullWidth
-                  color="warning"
-                  autoComplete="off"
-                  id="captcha"
-                  slotProps={{
-                    input: {
-                      startAdornment: (
-                        <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
-                          <Security fontSize="small" sx={{ color: "white" }} />
-                        </Fab>
-                      ),
-                    },
-                  }}
-                  value={loginFrmData?.captcha || ""}
-                  onChange={(e) =>
-                    setLoginFrmData((prev) => ({
-                      ...prev,
-                      captcha: e.target.value,
-                    }))
-                  }
-                  helperText="It should contain only alphabets and numeric characters. It must be exactly 6 characters long."
-                  sx={{ fontWeight: 700 }}
-                />
-              </Grid>
-            </>
-          )}
-
-          <Grid size={4} offset={8} display="flex" justifyContent="flex-end" alignItems="center">
-            <LockReset fontSize="small" color="warning" />
-            <Link to="/forgot-pwd" className="text-base text-orange-500 underline underline-offset-2 font-semibold">
-              Forgot your password
-            </Link>
-          </Grid>
-
-          <Grid size={12} display="flex" columnGap={2}>
-            {!isCaptchaValidated && (
-              <Button
-                variant="contained"
-                onClick={handleCaptchaValidateBtn}
-                startIcon={isCaptchaValidating ? <CircularProgress size={16} /> : <Verified fontSize="small" />}
-                disabled={isCaptchaValidated || isCaptchaValidating}
+              <TextField
+                label="Phone Number"
+                type="tel"
+                placeholder="Ex: +919646560135"
                 fullWidth
-                color="success"
-              >
-                I am not a robot
-              </Button>
+                autoFocus
+                autoComplete="off"
+                helperText="Include your country code"
+                id="email"
+                inputMode="tel"
+                value={loginFrmData?.phone}
+                onChange={(e) => setLoginFrmData((prev) => ({ ...prev, phone: e.target.value }))}
+                color="warning"
+                slotProps={{
+                  input: {
+                    startAdornment: (
+                      <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
+                        <Phone fontSize="small" />
+                      </Fab>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            {/* Password */}
+            <Grid size={12}>
+              <TextField
+                color="warning"
+                label="Password"
+                type={inputType}
+                fullWidth
+                autoComplete="off"
+                placeholder="Ex: Abc!123"
+                helperText="Min. one capital, one small, one digit, one special character."
+                id="password"
+                value={loginFrmData?.password}
+                onChange={(e) => setLoginFrmData((prev) => ({ ...prev, password: e.target.value }))}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <Fab color="warning" variant="extended" size="small" onClick={handlePwdClick}>
+                        <Visibility fontSize="small" />
+                      </Fab>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            {/* Captcha section */}
+            {isCaptchaValidated ? (
+              <Grid size={12}>
+                <CaptchaValidated />
+              </Grid>
+            ) : (
+              <>
+                {/* Captcha image + action buttons in one flex row */}
+                <Grid size={12}>
+                  <Box display="flex" alignItems="center" gap={1.5}>
+                    <Box flex={1} display="flex" alignItems="center">
+                      {isCaptchaLoading ? (
+                        <>
+                          <CircularProgress size={16} color="secondary" />
+                          <Typography variant="body2" ml={1}>Loading…</Typography>
+                        </>
+                      ) : (
+                        <img src={captchaBlobUri} width={180} height={56} alt="Captcha" style={{ display: "block" }} />
+                      )}
+                    </Box>
+
+                    <Fab color="info" size="small" onClick={handleRefCaptcha} disabled={isCaptchaLoading}>
+                      {isCaptchaLoading ? <CircularProgress size={16} color="secondary" /> : <Replay fontSize="small" />}
+                    </Fab>
+
+                    <Fab color="info" size="small" onClick={handleCaptchaAudioBtn} disabled={isCaptchaAudioLoading || isCaptchaLoading}>
+                      {isCaptchaAudioLoading ? (
+                        <CircularProgress size={16} color="secondary" />
+                      ) : (
+                        <Headset fontSize="small" />
+                      )}
+                    </Fab>
+                  </Box>
+                </Grid>
+
+                <Grid size={12}>
+                  <TextField
+                    label="Captcha"
+                    type="text"
+                    fullWidth
+                    color="warning"
+                    autoComplete="off"
+                    id="captcha"
+                    slotProps={{
+                      input: {
+                        startAdornment: (
+                          <Fab tabIndex={-1} color="warning" variant="extended" size="small" sx={{ mr: 1 }}>
+                            <Security fontSize="small" sx={{ color: "white" }} />
+                          </Fab>
+                        ),
+                      },
+                    }}
+                    value={loginFrmData?.captcha || ""}
+                    onChange={(e) => setLoginFrmData((prev) => ({ ...prev, captcha: e.target.value }))}
+                    helperText="Exactly 6 alphanumeric characters."
+                    sx={{ fontWeight: 700 }}
+                  />
+                </Grid>
+              </>
             )}
 
-            <Button
-              variant="contained"
-              onClick={handleLogin}
-              startIcon={frmLoading ? <CircularProgress size={16} /> : <LockOpen fontSize="small" />}
-              disabled={frmLoading}
-              fullWidth
-              autoFocus={isCaptchaValidated}
-            >
-              Login in your account
-            </Button>
-          </Grid>
+            {/* Forgot password */}
+            <Grid size={12} display="flex" justifyContent="flex-end" alignItems="center" gap={0.5}>
+              <LockReset fontSize="small" color="warning" />
+              <Link to="/auth/forgot-pwd" className="text-sm text-orange-500 underline underline-offset-2 font-semibold">
+                Forgot password?
+              </Link>
+            </Grid>
 
-          <Grid size={12}>
-            <Divider />
-          </Grid>
+            {/* Action buttons */}
+            <Grid size={12} display="flex" columnGap={1.5}>
+              {!isCaptchaValidated && (
+                <Button
+                  variant="contained"
+                  onClick={handleCaptchaValidateBtn}
+                  startIcon={isCaptchaValidating ? <CircularProgress size={16} /> : <Verified fontSize="small" />}
+                  disabled={isCaptchaValidated || isCaptchaValidating}
+                  fullWidth
+                  color="success"
+                >
+                  Not a robot
+                </Button>
+              )}
 
-          <FormTermsAndCondition />
-        </Grid>
-      </Grid>
-    </Grid>
+              <Button
+                variant="contained"
+                onClick={handleLogin}
+                startIcon={frmLoading ? <CircularProgress size={16} /> : <LockOpen fontSize="small" />}
+                disabled={frmLoading}
+                fullWidth
+                autoFocus={isCaptchaValidated}
+                color="warning"
+              >
+                Sign In
+              </Button>
+            </Grid>
+
+            <Grid size={12}>
+              <Divider />
+            </Grid>
+
+            <FormTermsAndCondition />
+          </Grid>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

@@ -10,20 +10,20 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   Switch,
   TextField,
   Typography,
   useTheme,
 } from "@mui/material";
-import { AccountBox, AlternateEmail, Cancel, Home, Person, Phone, Save, Web } from "@mui/icons-material";
-import Heading from "../components/Heading";
+import { AccountBox, AlternateEmail, Close, Home, Person, Phone, Save, Web } from "@mui/icons-material";
 import { IProfilePayload } from "../interfaces/states.interfaces";
 import { BtnClick, InputChange } from "../interfaces";
 import LayoutController from "../controllers/layout.controller";
 import { ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
+import ModalCloseButton from "../components/styled/ModalCloseButton";
+import ModalHeading from "../components/headings/ModalHeading";
 
 function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IViewDialogProp>): ReactNode {
   const theme = useTheme();
@@ -97,12 +97,12 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
     <Dialog maxWidth="lg" fullWidth open={open}>
       <DialogTitle>
         <Box component="div" className="flex justify-end">
-          <IconButton onClick={handleDialogCloseBtnClick}>
-            <Cancel fontSize="medium" color="error" />
-          </IconButton>
+          <ModalCloseButton onClick={handleDialogCloseBtnClick}>
+            <Close fontSize="medium" />
+          </ModalCloseButton>
         </Box>
 
-        <Heading Icon={AccountBox} text="Your profile" />
+        <ModalHeading Icon={AccountBox} text="Your profile" />
       </DialogTitle>
 
       <DialogContent sx={{ borderTop: `1px solid ${theme.palette.secondary.A100}` }}>

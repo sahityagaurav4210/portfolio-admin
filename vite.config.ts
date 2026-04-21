@@ -17,9 +17,21 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@mui/system", "@mui/material", "@mui/x-date-pickers"],
   },
-  // build: {
-  //   rollupOptions: {
-  //     external: ['@mui/x-date-pickers/AdapterDayjs', '@mui/system', '@mui/system/RtlProvider'],
-  //   },
-  // }
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
+  build: {
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "@mui/material": ["@mui/material"],
+          "@mui/x-date-pickers": ["@mui/x-date-pickers"],
+          "@mui/system": ["@mui/system"],
+        },
+      },
+    },
+    sourcemap: false
+  }
 });

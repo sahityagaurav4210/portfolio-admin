@@ -11,7 +11,6 @@ import {
   ListItemText,
   Menu,
   MenuItem,
-  Toolbar,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -22,7 +21,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useCallback, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 import SIDEBAR_ITEMS from "../data/layout.data";
 import Footer from "../views/Footer";
 import ImgContainer from "../components/ImgContainer";
@@ -34,6 +33,8 @@ import ProfileModal from "../models/ProfileModal";
 import ChangePwdModal from "../models/ChangePwdModal";
 import LayoutController from "../controllers/layout.controller";
 import ConfirmationDialog from "../components/ConfirmationDialog";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { setProfile } from "../redux/slices/profile.slice";
 
 function ProtectedLayout() {
   const theme = useTheme();
@@ -46,17 +47,20 @@ function ProtectedLayout() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { pathname } = useLocation();
 
   // exact match for root, prefix match for everything else
-  const isActive = (url: string) =>
-    url === "/" ? pathname === "/" : pathname.startsWith(url);
+  const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
   const [isLoading, setIsLoading] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [profileDetails, setProfileDetails] = useState<Record<string, any>>();
   const [profileDialogView, setProfileDialogView] = useState<boolean>(false);
   const [changePwdModalVisibility, setChangePwdModalVisibility] = useState(false);
   const [isCnfDialogOpen, setIsCnfDialogOpen] = useState(false);
+
+  // Redux Auth Selector
+  const { user } = useAppSelector((state) => state.auth);
 
   const currentDesktopWidth = sidebarCollapsed ? collapsedWidth : drawerWidth;
 
@@ -114,6 +118,7 @@ function ProtectedLayout() {
 
       if (reply.status === ApiStatus.SUCCESS) {
         setProfileDetails(reply.data);
+        dispatch(setProfile(reply.data));
         setProfileDialogView(true);
       } else throw new Error(reply.message);
     } catch (error: any) {
@@ -138,19 +143,24 @@ function ProtectedLayout() {
   // Mobile drawer items — always show label
   const MobileDrawerItems = (
     <div>
+      <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
+        <Typography variant="h6" fontWeight={900} className="text-blue-800">
+          Portfolio CMS
+        </Typography>
+      </Box>
+      <Divider />
       <List>
         {SIDEBAR_ITEMS.map((text) => {
           const active = isActive(text.url);
           return (
             <ListItem key={text.url} disablePadding>
               <ListItemButton
-                href={text.url}
+                component={Link}
+                to={text.url}
                 sx={{
                   backgroundColor: active ? theme.palette.primary.main : "transparent",
                   "&:hover": {
-                    backgroundColor: active
-                      ? theme.palette.primary.dark
-                      : "action.hover",
+                    backgroundColor: active ? theme.palette.primary.dark : "action.hover",
                   },
                   borderRadius: 1,
                   mx: 0.5,
@@ -181,22 +191,29 @@ function ProtectedLayout() {
       <Box
         sx={{
           display: "flex",
-          justifyContent: sidebarCollapsed ? "center" : "flex-end",
-          px: 0.5,
+          justifyContent: sidebarCollapsed ? "center" : "space-between",
+          alignItems: "center",
+          px: sidebarCollapsed ? 0.5 : 2,
           py: 0.5,
+          minHeight: 48,
           borderBottom: "1px solid gainsboro",
         }}
       >
+        {!sidebarCollapsed && (
+          <Typography variant="h6" fontWeight={900} className="text-blue-800">
+            Portfolio CMS
+          </Typography>
+        )}
         <Tooltip title={sidebarCollapsed ? "Expand" : "Collapse"} placement="right">
           <IconButton
             size="small"
             onClick={() => setSidebarCollapsed((prev) => !prev)}
             aria-label={sidebarCollapsed ? "expand sidebar" : "collapse sidebar"}
-            sx={theme => ({
+            sx={(theme) => ({
               backgroundColor: theme.palette.warning.main,
               "&:hover": { backgroundColor: theme.palette.warning.dark },
               transition: "background-color 0.2s",
-              color: "whitesmoke"
+              color: "whitesmoke",
             })}
           >
             {sidebarCollapsed ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
@@ -211,15 +228,14 @@ function ProtectedLayout() {
             <ListItem key={text.url} disablePadding>
               <Tooltip title={sidebarCollapsed ? text.name : ""} placement="right">
                 <ListItemButton
-                  href={text.url}
+                  component={Link}
+                  to={text.url}
                   sx={{
                     justifyContent: sidebarCollapsed ? "center" : "flex-start",
                     px: sidebarCollapsed ? 0 : 2,
                     backgroundColor: active ? theme.palette.primary.main : "transparent",
                     "&:hover": {
-                      backgroundColor: active
-                        ? theme.palette.primary.dark
-                        : "action.hover",
+                      backgroundColor: active ? theme.palette.primary.dark : "action.hover",
                     },
                     borderRadius: 1,
                     mx: 0.5,
@@ -295,12 +311,14 @@ function ProtectedLayout() {
               <MenuIcon />
             </IconButton>
 
-            <Typography variant="h6" fontWeight={900} className="text-blue-800">
-              Portfolio CMS
-            </Typography>
+            {user?.name && (
+              <Typography variant={isMobile ? "subtitle1" : "body1"} fontWeight={700} className="text-orange-600">
+                Welcome, {user.name}
+              </Typography>
+            )}
           </Box>
 
-          <Box component="div">
+          <Box component="div" className="flex items-center gap-2">
             <IconButton
               sx={{
                 backgroundColor: "#ea580c",
@@ -400,8 +418,6 @@ function ProtectedLayout() {
                 },
               }}
             >
-              <Toolbar />
-              <Divider />
               {MobileDrawerItems}
             </Drawer>
 
@@ -441,8 +457,8 @@ function ProtectedLayout() {
           </Box>
         </Box>
 
-        <Box component="footer" sx={{ display: "flex", flexShrink: 0 }}>
-          <Footer />
+        <Box component="footer" sx={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
+          <Footer showSupport />
         </Box>
       </Box>
 

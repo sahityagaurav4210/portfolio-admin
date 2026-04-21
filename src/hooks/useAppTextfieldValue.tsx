@@ -27,17 +27,7 @@ function useAppTextfieldValue() {
         size: { xs: 12, md: 6 },
         sx: { mt: { xs: 0, md: 1 } },
       },
-      {
-        label: "Url",
-        name: "url",
-        value: skillData?.url || "",
-        type: "url",
-        required: true,
-        fullWidth: true,
-        autoFocus: false,
-        helperText: "Only string in url format is allowed. It should start with http or https.",
-        size: { xs: 12, md: 8 },
-      },
+
     ];
   };
 

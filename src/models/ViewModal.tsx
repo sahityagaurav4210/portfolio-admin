@@ -1,90 +1,146 @@
-import { memo, ReactNode, useCallback, useState } from "react";
+import { memo, ReactNode } from "react";
 import { IViewDialogProp } from "../interfaces/component_props.interface";
 import {
   Box,
   Button,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
-  IconButton,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
-import { Cancel, ListAlt, Visibility, VisibilityOff } from "@mui/icons-material";
-import Heading from "../components/Heading";
+import { Close, Edit, Palette } from "@mui/icons-material";
 import AppImage from "../components/AppImage";
-import { BtnClick } from "../interfaces";
-import { Grid } from "@mui/system";
+import useAppHelperFn from "../hooks/useAppHelperFn";
+import ModalHeading from "../components/headings/ModalHeading";
+import ModalCloseButton from "../components/styled/ModalCloseButton";
 
-function ViewModal({ open, handleDialogCloseBtnClick, details }: Readonly<IViewDialogProp>): ReactNode {
+function ViewModal({
+  open,
+  handleDialogCloseBtnClick,
+  details,
+  onEditHandler,
+}: Readonly<IViewDialogProp>): ReactNode {
   const theme = useTheme();
-  const [showDesc, setShowDesc] = useState(false);
+  const { getResourceUrl } = useAppHelperFn();
+  const imageUrl = getResourceUrl(details?.url);
+  const isMobile = theme.breakpoints.down("sm");
 
-  const handleShowDescBtn = useCallback(
-    function (e: BtnClick) {
-      e.preventDefault();
-      setShowDesc((prev) => !prev);
-    },
-    [showDesc]
-  );
+  const experienceYears = details?.experience
+    ? (Number(details.experience) / 12).toFixed(1).replace(/\.0$/, "")
+    : "—";
 
   return (
-    <Dialog maxWidth="lg" fullWidth open={open}>
-      <DialogTitle>
-        <Box component="div" className="flex justify-end">
-          <IconButton onClick={handleDialogCloseBtnClick}>
-            <Cancel fontSize="medium" color="error" />
-          </IconButton>
-        </Box>
+    <Dialog
+      maxWidth="lg"
+      fullWidth
+      open={open}
+      slotProps={{ paper: { sx: { borderRadius: 3, boxShadow: "0 8px 32px rgba(0,0,0,0.12)" } } }}
+    >
+      <Box display="flex" justifyContent="flex-end" p={1}>
+        <ModalCloseButton onClick={handleDialogCloseBtnClick}>
+          <Close fontSize="small" />
+        </ModalCloseButton>
+      </Box>
 
-        <Heading Icon={ListAlt} text="Your skill" />
+      {/* ── Header ── */}
+      <DialogTitle sx={{ pb: 1.5 }}>
+        <ModalHeading text="Your Skill" Icon={Palette} />
       </DialogTitle>
 
-      <DialogContent sx={{ borderTop: `1px solid ${theme.palette.secondary.A100}` }}>
-        <Box component="div" className="flex justify-end my-2">
-          <Button
-            variant="contained"
-            startIcon={showDesc ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
-            onClick={handleShowDescBtn}
-          >
-            {showDesc ? "Hide description" : "Show description"}
-          </Button>
+      <Divider />
+
+      <DialogContent sx={{ px: 3, py: 2.5 }}>
+        <Box display="flex" gap={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2, overflow: "hidden", mb: 3 }}>
+          {/* Years of experience */}
+          <Box sx={{ flex: 1, px: 2.5, py: 2, borderRight: "1px solid", borderColor: "divider" }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              Experience
+            </Typography>
+
+            <Box display="flex" alignItems="baseline" gap={0.5}>
+              <Typography variant={isMobile ? "h5" : "h4"} fontWeight={700} lineHeight={1}>
+                {experienceYears}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                Years
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Skill Name */}
+          <Box sx={{ flex: 1, px: 2.5, py: 2 }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              Skill Name
+            </Typography>
+
+            <Box
+              display="flex"
+              alignItems="center"
+              flexWrap="wrap"
+              gap={0.5}
+              sx={{ color: "text.primary", textDecoration: "none", "&:hover": { color: "primary.main" } }}
+            >
+              <Typography variant={isMobile ? "h5" : "h4"} fontWeight={700} sx={{ textWrap: "balance", wordBreak: "break-word" }}>
+                {details?.name}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
 
-        <Grid container columnSpacing={1} rowSpacing={2}>
-          <Grid size={{ xs: 12, md: 8 }}>
-            <TextField label="Name" value={details?.name.toUpperCase()} disabled fullWidth />
-          </Grid>
+        {/* ── Description ── */}
+        <Typography variant="subtitle2" fontWeight={600} color="text.secondary" mb={1}>
+          Description
+        </Typography>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <TextField label="Experience (in months)" value={details?.experience} disabled fullWidth />
-          </Grid>
-        </Grid>
+        <Box
+          sx={{
+            border: "1.5px solid",
+            borderColor: "warning.A100",
+            borderRadius: 2,
+            bgcolor: "warning.A100",
+            p: 2,
+          }}
+        >
+          {/* Skill image + name */}
+          <Box display="flex" alignItems="center" gap={1.5} mb={1.5}>
+            <AppImage url={imageUrl} width="56px" height="56px" />
+          </Box>
 
-        {showDesc && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography
-              variant="h6"
-              fontWeight={700}
-              className="underline underline-offset-2 uppercase decoration-wavy"
-              color="primary"
-            >
-              Description
-            </Typography>
-            <Box component="div" className="flex items-center justify-evenly gap-x-2 flex-wrap md:flex-nowrap">
-              <AppImage url={details?.url || "/404.jpg"} width="128px" height="128px" />
-              <Box
-                component="div"
-                dangerouslySetInnerHTML={{ __html: details?.description }}
-                className="text-justify"
-              ></Box>
-            </Box>
-          </>
-        )}
+          {/* Rich text description */}
+          <Box
+            component="div"
+            dangerouslySetInnerHTML={{ __html: details?.description ?? "" }}
+            sx={{
+              fontSize: "0.875rem",
+              lineHeight: 1.7,
+              color: "text.primary",
+              textAlign: "justify",
+              "& strong, & b": { fontWeight: 700 },
+              "& a": { color: "warning.main" },
+            }}
+          />
+        </Box>
       </DialogContent>
+
+      <Divider />
+
+      {/* ── Footer ── */}
+      <DialogActions>
+        {onEditHandler && (
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<Edit fontSize="small" />}
+            onClick={onEditHandler}
+            sx={{ fontWeight: 700 }}
+          >
+            Edit
+          </Button>
+        )}
+      </DialogActions>
     </Dialog>
   );
 }

@@ -3,13 +3,13 @@ import { getApiBaseUrl } from "../helpers";
 import { IApiReply } from "../interfaces/api.interface";
 
 export class FTPController {
-  public async refreshAccessToken(token: string): Promise<void | string> {
+  public async refreshAccessToken(): Promise<void | string> {
     try {
       const appEnv = import.meta.env.VITE_APP_ENV;
       const baseUrl = getApiBaseUrl(appEnv);
 
       const fullAbsUrl = `${baseUrl}/authentication/tokens/refresh-access-token`;
-      const headers = { ...getApiHeaders("application/json"), "x-ref-token": token };
+      const headers = getApiHeaders("application/json");
 
       const rawReply = await fetch(fullAbsUrl, {
         method: HttpVerbs.GET,
@@ -19,7 +19,6 @@ export class FTPController {
       const reply = (await rawReply.json()) as IApiReply;
 
       if (reply.status === ApiStatus.FORBIDDEN) return reply.status;
-      localStorage.setItem("authorization", reply?.data?.access_token);
     } catch {
       return ApiStatus.EXCEPTION;
     }
@@ -46,8 +45,7 @@ export class FTPController {
       const reply = (await rawReply.json()) as IApiReply;
 
       if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        const status = await this.refreshAccessToken(token);
+        const status = await this.refreshAccessToken();
 
         if (status === ApiStatus.FORBIDDEN) {
           return { status: ApiStatus.LOGOUT, message: "Logout" };
@@ -91,8 +89,7 @@ export class FTPController {
       const reply = (await rawReply.json()) as IApiReply;
 
       if (reply.status === ApiStatus.FORBIDDEN) {
-        const token = localStorage.getItem("token") as string;
-        const status = await this.refreshAccessToken(token);
+        const status = await this.refreshAccessToken();
 
         if (status === ApiStatus.FORBIDDEN) {
           return { status: ApiStatus.LOGOUT, message: "Logout" };
