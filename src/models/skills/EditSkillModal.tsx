@@ -17,7 +17,6 @@ import { Close, Edit } from "@mui/icons-material";
 import { Grid } from "@mui/system";
 import { ISkillForm } from "../../interfaces/models.interface";
 import { BtnClick, InputChange } from "../../interfaces";
-import { ApiStatus } from "../../api";
 import { getGlobalToastConfig } from "../../configs/toasts.config";
 import { toast } from "react-toastify";
 import { AppPatterns } from "../../constants";
@@ -25,14 +24,13 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import CWPSAlert from "../../components/CWPSAlert";
 import useAppAlert from "../../hooks/useAppAlert";
-import SkillController from "../../controllers/skills.controller";
 import useAppTextfieldValue from "../../hooks/useAppTextfieldValue";
 import FileUpload from "../../components/FileUpload";
 import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
-import { useNavigate } from "react-router-dom";
-import { checkLogoutApiResponse } from "../../helpers";
+import useAppSkillModal from "../../hooks/useAppSkillModal";
+import useAppEditorConfiguration from "../../hooks/useAppEditorConfiguration";
 
 function EditSkillModal({
   open,
@@ -47,35 +45,11 @@ function EditSkillModal({
   const [skillFile, setSkillFile] = useState<File | null>(null);
   const [isReady, setIsReady] = useState<boolean>(true);
   const { alert, handleAlertOnClose, setAlert } = useAppAlert();
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "link",
-    "image",
-    "list",
-    "bullet",
-    "align",
-    "color",
-    "background",
-  ];
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, false] }],
-      ["bold", "italic", "underline"],
-      ["link", "image"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      [{ color: [] }, { background: [] }],
-      ["clean"],
-    ],
-  };
+  const { editSkill } = useAppSkillModal();
+  const { formats, modules } = useAppEditorConfiguration();
   const { editSkillModalTextfields } = useAppTextfieldValue();
   const { getDescriptionCount } = useAppHelperFn();
   const editFormInputValues = editSkillModalTextfields(skillFormData);
-
-  const navigate = useNavigate();
 
   const handleTextFieldOnChange = useCallback(
     function (e: InputChange) {
@@ -91,7 +65,6 @@ function EditSkillModal({
       setIsSaving(true);
 
       try {
-        const controller = new SkillController();
         const { _id, id, ...payload } = skillFormData || {};
         const { name, experience, description } = payload as Record<string, any>;
 
@@ -119,26 +92,9 @@ function EditSkillModal({
           return;
         }
 
-        //Converting the received final skill edit payload into a FormData object
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("experience", String(skillFormData?.experience));
-        formData.append("description", String(skillFormData?.description));
-        if (skillFile) formData.append("skill", skillFile);
-
-        const reply = await controller.makePutSkillReq(_id, formData);
-        const isLogout = checkLogoutApiResponse(reply.status, reply.message);
-
-        if (isLogout) {
-          await navigate("/auth/login");
-          localStorage.clear();
-          return;
-        }
-
-        if (reply.status === ApiStatus.SUCCESS) {
-          await onAddHandler();
-          handleDialogCloseBtnClick(e);
-        } else throw new Error(reply.message);
+        await editSkill(_id, payload, skillFile);
+        await onAddHandler();
+        handleDialogCloseBtnClick(e);
       } catch (error: any) {
         const message = error?.message || "Something went wrong while processing your request, please try again!!!";
         toast.error(message, getGlobalToastConfig());
