@@ -1,3 +1,4 @@
+import { ApiStatus } from "../api";
 import { IApiReply } from "../interfaces/api.interface";
 
 export function getArrayRecords<T>(apiRes: IApiReply): Array<T> {
@@ -10,8 +11,15 @@ export function getArrayRecords<T>(apiRes: IApiReply): Array<T> {
 }
 
 export function getApiBaseUrl(environment: string): string {
-  const baseUrl =
-    environment === "local" ? "/api/v1" : import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = environment === "local" ? "/api/v1" : import.meta.env.VITE_API_BASE_URL;
 
   return baseUrl;
+}
+
+export function checkLogoutApiResponse(status: ApiStatus, message: string): boolean {
+  if (status === ApiStatus.LOGOUT && message === "Session expired") {
+    return true;
+  }
+
+  return false;
 }

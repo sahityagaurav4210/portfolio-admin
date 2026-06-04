@@ -123,3 +123,8 @@ export interface IModalHeading {
 export interface IFooterProp {
   showSupport?: boolean;
 }
+
+export interface IInjectTitleProp {
+  title: string;
+  children: ReactNode;
+}

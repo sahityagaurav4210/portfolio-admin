@@ -32,6 +32,7 @@ import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
 import { useNavigate } from "react-router-dom";
+import { checkLogoutApiResponse } from "../../helpers";
 
 function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readonly<IGlobalDialogProp>): ReactNode {
   const theme = useTheme();
@@ -41,7 +42,19 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(true);
   const { alert, handleAlertOnClose, setAlert } = useAppAlert();
-  const formats = ["header", "bold", "italic", "underline", "link", "image", "list", "bullet", "align", "color", "background"];
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "link",
+    "image",
+    "list",
+    "bullet",
+    "align",
+    "color",
+    "background",
+  ];
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -100,8 +113,9 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
 
         const controller = new SkillController();
         const reply = await controller.makePostSkillReq(formData);
+        const isLogout = checkLogoutApiResponse(reply.status, reply.message);
 
-        if (reply.status === ApiStatus.LOGOUT && reply.message === "Session expired") {
+        if (isLogout) {
           await navigate("/auth/login");
           localStorage.clear();
           return;
@@ -145,7 +159,7 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
                 maxSizeMB={5}
                 disabled={isSaving}
                 label="Upload skill icon (drag & drop or click to browse)"
-                onReadyChange={ready => setIsReady(ready)}
+                onReadyChange={(ready) => setIsReady(ready)}
               />
             </Grid>
 

@@ -9,8 +9,8 @@ import {
   Paper,
   TextField,
   Typography,
+  Grid2 as Grid,
 } from "@mui/material";
-import { Grid2 as Grid } from "@mui/material";
 import { Visibility, VisibilityOff, Edit } from "@mui/icons-material";
 import PasswordIcon from "@mui/icons-material/Password";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -38,7 +38,7 @@ function ChangePwd(): React.ReactNode {
       "Password must contain atleast one captial, one small, one digit and one special character.",
       "Only @,$,! and % special characters are allowed.",
     ],
-    []
+    [],
   );
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -50,13 +50,10 @@ function ChangePwd(): React.ReactNode {
   const [isNewPwdVisible, setIsNewPwdVisible] = useState(false);
   const [isCnfPwdVisible, setIsCnfPwdVisible] = useState(false);
 
-  const handleInputOnChange = useCallback(
-    function (e: InputChange) {
-      const { name, value } = e.target;
-      setChangePwdForm((prev) => ({ ...(prev as IChangePwd), [name]: value }));
-    },
-    []
-  );
+  const handleInputOnChange = useCallback(function (e: InputChange) {
+    const { name, value } = e.target;
+    setChangePwdForm((prev) => ({ ...(prev as IChangePwd), [name]: value }));
+  }, []);
 
   async function verifyXuidToken() {
     const xuid = queryParams.get("xuid") as string;
@@ -69,10 +66,13 @@ function ChangePwd(): React.ReactNode {
       if (response.status !== ApiStatus.SUCCESS) throw new Error(response.message);
       setIsXuidValid(true);
     } catch (error: any) {
-      setAlert((prev) => ({ ...prev, isOpen: true, message: error?.message || "Something went wrong while processing your request, please try again!!!" }));
+      setAlert((prev) => ({
+        ...prev,
+        isOpen: true,
+        message: error?.message || "Something went wrong while processing your request, please try again!!!",
+      }));
       setIsXuidValid(false);
-    }
-    finally {
+    } finally {
       setIsVerifying(false);
     }
   }
@@ -121,7 +121,7 @@ function ChangePwd(): React.ReactNode {
         setIsEditing(false);
       }
     },
-    [changePwdForm, navigate, setAlert]
+    [changePwdForm, navigate, setAlert],
   );
 
   function handlePwdClick(event: BtnClick) {
@@ -161,7 +161,9 @@ function ChangePwd(): React.ReactNode {
       <Box component="div" className="flex flex-col justify-between min-h-screen w-full">
         <Box component="div" className="h-full flex items-center justify-center gap-x-2">
           <CircularProgress size={16} color="secondary" />
-          <Typography variant="body1" color="secondary">Verifying request...</Typography>
+          <Typography variant="body1" color="secondary">
+            Verifying request...
+          </Typography>
         </Box>
 
         <Footer />

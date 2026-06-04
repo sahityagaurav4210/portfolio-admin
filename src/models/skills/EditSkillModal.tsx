@@ -32,6 +32,7 @@ import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
 import { useNavigate } from "react-router-dom";
+import { checkLogoutApiResponse } from "../../helpers";
 
 function EditSkillModal({
   open,
@@ -46,7 +47,19 @@ function EditSkillModal({
   const [skillFile, setSkillFile] = useState<File | null>(null);
   const [isReady, setIsReady] = useState<boolean>(true);
   const { alert, handleAlertOnClose, setAlert } = useAppAlert();
-  const formats = ["header", "bold", "italic", "underline", "link", "image", "list", "bullet", "align", "color", "background"];
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "link",
+    "image",
+    "list",
+    "bullet",
+    "align",
+    "color",
+    "background",
+  ];
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -94,7 +107,6 @@ function EditSkillModal({
           return;
         }
 
-
         if (!AppPatterns.skillExp.test(experience)) {
           const message = "Invalid experience, it should be a positive natural number.";
           setAlert((prev) => ({ ...prev, isOpen: true, message }));
@@ -115,8 +127,9 @@ function EditSkillModal({
         if (skillFile) formData.append("skill", skillFile);
 
         const reply = await controller.makePutSkillReq(_id, formData);
+        const isLogout = checkLogoutApiResponse(reply.status, reply.message);
 
-        if (reply.status === ApiStatus.LOGOUT && reply.message === "Session expired") {
+        if (isLogout) {
           await navigate("/auth/login");
           localStorage.clear();
           return;
@@ -160,7 +173,7 @@ function EditSkillModal({
                 maxSizeMB={5}
                 disabled={isSaving}
                 label="Upload skill icon (drag & drop or click to browse)"
-                onReadyChange={ready => setIsReady(ready)}
+                onReadyChange={(ready) => setIsReady(ready)}
               />
             </Grid>
 

@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { ApiStatus } from "../api";
 import { Add, Delete, Edit, HelpCenter, Visibility, Widgets } from "@mui/icons-material";
 import { ISkillForm } from "../interfaces/models.interface";
-import { getArrayRecords } from "../helpers";
+import { checkLogoutApiResponse, getArrayRecords } from "../helpers";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
 import Heading from "../components/Heading";
@@ -33,10 +33,10 @@ function Skills(): ReactNode {
 
   async function getDetails() {
     const controller = new SkillController();
-
     const details = await controller.makeGetSkillListReq();
+    const isLogout = checkLogoutApiResponse(details.status, details.message);
 
-    if (details.status === ApiStatus.LOGOUT && details.message === "Session expired") {
+    if (isLogout) {
       await navigate("/auth/login");
       localStorage.clear();
       return;
@@ -53,14 +53,6 @@ function Skills(): ReactNode {
   useEffect(() => {
     setIsLoading(true);
     getDetails();
-  }, []);
-
-  useEffect(() => {
-    document.title = "Portfolio Admin || Skills";
-
-    return function () {
-      document.title = "Portfolio Admin";
-    };
   }, []);
 
   const handleViewBtnClick = useCallback(
@@ -101,13 +93,10 @@ function Skills(): ReactNode {
     setEditDialogBoxView(false);
   }, []);
 
-  const handleDeleteBtnClick = useCallback(
-    function (_id: string) {
-      setSkillToDeleteId(_id);
-      setIsCnfDialogOpen(true);
-    },
-    [],
-  );
+  const handleDeleteBtnClick = useCallback(function (_id: string) {
+    setSkillToDeleteId(_id);
+    setIsCnfDialogOpen(true);
+  }, []);
 
   const handleCnfDialogOnSuccess = useCallback(
     async function (e: BtnClick) {
@@ -124,8 +113,9 @@ function Skills(): ReactNode {
       try {
         const controller = new SkillController();
         const response = await controller.makeDeleteSkillReq(skillToDeleteId);
+        const isLogout = checkLogoutApiResponse(response.status, response.message);
 
-        if (response.status === ApiStatus.LOGOUT && response.message === "Session expired") {
+        if (isLogout) {
           await navigate("/auth/login");
           localStorage.clear();
           return;
@@ -168,11 +158,7 @@ function Skills(): ReactNode {
                 <Edit fontSize="small" />
               </Fab>
 
-              <Fab
-                color="error"
-                size="small"
-                onClick={() => handleDeleteBtnClick(row?.original?._id)}
-              >
+              <Fab color="error" size="small" onClick={() => handleDeleteBtnClick(row?.original?._id)}>
                 <Delete fontSize="small" />
               </Fab>
             </Box>
@@ -193,7 +179,11 @@ function Skills(): ReactNode {
 
   return (
     <>
-      <Paper variant="elevation" component="div" className="p-2 sm:p-4 m-2 border border-slate-400 overflow-x-auto box-border">
+      <Paper
+        variant="elevation"
+        component="div"
+        className="p-2 sm:p-4 m-2 border border-slate-400 overflow-x-auto box-border"
+      >
         <Heading Icon={Widgets} text="Skills" />
 
         <Divider sx={{ mb: 4 }} />
@@ -244,7 +234,8 @@ function Skills(): ReactNode {
           open={isCnfDialogOpen}
           text={
             <Typography variant="body1" fontWeight={700} textAlign="justify">
-              <span className="text-red-700 font-bold">CAUTION:</span> You&apos;re about to delete this skill. Are you sure you want to continue?
+              <span className="text-red-700 font-bold">CAUTION:</span> You&apos;re about to delete this skill. Are you
+              sure you want to continue?
             </Typography>
           }
           onSuccess={handleCnfDialogOnSuccess}
