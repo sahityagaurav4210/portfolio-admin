@@ -10,16 +10,14 @@ import {
   DialogTitle,
   Divider,
   Fab,
-  IconButton,
   TextField,
   useTheme,
 } from "@mui/material";
 import React, { useCallback, useMemo, useState } from "react";
-import Heading from "../components/Heading";
 import PasswordIcon from "@mui/icons-material/Password";
 import { Grid } from "@mui/system";
 import { IChangePwdProp } from "../interfaces/component_props.interface";
-import { Cancel, Edit, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Close, Edit, Visibility, VisibilityOff } from "@mui/icons-material";
 import useAppCss from "../hooks/useAppCss";
 import Notes from "../components/Notes";
 import { IChangePwd } from "../interfaces/models.interface";
@@ -29,6 +27,8 @@ import CWPSAlert from "../components/CWPSAlert";
 import { ApiStatus } from "../api";
 import { useNavigate } from "react-router-dom";
 import LayoutController from "../controllers/layout.controller";
+import ModalCloseButton from "../components/styled/ModalCloseButton";
+import ModalHeading from "../components/headings/ModalHeading";
 
 function ChangePwdModal({ open, callback }: Readonly<IChangePwdProp>): React.ReactNode {
   const theme = useTheme();
@@ -124,13 +124,14 @@ function ChangePwdModal({ open, callback }: Readonly<IChangePwdProp>): React.Rea
 
   return (
     <Dialog maxWidth="lg" fullWidth open={open}>
+      <Box component="div" className="flex justify-end p-1">
+        <ModalCloseButton onClick={callback}>
+          <Close fontSize="small" />
+        </ModalCloseButton>
+      </Box>
+
       <DialogTitle>
-        <Box component="div" className="flex justify-end">
-          <IconButton onClick={callback}>
-            <Cancel fontSize="medium" color="error" />
-          </IconButton>
-        </Box>
-        <Heading Icon={PasswordIcon} text="Change Password" />
+        <ModalHeading Icon={PasswordIcon} text="Change Password" />
       </DialogTitle>
 
       <DialogContent sx={{ borderTop: `1px solid ${theme.palette.secondary.A100}` }}>

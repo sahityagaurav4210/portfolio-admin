@@ -24,11 +24,12 @@ export enum HttpVerbs {
   DELETE = "DELETE",
 }
 
-export function getApiHeaders(acceptPayloadType?: string): HeadersInit {
+export function getApiHeaders(acceptPayloadType?: string, customHeaders?: Record<string, string>): HeadersInit {
   return {
     "Content-Type": "application/json",
     Accept: acceptPayloadType || "*/*",
     "x-user-id": AppUserAgent,
+    ...(customHeaders || {}),
   };
 }
 
@@ -74,6 +75,7 @@ export class CWPBApiController {
     const ftpController = new FTPController();
     const tokenRefReply = await ftpController.refreshAccessToken();
 
+    if (tokenRefReply === ApiStatus.LOGOUT) return { status: ApiStatus.LOGOUT, message: "Account password changed" };
     if (tokenRefReply === ApiStatus.FORBIDDEN) return { status: ApiStatus.LOGOUT, message: "Session expired" };
     if (tokenRefReply === ApiStatus.EXCEPTION)
       return { status: ApiStatus.EXCEPTION, message: "Something went wrong at our end." };
@@ -82,9 +84,9 @@ export class CWPBApiController {
     return (await retry.json()) as IApiReply;
   }
 
-  public async GET(url: string, queryStrings?: Record<string, string | number>): Promise<Response> {
+  public async GET(url: string, queryStrings?: Record<string, string | number>, customHeaders?: Record<string, string>): Promise<Response> {
     let uri = this.urlBuilder(url, queryStrings);
-    const headers = getApiHeaders("application/json");
+    const headers = getApiHeaders("application/json", customHeaders);
     const controller = new AbortController();
     const apiConfig: RequestInit = {
       method: HttpVerbs.GET,
@@ -117,13 +119,13 @@ export class CWPBApiController {
     return rawReply;
   }
 
-  public async PUT(url: string, queryStrings?: QueryString, body?: ApiPayload | FormData): Promise<Response> {
+  public async PUT(url: string, queryStrings?: QueryString, body?: ApiPayload | FormData, apiHeaders?: Record<string, string>): Promise<Response> {
     let uri = this.urlBuilder(url, queryStrings);
     const controller = new AbortController();
     const isFormData = body instanceof FormData;
     const headers = isFormData
-      ? (({ "Content-Type": _, ...rest }) => rest)(getApiHeaders() as Record<string, string>)
-      : getApiHeaders("application/json");
+      ? (({ "Content-Type": _, ...rest }) => rest)(getApiHeaders(undefined, apiHeaders) as Record<string, string>)
+      : getApiHeaders("application/json", apiHeaders);
 
     const apiConfig: RequestInit = {
       method: HttpVerbs.PUT,
@@ -165,6 +167,10 @@ export class CWPBApiController {
       reply = await this.handleTokenExpiry(url, callbackFn, qs);
     }
 
+    if (reply.status === ApiStatus.LOGOUT && reply.message === "Account password changed") {
+      return { status: ApiStatus.LOGOUT, message: "Session expired" };
+    }
+
     return reply;
   }
 
@@ -181,6 +187,10 @@ export class CWPBApiController {
 
     if (reply.status === ApiStatus.FORBIDDEN || reply.status === ApiStatus.UNAUTHORISED) {
       reply = await this.handleTokenExpiry(url, callbackFn, qs, payload);
+    }
+
+    if (reply.status === ApiStatus.LOGOUT && reply.message === "Account password changed") {
+      return { status: ApiStatus.LOGOUT, message: "Session expired" };
     }
 
     return reply;
@@ -217,6 +227,10 @@ export class CWPBApiController {
       else reply = { status: ApiStatus.LOGOUT, message: "Session expired, please try again!!!" };
     }
 
+    if (reply.status === ApiStatus.LOGOUT && reply.message === "Account password changed") {
+      return { status: ApiStatus.LOGOUT, message: "Session expired" };
+    }
+
     return reply;
   }
 
@@ -247,6 +261,10 @@ export class CWPBApiController {
 
       if (rawReply.status === 204) reply = { status: ApiStatus.SUCCESS, message: "Deleted" };
       else reply = { status: ApiStatus.LOGOUT, message: "Session expired, please try again!!!" };
+    }
+
+    if (reply.status === ApiStatus.LOGOUT && reply.message === "Account password changed") {
+      return { status: ApiStatus.LOGOUT, message: "Session expired" };
     }
 
     return reply;

@@ -30,7 +30,7 @@ import {
 } from "@mui/icons-material";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
-import { getArrayRecords } from "../helpers";
+import { checkLogoutApiResponse, getArrayRecords } from "../helpers";
 import { Grid } from "@mui/system";
 import IPLocModal from "../models/IPLocModal";
 import useAppCss from "../hooks/useAppCss";
@@ -57,11 +57,13 @@ function Hirings(): ReactNode {
   async function getDetails() {
     const controller = new HiringController();
     const response = await controller.makeGetHiringRecordsReq();
+    const isLogout = checkLogoutApiResponse(response.status, response.message);
 
     setIsLoading(false);
 
-    if (response.status === ApiStatus.LOGOUT) {
+    if (isLogout) {
       await navigate("/auth/login");
+      localStorage.clear();
       return;
     }
 
@@ -99,12 +101,15 @@ function Hirings(): ReactNode {
 
       const controller = new HiringController();
       const response = await controller.makeSoftDeleteHiringReq(hiringId);
+      const isLogout = checkLogoutApiResponse(response.status, response.message);
 
-      if (response.status === ApiStatus.LOGOUT) {
+      if (isLogout) {
         setIsDeleting(false);
         setIsCnfDialogOpen(false);
 
-        return await navigate("/auth/login");
+        await navigate("/auth/login");
+        localStorage.clear();
+        return;
       }
 
       if (response.status !== ApiStatus.SUCCESS) {
@@ -119,7 +124,7 @@ function Hirings(): ReactNode {
       setIsCnfDialogOpen(false);
       await getDetails();
     },
-    [isCnfDialogOpen, isDeleting, getDetails],
+    [isCnfDialogOpen, isDeleting, getDetails, navigate],
   );
 
   const columns = useMemo(
@@ -177,14 +182,6 @@ function Hirings(): ReactNode {
   useEffect(() => {
     setIsLoading(true);
     getDetails();
-  }, []);
-
-  useEffect(() => {
-    document.title = "Portfolio Admin || Hirings";
-
-    return function () {
-      document.title = "Portfolio Admin";
-    };
   }, []);
 
   return (

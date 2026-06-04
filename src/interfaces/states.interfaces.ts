@@ -3,7 +3,7 @@ export interface IProfilePayload {
   email: string;
   phone: string;
   address: string;
-  websites: string[];
+  websites: string;
 }
 
 export interface IAuthUserPayload {

@@ -26,7 +26,8 @@ export const AppStrings = {
     SKILLS: 'skills',
     FORGET_PWD: 'auth/forgot-pwd',
     LOGIN: 'auth/login',
-    LOGOUT: "logout"
+    LOGOUT: "logout",
+    CHANGE_PWD: 'auth/change-pwd'
   }
 };
 
