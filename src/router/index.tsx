@@ -11,6 +11,7 @@ import { AppStrings } from "../i18n";
 import NotFound from "../pages/NotFound";
 import Error from "../pages/Error";
 import ProtectedView from "../views/Protected";
+import ChangePwd from "../pages/ChangePwd";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const AppRoutes = createBrowserRouter([
       {
         path: `/${AppStrings.ROUTES.FORGET_PWD}`,
         element: <ForgetPwd />,
+      },
+      {
+        path: `/${AppStrings.ROUTES.CHANGE_PWD}`,
+        element: <ChangePwd />,
       },
     ],
     errorElement: <Error />,

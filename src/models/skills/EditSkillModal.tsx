@@ -31,6 +31,7 @@ import FileUpload from "../../components/FileUpload";
 import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
+import { useNavigate } from "react-router-dom";
 
 function EditSkillModal({
   open,
@@ -60,6 +61,8 @@ function EditSkillModal({
   const { editSkillModalTextfields } = useAppTextfieldValue();
   const { getDescriptionCount } = useAppHelperFn();
   const editFormInputValues = editSkillModalTextfields(skillFormData);
+
+  const navigate = useNavigate();
 
   const handleTextFieldOnChange = useCallback(
     function (e: InputChange) {
@@ -112,6 +115,12 @@ function EditSkillModal({
         if (skillFile) formData.append("skill", skillFile);
 
         const reply = await controller.makePutSkillReq(_id, formData);
+
+        if (reply.status === ApiStatus.LOGOUT && reply.message === "Session expired") {
+          await navigate("/auth/login");
+          localStorage.clear();
+          return;
+        }
 
         if (reply.status === ApiStatus.SUCCESS) {
           await onAddHandler();

@@ -226,6 +226,14 @@ function Login(): ReactNode {
           },
         }}
       >
+        <Box sx={{ position: "relative", zIndex: 1, textAlign: "center", px: 3 }}>
+          <Typography variant="h2" fontWeight={900} color="white" mb={1}>
+            Portfolio Builder
+          </Typography>
+          <Typography variant="subtitle1" fontWeight={500} color="white" sx={{ opacity: 0.85 }}>
+            Powered by Coding Works
+          </Typography>
+        </Box>
       </Box>
 
       {/* ── Right panel: form ── */}

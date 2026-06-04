@@ -11,6 +11,7 @@ import useAppCss from "../hooks/useAppCss";
 import ViewsController from "../controllers/views.controller";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
+import { useNavigate } from "react-router-dom";
 
 function TodayViewsDetails(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IViewDetails[]>([]);
@@ -18,10 +19,17 @@ function TodayViewsDetails(): ReactNode {
   const [clientIp, setClientIp] = useState<string>("");
   const [ipLocDialogOpen, setIpLocDialogOpen] = useState<boolean>(false);
   const { GlobalTableCss } = useAppCss();
+  const navigate = useNavigate();
 
   async function getDetails() {
     const controller = new ViewsController();
     const details = await controller.makeGetViewsListReq();
+
+    if (details.status === ApiStatus.LOGOUT && details.message === "Session expired") {
+      await navigate("/auth/login");
+      localStorage.clear();
+      return;
+    }
 
     if (details.status === ApiStatus.SUCCESS) {
       const list = getArrayRecords<IViewDetails>(details);

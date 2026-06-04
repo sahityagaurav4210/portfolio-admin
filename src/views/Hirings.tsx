@@ -60,8 +60,9 @@ function Hirings(): ReactNode {
 
     setIsLoading(false);
 
-    if (response.status === ApiStatus.LOGOUT) {
+    if (response.status === ApiStatus.LOGOUT && response.message === "Session expired") {
       await navigate("/auth/login");
+      localStorage.clear();
       return;
     }
 
@@ -100,11 +101,13 @@ function Hirings(): ReactNode {
       const controller = new HiringController();
       const response = await controller.makeSoftDeleteHiringReq(hiringId);
 
-      if (response.status === ApiStatus.LOGOUT) {
+      if (response.status === ApiStatus.LOGOUT && response.message === "Session expired") {
         setIsDeleting(false);
         setIsCnfDialogOpen(false);
 
-        return await navigate("/auth/login");
+        await navigate("/auth/login");
+        localStorage.clear();
+        return;
       }
 
       if (response.status !== ApiStatus.SUCCESS) {
@@ -119,7 +122,7 @@ function Hirings(): ReactNode {
       setIsCnfDialogOpen(false);
       await getDetails();
     },
-    [isCnfDialogOpen, isDeleting, getDetails],
+    [isCnfDialogOpen, isDeleting, getDetails, navigate],
   );
 
   const columns = useMemo(

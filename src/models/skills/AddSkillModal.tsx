@@ -31,6 +31,7 @@ import FileUpload from "../../components/FileUpload";
 import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
+import { useNavigate } from "react-router-dom";
 
 function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readonly<IGlobalDialogProp>): ReactNode {
   const theme = useTheme();
@@ -55,6 +56,8 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
   const { editSkillModalTextfields } = useAppTextfieldValue();
   const { getDescriptionCount } = useAppHelperFn();
   const addFormInputValues = editSkillModalTextfields(skillFormData);
+
+  const navigate = useNavigate();
 
   const handleTextFieldOnChange = useCallback(
     function (e: InputChange) {
@@ -97,6 +100,12 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
 
         const controller = new SkillController();
         const reply = await controller.makePostSkillReq(formData);
+
+        if (reply.status === ApiStatus.LOGOUT && reply.message === "Session expired") {
+          await navigate("/auth/login");
+          localStorage.clear();
+          return;
+        }
 
         if (reply.status === ApiStatus.SUCCESS) {
           await onAddHandler();

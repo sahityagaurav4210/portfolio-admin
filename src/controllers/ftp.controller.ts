@@ -18,6 +18,7 @@ export class FTPController {
       });
       const reply = (await rawReply.json()) as IApiReply;
 
+      if (reply.status === ApiStatus.UNAUTHORISED) return ApiStatus.LOGOUT;
       if (reply.status === ApiStatus.FORBIDDEN) return reply.status;
     } catch {
       return ApiStatus.EXCEPTION;

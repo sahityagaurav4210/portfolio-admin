@@ -24,6 +24,7 @@ import useAppMRTFactory from "../hooks/useAppMRTFactory";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import ModalCloseButton from "../components/styled/ModalCloseButton";
 import ModalHeading from "../components/headings/ModalHeading";
+import { useNavigate } from "react-router-dom";
 
 function Contact(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IContactDetails[]>([]);
@@ -35,6 +36,8 @@ function Contact(): ReactNode {
   const [contactToDeleteId, setContactToDeleteId] = useState<string>("");
   const { GlobalTableCss } = useAppCss();
   const { getContactColumns } = useAppMRTFactory();
+
+  const navigate = useNavigate();
 
   const handleViewBtnClick = useCallback(
     function (id: number) {
@@ -58,6 +61,12 @@ function Contact(): ReactNode {
   async function getDetails() {
     const controller = new ContactController();
     const details = await controller.makeGetContactListReq();
+
+    if (details.status === ApiStatus.LOGOUT && details.message === "Session expired") {
+      await navigate("/auth/login");
+      localStorage.clear();
+      return;
+    }
 
     if (details.status === ApiStatus.SUCCESS) {
       const list = getArrayRecords<IContactDetails>(details);
@@ -85,6 +94,12 @@ function Contact(): ReactNode {
       try {
         const controller = new ContactController();
         const response = await controller.makeDeleteContactReq(contactToDeleteId);
+
+        if (response.status === ApiStatus.LOGOUT && response.message === "Session expired") {
+          await navigate("/auth/login");
+          localStorage.clear();
+          return;
+        }
 
         if (response.status !== ApiStatus.SUCCESS) {
           toast.error(response.message, getGlobalToastConfig());

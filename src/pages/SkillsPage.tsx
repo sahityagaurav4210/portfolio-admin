@@ -15,6 +15,7 @@ import useAppCss from "../hooks/useAppCss";
 import SkillController from "../controllers/skills.controller";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
+import { useNavigate } from "react-router-dom";
 
 function Skills(): ReactNode {
   const [skills, setSkills] = useState<ISkillForm[]>([]);
@@ -28,10 +29,18 @@ function Skills(): ReactNode {
   const [skillToDeleteId, setSkillToDeleteId] = useState<string>("");
   const { GlobalTableCss } = useAppCss();
 
+  const navigate = useNavigate();
+
   async function getDetails() {
     const controller = new SkillController();
 
     const details = await controller.makeGetSkillListReq();
+
+    if (details.status === ApiStatus.LOGOUT && details.message === "Session expired") {
+      await navigate("/auth/login");
+      localStorage.clear();
+      return;
+    }
 
     if (details.status === ApiStatus.SUCCESS) {
       const list = getArrayRecords<ISkillForm>(details);
@@ -115,6 +124,12 @@ function Skills(): ReactNode {
       try {
         const controller = new SkillController();
         const response = await controller.makeDeleteSkillReq(skillToDeleteId);
+
+        if (response.status === ApiStatus.LOGOUT && response.message === "Session expired") {
+          await navigate("/auth/login");
+          localStorage.clear();
+          return;
+        }
 
         if (response.status !== ApiStatus.SUCCESS) {
           toast.error(response.message, getGlobalToastConfig());

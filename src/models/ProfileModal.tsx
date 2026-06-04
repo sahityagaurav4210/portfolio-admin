@@ -24,17 +24,23 @@ import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import ModalCloseButton from "../components/styled/ModalCloseButton";
 import ModalHeading from "../components/headings/ModalHeading";
+import FileUpload from "../components/FileUpload";
+import AppImage from "../components/AppImage";
+import useAppHelperFn from "../hooks/useAppHelperFn";
 
 function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IViewDialogProp>): ReactNode {
   const theme = useTheme();
+  const { getResourceUrl } = useAppHelperFn();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const imageUrl = getResourceUrl(details?.avatar);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [profile, setProfile] = useState<IProfilePayload>({
     name: details?.name || "",
     phone: details?.phone || "",
     email: details?.email || "",
     address: details?.address || "",
-    websites: details?.websites || [],
+    websites: details?.websites || "",
   });
 
   const alertMsg = useMemo(
@@ -55,13 +61,6 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
   const handleInpOnChange = useCallback(
     function (event: InputChange) {
       const { name, value } = event.target;
-
-      if (name === "websites") {
-        const websites = value.split(",");
-        setProfile((prev) => ({ ...prev, websites }));
-        return;
-      }
-
       setProfile((prev) => ({ ...prev, [name]: value }));
     },
     [profile]
@@ -74,10 +73,26 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
 
       try {
         const controller = new LayoutController();
-        const reply = await controller.makePutProfileReq(profile);
+        let payload: FormData;
+
+        payload = new FormData();
+        payload.append("name", profile.name);
+        payload.append("email", profile.email);
+        payload.append("phone", profile.phone);
+        payload.append("address", profile.address);
+        payload.append("websites", profile.websites);
+
+        if (profilePic) {
+          payload.append("avatar", profilePic);
+        }
+
+        const reply = await controller.makePutProfileReq(payload);
 
         if (reply.status === ApiStatus.SUCCESS && reply.message === "Updated") {
+          const profile = await controller.makeGetProfileReq();
+
           setIsEditMode(false);
+          setProfile(profile.data);
           toast.success("Profile updated successfully", getGlobalToastConfig());
           return;
         }
@@ -90,18 +105,18 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
         setIsEditing(false);
       }
     },
-    [profile]
+    [profile, profilePic]
   );
 
   return (
     <Dialog maxWidth="lg" fullWidth open={open}>
-      <DialogTitle>
-        <Box component="div" className="flex justify-end">
-          <ModalCloseButton onClick={handleDialogCloseBtnClick}>
-            <Close fontSize="medium" />
-          </ModalCloseButton>
-        </Box>
+      <Box component="div" className="flex justify-end p-1">
+        <ModalCloseButton onClick={handleDialogCloseBtnClick}>
+          <Close fontSize="medium" />
+        </ModalCloseButton>
+      </Box>
 
+      <DialogTitle>
         <ModalHeading Icon={AccountBox} text="Your profile" />
       </DialogTitle>
 
@@ -117,6 +132,24 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
             Toggle edit mode
           </Typography>
           <Switch color="warning" checked={isEditMode} onClick={handleEditModeToggleBtn} />
+        </Box>
+
+        <Box component="div" my={2} display="flex" justifyContent="center">
+          {isEditMode ? (
+            <Box width="100%">
+              <FileUpload
+                label="Select or drag a new profile picture"
+                accept="image/*"
+                maxSizeMB={5}
+                disabled={isEditing}
+                onFileChange={(f) => setProfilePic(f)}
+              />
+            </Box>
+          ) : (
+            <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+              <AppImage url={imageUrl} width="120px" height="120px" />
+            </Box>
+          )}
         </Box>
 
         <Box component="div" my={1}>
@@ -172,7 +205,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
             <TextField
               label="Available Websites"
               name="websites"
-              value={profile.websites.join(",")}
+              value={profile.websites}
               onChange={handleInpOnChange}
               disabled={!isEditMode}
               fullWidth
