@@ -14,19 +14,19 @@ import {
 import { Visibility, VisibilityOff, Edit } from "@mui/icons-material";
 import PasswordIcon from "@mui/icons-material/Password";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import useAppCss from "../hooks/useAppCss";
-import Notes from "../components/Notes";
-import { IChangePwd } from "../interfaces/models.interface";
-import { BtnClick, InputChange } from "../interfaces";
-import useAppAlert from "../hooks/useAppAlert";
-import CWPSAlert from "../components/CWPSAlert";
-import { ApiStatus } from "../api";
-import LayoutController from "../controllers/layout.controller";
-import Footer from "../views/Footer";
-import ModalHeading from "../components/headings/ModalHeading";
-import InvalidChangePwdReq from "../views/InvalidChangePwdReq";
+import useAppCss from "../../hooks/useAppCss";
+import Notes from "../../components/Notes";
+import { IChangePwd } from "../../interfaces/models.interface";
+import { BtnClick, InputChange } from "../../interfaces";
+import useAppAlert from "../../hooks/useAppAlert";
+import CWPSAlert from "../../components/CWPSAlert";
+import { ApiStatus } from "../../api";
+import LayoutController from "../../controllers/layout.controller";
+import Footer from "../../views/Footer";
+import ModalHeading from "../../components/headings/ModalHeading";
+import InvalidChangePwdReq from "../../views/InvalidChangePwdReq";
 import { toast } from "react-toastify";
-import { getGlobalToastConfig } from "../configs/toasts.config";
+import { getGlobalToastConfig } from "../../configs/toasts.config";
 
 function ChangePwd(): React.ReactNode {
   const [changePwdForm, setChangePwdForm] = useState<IChangePwd>();

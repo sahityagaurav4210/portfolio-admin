@@ -18,8 +18,6 @@ import {
 import { AccountBox, AlternateEmail, Close, Home, Person, Phone, Save, Web } from "@mui/icons-material";
 import { IProfilePayload } from "../interfaces/states.interfaces";
 import { BtnClick, InputChange } from "../interfaces";
-import LayoutController from "../controllers/layout.controller";
-import { ApiStatus } from "../api";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../configs/toasts.config";
 import ModalCloseButton from "../components/styled/ModalCloseButton";
@@ -27,13 +25,14 @@ import ModalHeading from "../components/headings/ModalHeading";
 import FileUpload from "../components/FileUpload";
 import AppImage from "../components/AppImage";
 import useAppHelperFn from "../hooks/useAppHelperFn";
+import useAppProfileModal from "../hooks/useAppProfileModal";
+import { AppCommonStrings, AppModalStrings } from "../i18n";
 
 function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IViewDialogProp>): ReactNode {
   const theme = useTheme();
   const { getResourceUrl } = useAppHelperFn();
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [profilePic, setProfilePic] = useState<File | null>(null);
-  const imageUrl = getResourceUrl(details?.avatar);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [profile, setProfile] = useState<IProfilePayload>({
     name: details?.name || "",
@@ -41,21 +40,24 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
     email: details?.email || "",
     address: details?.address || "",
     websites: details?.websites || "",
+    avatar: details?.avatar || "",
   });
+  const imageUrl = getResourceUrl(profile?.avatar || details?.avatar);
+  const { editProfile, fetchProfile } = useAppProfileModal();
 
   const alertMsg = useMemo(
     () =>
       isEditMode
-        ? "This form is in now edit mode. You can now edit your profile."
-        : "This form is in read-only mode. Please toggle the edit mode in order to edit your profile.",
-    [isEditMode]
+        ? AppModalStrings.PROFILE_MODAL.ALERT_MSG.EDIT_MODE
+        : AppModalStrings.PROFILE_MODAL.ALERT_MSG.READ_ONLY_MODE,
+    [isEditMode],
   );
 
   const handleEditModeToggleBtn = useCallback(
     function () {
       setIsEditMode((prev) => !prev);
     },
-    [isEditMode]
+    [isEditMode],
   );
 
   const handleInpOnChange = useCallback(
@@ -63,7 +65,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
       const { name, value } = event.target;
       setProfile((prev) => ({ ...prev, [name]: value }));
     },
-    [profile]
+    [profile],
   );
 
   const handleSaveChangesBtn = useCallback(
@@ -72,40 +74,20 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
       setIsEditing(true);
 
       try {
-        const controller = new LayoutController();
-        let payload: FormData;
+        await editProfile(profile, profilePic);
+        const updatedProfile = await fetchProfile();
 
-        payload = new FormData();
-        payload.append("name", profile.name);
-        payload.append("email", profile.email);
-        payload.append("phone", profile.phone);
-        payload.append("address", profile.address);
-        payload.append("websites", profile.websites);
-
-        if (profilePic) {
-          payload.append("avatar", profilePic);
-        }
-
-        const reply = await controller.makePutProfileReq(payload);
-
-        if (reply.status === ApiStatus.SUCCESS && reply.message === "Updated") {
-          const profile = await controller.makeGetProfileReq();
-
-          setIsEditMode(false);
-          setProfile(profile.data);
-          toast.success("Profile updated successfully", getGlobalToastConfig());
-          return;
-        }
-
-        throw new Error(reply.message);
+        setProfile(updatedProfile.data);
+        toast.success(AppModalStrings.PROFILE_MODAL.PROFILE_UPDATED, getGlobalToastConfig());
       } catch (error: any) {
-        const message = error?.message || "Something went wrong at our end, please try again!!!";
+        const message = error?.message || AppCommonStrings.ERROR;
         toast.error(message, getGlobalToastConfig());
       } finally {
+        setIsEditMode(false);
         setIsEditing(false);
       }
     },
-    [profile, profilePic]
+    [profile, profilePic],
   );
 
   return (
@@ -162,7 +144,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               onChange={handleInpOnChange}
               fullWidth
               color="primary"
-              helperText={isEditMode && "Only alphabets, digits and a space is allowed."}
+              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.NAME}
               slotProps={{ input: { startAdornment: <Person fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
 
@@ -176,7 +158,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               disabled={!isEditMode}
               fullWidth
               color="primary"
-              helperText={isEditMode && "Please enter the email in an email format."}
+              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.EMAIL}
               slotProps={{ input: { startAdornment: <AlternateEmail fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
 
@@ -186,7 +168,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               value={profile.phone}
               disabled
               fullWidth
-              helperText={isEditMode && "Due to some technical reasons this field is non-editable."}
+              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.PHONE}
               slotProps={{ input: { startAdornment: <Phone fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
 
@@ -198,7 +180,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               disabled={!isEditMode}
               fullWidth
               multiline
-              helperText={isEditMode && "Please enter your detailed address here. It can be of atmost 512 characters."}
+              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.ADDRESS}
               slotProps={{ input: { startAdornment: <Home fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
 
@@ -210,10 +192,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               disabled={!isEditMode}
               fullWidth
               multiline
-              helperText={
-                isEditMode &&
-                "Please separate your multiple website url with a comma. Your url must start with http or https."
-              }
+              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.WEBSITES}
               slotProps={{ input: { startAdornment: <Web fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
           </Box>
@@ -228,7 +207,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
           disabled={!isEditMode || isEditing}
           onClick={handleSaveChangesBtn}
         >
-          Save Changes
+          {AppModalStrings.PROFILE_MODAL.SUBMIT_BTN_TXT}
         </Button>
       </DialogActions>
     </Dialog>

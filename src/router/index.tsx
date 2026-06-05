@@ -11,7 +11,7 @@ import { AppStrings } from "../i18n";
 import NotFound from "../pages/NotFound";
 import Error from "../pages/Error";
 import ProtectedView from "../views/Protected";
-import ChangePwd from "../pages/ChangePwd";
+import ChangePwd from "../pages/public/ChangePwd";
 import InjectTitle from "../components/app/InjectTitle";
 
 const AppRoutes = createBrowserRouter([
