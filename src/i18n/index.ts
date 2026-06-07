@@ -32,6 +32,7 @@ export const AppStrings = {
     LOGIN: "auth/login",
     LOGOUT: "logout",
     CHANGE_PWD: "auth/change-pwd",
+    UPDATED_PROFILE: "public/updated-profile",
   },
 };
 

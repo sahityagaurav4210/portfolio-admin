@@ -13,6 +13,7 @@ import Error from "../pages/Error";
 import ProtectedView from "../views/Protected";
 import ChangePwd from "../pages/public/ChangePwd";
 import InjectTitle from "../components/app/InjectTitle";
+import UpdatedProfile from "../pages/public/UpdatedProfile";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -30,6 +31,17 @@ const AppRoutes = createBrowserRouter([
       {
         path: `/${AppStrings.ROUTES.CHANGE_PWD}`,
         element: <ChangePwd />,
+      },
+    ],
+    errorElement: <Error />,
+  },
+  {
+    path: "/public",
+    element: <PublicLayout />,
+    children: [
+      {
+        path: `/${AppStrings.ROUTES.UPDATED_PROFILE}`,
+        element: <UpdatedProfile />,
       },
     ],
     errorElement: <Error />,

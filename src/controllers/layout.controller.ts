@@ -29,6 +29,19 @@ class LayoutController {
     return reply;
   }
 
+  public async makeGetPublicProfileReq(token: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/view-profile`;
+
+    const rawReply = await appController.GET(fullAbsUrl, undefined, { "x-xuid": token });
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
   public async makeGetVerifyXuidTokenReq(token: string, authorizer: string): Promise<IApiReply> {
     const appEnv = import.meta.env.VITE_APP_ENV;
     const baseUrl = getApiBaseUrl(appEnv);
@@ -36,7 +49,26 @@ class LayoutController {
     const appController = new CWPBApiController();
     const fullAbsUrl = `${baseUrl}/public/verify/token`;
 
-    const rawReply = await appController.GET(fullAbsUrl, undefined, { "x-xuid": token, "x-xuid-authorizer": authorizer });
+    const rawReply = await appController.GET(fullAbsUrl, undefined, {
+      "x-xuid": token,
+      "x-xuid-authorizer": authorizer,
+    });
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
+  public async makeGetVerifyProfileXuidTokenReq(token: string, authorizer: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/verify/profile-token`;
+
+    const rawReply = await appController.GET(fullAbsUrl, undefined, {
+      "x-xuid": token,
+      "x-xuid-authorizer": authorizer,
+    });
     const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
 
     return reply;

@@ -1,16 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Container,
-  Divider,
-  Fab,
-  Paper,
-  TextField,
-  Typography,
-  Grid2 as Grid,
-} from "@mui/material";
+import { Box, Button, CircularProgress, Container, Divider, Fab, Paper, TextField, Grid2 as Grid } from "@mui/material";
 import { Visibility, VisibilityOff, Edit } from "@mui/icons-material";
 import PasswordIcon from "@mui/icons-material/Password";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -27,6 +16,7 @@ import ModalHeading from "../../components/headings/ModalHeading";
 import InvalidChangePwdReq from "../../views/InvalidChangePwdReq";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../../configs/toasts.config";
+import VerifyingRequest from "../../views/VerifyingRequest";
 
 function ChangePwd(): React.ReactNode {
   const [changePwdForm, setChangePwdForm] = useState<IChangePwd>();
@@ -56,9 +46,14 @@ function ChangePwd(): React.ReactNode {
   }, []);
 
   async function verifyXuidToken() {
-    const xuid = queryParams.get("xuid") as string;
-    const xuidAuthorizer = queryParams.get("authorizer") as string;
+    const xuid = queryParams.get("xuid");
+    const xuidAuthorizer = queryParams.get("authorizer");
     const controller = new LayoutController();
+
+    if (!xuid || !xuidAuthorizer) {
+      setIsXuidValid(false);
+      return;
+    }
 
     try {
       const response = await controller.makeGetVerifyXuidTokenReq(xuid, xuidAuthorizer);
@@ -141,10 +136,7 @@ function ChangePwd(): React.ReactNode {
 
   useEffect(() => {
     setIsVerifying(true);
-
-    setTimeout(() => {
-      verifyXuidToken();
-    }, 2000);
+    verifyXuidToken();
   }, []);
 
   if (!queryParams.get("xuid") || !isXuidValid) {
@@ -159,13 +151,7 @@ function ChangePwd(): React.ReactNode {
   if (isVerifying) {
     return (
       <Box component="div" className="flex flex-col justify-between min-h-screen w-full">
-        <Box component="div" className="h-full flex items-center justify-center gap-x-2">
-          <CircularProgress size={16} color="secondary" />
-          <Typography variant="body1" color="secondary">
-            Verifying request...
-          </Typography>
-        </Box>
-
+        <VerifyingRequest />
         <Footer />
       </Box>
     );
