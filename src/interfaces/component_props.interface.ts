@@ -84,6 +84,7 @@ export interface IChangePwdProp {
 
 export interface INotesProp {
   notes: string[];
+  my?: number;
 }
 
 export interface ICWPSAlertProp {
