@@ -9,7 +9,6 @@ function useAppProfileModal() {
     payload = new FormData();
     payload.append("name", profile.name);
     payload.append("email", profile.email);
-    payload.append("phone", profile.phone);
     payload.append("address", profile.address);
     payload.append("websites", profile.websites);
 

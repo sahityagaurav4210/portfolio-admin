@@ -72,9 +72,10 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
     async function (event: BtnClick) {
       event.preventDefault();
       setIsEditing(true);
+      const { phone, ...payload } = profile;
 
       try {
-        await editProfile(profile, profilePic);
+        await editProfile(payload, profilePic);
         const updatedProfile = await fetchProfile();
 
         setProfile(updatedProfile.data);
