@@ -15,7 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { AccountBox, AlternateEmail, Close, Home, Person, Phone, Save, Web } from "@mui/icons-material";
+import { AccountBox, AlternateEmail, Close, Home, Person, Save, Web } from "@mui/icons-material";
 import { IProfilePayload } from "../interfaces/states.interfaces";
 import { BtnClick, InputChange } from "../interfaces";
 import { toast } from "react-toastify";
@@ -72,7 +72,7 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
     async function (event: BtnClick) {
       event.preventDefault();
       setIsEditing(true);
-      const { phone, ...payload } = profile;
+      const { avatar, _id, phone, ...payload } = profile;
 
       try {
         await editProfile(payload, profilePic);
@@ -161,16 +161,6 @@ function ProfileModal({ open, handleDialogCloseBtnClick, details }: Readonly<IVi
               color="primary"
               helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.EMAIL}
               slotProps={{ input: { startAdornment: <AlternateEmail fontSize="small" sx={{ mr: 0.5 }} /> } }}
-            />
-
-            <TextField
-              label="Phone"
-              name="phone"
-              value={profile.phone}
-              disabled
-              fullWidth
-              helperText={isEditMode && AppModalStrings.PROFILE_MODAL.FORM_VALIDATION.PHONE}
-              slotProps={{ input: { startAdornment: <Phone fontSize="small" sx={{ mr: 0.5 }} /> } }}
             />
 
             <TextField
