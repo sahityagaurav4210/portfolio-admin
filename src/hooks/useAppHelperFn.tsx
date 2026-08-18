@@ -24,7 +24,19 @@ function useAppHelperFn() {
     return null;
   }, []);
 
-  return { getResourceUrl, getDescriptionCount, getCookieValue };
+  const getSafeFormDataPayload = useCallback(function (payload: Record<string, any>): FormData {
+    const entries = Object.entries(payload);
+    const processedPayload = new FormData();
+
+    for (const e of entries) {
+      if (e[1]) processedPayload.append(e[0], e[1]);
+      if (e[1] === "") processedPayload.append(e[0], "");
+    }
+
+    return processedPayload;
+  }, []);
+
+  return { getResourceUrl, getDescriptionCount, getCookieValue, getSafeFormDataPayload };
 }
 
 export default useAppHelperFn;

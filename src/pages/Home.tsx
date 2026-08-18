@@ -8,6 +8,7 @@ import ViewCount from "../components/ViewCount";
 import Heading from "../components/Heading";
 import { Dashboard } from "@mui/icons-material";
 import HomeController from "../controllers/home.controller";
+import { checkLogoutApiResponse } from "../helpers";
 
 function Home(): ReactNode {
   const [dailyViewCount, setDailyViewCount] = useState<number>(-2);
@@ -17,20 +18,13 @@ function Home(): ReactNode {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Portfolio Admin || Dashboard";
-
-    return function () {
-      document.title = "Portfolio Admin";
-    };
-  }, []);
-
-  useEffect(() => {
     let timer: any;
     async function getTodayViews() {
       const controller = new HomeController();
       const views = await controller.makeTodayWebsiteViewsReq();
+      const isLogout = checkLogoutApiResponse(views.status, views.message);
 
-      if (views.status === ApiStatus.LOGOUT) {
+      if (isLogout) {
         localStorage.clear();
         throw new Error("Logout");
       }
@@ -41,8 +35,9 @@ function Home(): ReactNode {
     async function getMonthlyViews() {
       const controller = new HomeController();
       const views = await controller.makeMonthlyWebsiteViewsReq();
+      const isLogout = checkLogoutApiResponse(views.status, views.message);
 
-      if (views.status === ApiStatus.LOGOUT) {
+      if (isLogout) {
         localStorage.clear();
         throw new Error("Logout");
       }
@@ -53,8 +48,9 @@ function Home(): ReactNode {
     async function getTotalViews() {
       const controller = new HomeController();
       const views = await controller.makeTotalWebsiteViewsReq();
+      const isLogout = checkLogoutApiResponse(views.status, views.message);
 
-      if (views.status === ApiStatus.LOGOUT) {
+      if (isLogout) {
         localStorage.clear();
         throw new Error("Logout");
       }

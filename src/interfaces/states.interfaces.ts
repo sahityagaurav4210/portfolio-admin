@@ -3,7 +3,9 @@ export interface IProfilePayload {
   email: string;
   phone: string;
   address: string;
-  websites: string[];
+  websites: string;
+  avatar?: string;
+  _id?: string;
 }
 
 export interface IAuthUserPayload {

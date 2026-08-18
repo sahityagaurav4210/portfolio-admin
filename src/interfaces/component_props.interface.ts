@@ -84,6 +84,7 @@ export interface IChangePwdProp {
 
 export interface INotesProp {
   notes: string[];
+  my?: number;
 }
 
 export interface ICWPSAlertProp {
@@ -122,4 +123,9 @@ export interface IModalHeading {
 
 export interface IFooterProp {
   showSupport?: boolean;
+}
+
+export interface IInjectTitleProp {
+  title: string;
+  children: ReactNode;
 }

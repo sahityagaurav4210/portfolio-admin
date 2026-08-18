@@ -19,11 +19,9 @@ import { BtnClick, InputChange } from "../../interfaces";
 import { Grid } from "@mui/system";
 import { toast } from "react-toastify";
 import { getGlobalToastConfig } from "../../configs/toasts.config";
-import { ApiStatus } from "../../api";
 import { AppPatterns } from "../../constants";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import SkillController from "../../controllers/skills.controller";
 import CWPSAlert from "../../components/CWPSAlert";
 import useAppAlert from "../../hooks/useAppAlert";
 import useAppTextfieldValue from "../../hooks/useAppTextfieldValue";
@@ -31,6 +29,8 @@ import FileUpload from "../../components/FileUpload";
 import ModalCloseButton from "../../components/styled/ModalCloseButton";
 import ModalHeading from "../../components/headings/ModalHeading";
 import useAppHelperFn from "../../hooks/useAppHelperFn";
+import useAppSkillModal from "../../hooks/useAppSkillModal";
+import useAppEditorConfiguration from "../../hooks/useAppEditorConfiguration";
 
 function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readonly<IGlobalDialogProp>): ReactNode {
   const theme = useTheme();
@@ -40,18 +40,8 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(true);
   const { alert, handleAlertOnClose, setAlert } = useAppAlert();
-  const formats = ["header", "bold", "italic", "underline", "link", "image", "list", "bullet", "align", "color", "background"];
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, false] }],
-      ["bold", "italic", "underline"],
-      ["link", "image"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      [{ color: [] }, { background: [] }],
-      ["clean"],
-    ],
-  };
+  const { addSkill } = useAppSkillModal();
+  const { formats, modules } = useAppEditorConfiguration();
   const { editSkillModalTextfields } = useAppTextfieldValue();
   const { getDescriptionCount } = useAppHelperFn();
   const addFormInputValues = editSkillModalTextfields(skillFormData);
@@ -89,19 +79,15 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
           return;
         }
 
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("experience", String(skillFormData.experience));
-        formData.append("description", description);
-        if (skillFile) formData.append("skill", skillFile);
+        const payload = {
+          name: skillFormData.name,
+          experience: skillFormData.experience,
+          description: skillFormData.description,
+        };
 
-        const controller = new SkillController();
-        const reply = await controller.makePostSkillReq(formData);
-
-        if (reply.status === ApiStatus.SUCCESS) {
-          await onAddHandler();
-          handleDialogCloseBtnClick(e);
-        } else throw new Error(reply.message);
+        await addSkill(payload, skillFile);
+        await onAddHandler();
+        handleDialogCloseBtnClick(e);
       } catch (error: any) {
         const message = error?.message || "Something went wrong while processing your request, please try again!!!";
         toast.error(message, getGlobalToastConfig());
@@ -136,7 +122,7 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
                 maxSizeMB={5}
                 disabled={isSaving}
                 label="Upload skill icon (drag & drop or click to browse)"
-                onReadyChange={ready => setIsReady(ready)}
+                onReadyChange={(ready) => setIsReady(ready)}
               />
             </Grid>
 

@@ -18,7 +18,7 @@ export default defineConfig({
     include: ["@mui/system", "@mui/material", "@mui/x-date-pickers"],
   },
   esbuild: {
-    drop: ["console", "debugger"],
+    // drop: ["console", "debugger"],
   },
   build: {
     cssCodeSplit: true,

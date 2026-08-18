@@ -1,17 +1,8 @@
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Dialog, DialogContent, DialogTitle, Divider, Paper, TextField, Typography } from "@mui/material";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { IContactDetails } from "../interfaces/models.interface";
 import { ApiStatus } from "../api";
-import { getArrayRecords } from "../helpers";
+import { checkLogoutApiResponse, getArrayRecords } from "../helpers";
 import { MaterialReactTable, useMaterialReactTable } from "material-react-table";
 import { BtnClick } from "../interfaces";
 import { Close, ContactEmergency, HelpCenter, ListAlt } from "@mui/icons-material";
@@ -24,6 +15,7 @@ import useAppMRTFactory from "../hooks/useAppMRTFactory";
 import ConfirmationDialog from "../components/ConfirmationDialog";
 import ModalCloseButton from "../components/styled/ModalCloseButton";
 import ModalHeading from "../components/headings/ModalHeading";
+import { useNavigate } from "react-router-dom";
 
 function Contact(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IContactDetails[]>([]);
@@ -35,6 +27,8 @@ function Contact(): ReactNode {
   const [contactToDeleteId, setContactToDeleteId] = useState<string>("");
   const { GlobalTableCss } = useAppCss();
   const { getContactColumns } = useAppMRTFactory();
+
+  const navigate = useNavigate();
 
   const handleViewBtnClick = useCallback(
     function (id: number) {
@@ -58,6 +52,13 @@ function Contact(): ReactNode {
   async function getDetails() {
     const controller = new ContactController();
     const details = await controller.makeGetContactListReq();
+    const isLogout = checkLogoutApiResponse(details.status, details.message);
+
+    if (isLogout) {
+      await navigate("/auth/login");
+      localStorage.clear();
+      return;
+    }
 
     if (details.status === ApiStatus.SUCCESS) {
       const list = getArrayRecords<IContactDetails>(details);
@@ -85,6 +86,13 @@ function Contact(): ReactNode {
       try {
         const controller = new ContactController();
         const response = await controller.makeDeleteContactReq(contactToDeleteId);
+        const isLogout = checkLogoutApiResponse(response.status, response.message);
+
+        if (isLogout) {
+          await navigate("/auth/login");
+          localStorage.clear();
+          return;
+        }
 
         if (response.status !== ApiStatus.SUCCESS) {
           toast.error(response.message, getGlobalToastConfig());
@@ -107,14 +115,6 @@ function Contact(): ReactNode {
   useEffect(() => {
     setIsLoading(true);
     getDetails();
-  }, []);
-
-  useEffect(() => {
-    document.title = "Portfolio Admin || Contacts";
-
-    return function () {
-      document.title = "Portfolio Admin";
-    };
   }, []);
 
   const columns = useMemo(
@@ -170,14 +170,7 @@ function Contact(): ReactNode {
               />
               <TextField label="Email" className="uppercase" value={details?.email} disabled fullWidth />
               <TextField label="Identity" className="uppercase" value={details?.ipAddress} disabled fullWidth />
-              <TextField
-                label="Message"
-                className="uppercase"
-                value={details?.message}
-                disabled
-                fullWidth
-                multiline
-              />
+              <TextField label="Message" className="uppercase" value={details?.message} disabled fullWidth multiline />
             </Box>
           </Box>
         </DialogContent>

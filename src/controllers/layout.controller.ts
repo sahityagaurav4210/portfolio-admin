@@ -29,7 +29,52 @@ class LayoutController {
     return reply;
   }
 
-  public async makePutProfileReq(payload: Record<string, any>): Promise<IApiReply> {
+  public async makeGetPublicProfileReq(token: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/view-profile`;
+
+    const rawReply = await appController.GET(fullAbsUrl, undefined, { "x-xuid": token });
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
+  public async makeGetVerifyXuidTokenReq(token: string, authorizer: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/verify/token`;
+
+    const rawReply = await appController.GET(fullAbsUrl, undefined, {
+      "x-xuid": token,
+      "x-xuid-authorizer": authorizer,
+    });
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
+  public async makeGetVerifyProfileXuidTokenReq(token: string, authorizer: string): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/verify/profile-token`;
+
+    const rawReply = await appController.GET(fullAbsUrl, undefined, {
+      "x-xuid": token,
+      "x-xuid-authorizer": authorizer,
+    });
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
+  public async makePutProfileReq(payload: FormData | Record<string, any>): Promise<IApiReply> {
     const appEnv = import.meta.env.VITE_APP_ENV;
     const baseUrl = getApiBaseUrl(appEnv);
 
@@ -56,6 +101,25 @@ class LayoutController {
     const fullAbsUrl = `${baseUrl}/user/change-pwd`;
 
     const rawReply = await appController.PUT(fullAbsUrl, {}, payload);
+    const reply = await appController.getSafePutReply(
+      rawReply,
+      fullAbsUrl,
+      appController.PUT.bind(appController),
+      {},
+      payload,
+    );
+
+    return reply;
+  }
+
+  public async makePublicChangePwdReq(payload: Record<string, any>): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/public/change-pwd`;
+
+    const rawReply = await appController.PUT(fullAbsUrl, {}, payload, { "x-xuid": payload.token });
     const reply = await appController.getSafePutReply(
       rawReply,
       fullAbsUrl,

@@ -11,6 +11,9 @@ import { AppStrings } from "../i18n";
 import NotFound from "../pages/NotFound";
 import Error from "../pages/Error";
 import ProtectedView from "../views/Protected";
+import ChangePwd from "../pages/public/ChangePwd";
+import InjectTitle from "../components/app/InjectTitle";
+import UpdatedProfile from "../pages/public/UpdatedProfile";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -25,6 +28,21 @@ const AppRoutes = createBrowserRouter([
         path: `/${AppStrings.ROUTES.FORGET_PWD}`,
         element: <ForgetPwd />,
       },
+      {
+        path: `/${AppStrings.ROUTES.CHANGE_PWD}`,
+        element: <ChangePwd />,
+      },
+    ],
+    errorElement: <Error />,
+  },
+  {
+    path: "/public",
+    element: <PublicLayout />,
+    children: [
+      {
+        path: `/${AppStrings.ROUTES.UPDATED_PROFILE}`,
+        element: <UpdatedProfile />,
+      },
     ],
     errorElement: <Error />,
   },
@@ -36,7 +54,9 @@ const AppRoutes = createBrowserRouter([
         index: true,
         element: (
           <ProtectedView>
-            <Home />
+            <InjectTitle title="Dashboard">
+              <Home />
+            </InjectTitle>
           </ProtectedView>
         ),
       },
@@ -44,7 +64,9 @@ const AppRoutes = createBrowserRouter([
         path: `/${AppStrings.ROUTES.HIRINGS}`,
         element: (
           <ProtectedView>
-            <Hirings />
+            <InjectTitle title="Hirings">
+              <Hirings />
+            </InjectTitle>
           </ProtectedView>
         ),
       },
@@ -52,7 +74,9 @@ const AppRoutes = createBrowserRouter([
         path: `/${AppStrings.ROUTES.CONTACTS}`,
         element: (
           <ProtectedView>
-            <Contact />
+            <InjectTitle title="Contacts">
+              <Contact />
+            </InjectTitle>
           </ProtectedView>
         ),
       },
@@ -60,7 +84,9 @@ const AppRoutes = createBrowserRouter([
         path: `/${AppStrings.ROUTES.SKILLS}`,
         element: (
           <ProtectedView>
-            <Skills />
+            <InjectTitle title="Skills">
+              <Skills />
+            </InjectTitle>
           </ProtectedView>
         ),
       },
@@ -68,7 +94,9 @@ const AppRoutes = createBrowserRouter([
         path: `/${AppStrings.ROUTES.VIEW_DETAILS}`,
         element: (
           <ProtectedView>
-            <TodayViewsDetails />
+            <InjectTitle title="Views">
+              <TodayViewsDetails />
+            </InjectTitle>
           </ProtectedView>
         ),
       },
