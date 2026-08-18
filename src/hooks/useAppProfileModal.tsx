@@ -1,26 +1,16 @@
 import { ApiStatus } from "../api";
 import LayoutController from "../controllers/layout.controller";
+import useAppHelperFn from "./useAppHelperFn";
 
 function useAppProfileModal() {
+  const { getSafeFormDataPayload } = useAppHelperFn();
+
   async function editProfile(profile: Record<string, any>, avatar?: File | null) {
     const controller = new LayoutController();
-    let payload: FormData;
-
-    payload = new FormData();
-    payload.append("name", profile.name);
-    payload.append("email", profile.email);
-    payload.append("phone", profile.phone);
-    payload.append("address", profile.address);
-    payload.append("websites", profile.websites);
-
-    if (avatar) {
-      payload.append("avatar", avatar);
-    }
-
+    const payload = getSafeFormDataPayload({ ...profile, avatar });
     const reply = await controller.makePutProfileReq(payload);
 
     if (reply.status === ApiStatus.SUCCESS && reply.message === "Updated") return reply;
-
     throw new Error(reply.message || "Failed to update profile");
   }
 
