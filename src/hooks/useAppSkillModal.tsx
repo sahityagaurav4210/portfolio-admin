@@ -11,6 +11,7 @@ function useAppSkillModal() {
     formData.append("name", skillFormData.name);
     formData.append("experience", String(skillFormData.experience));
     formData.append("description", skillFormData.description);
+    formData.append("priority", skillFormData.priority);
 
     if (skillFile) formData.append("skill", skillFile);
 
@@ -36,6 +37,7 @@ function useAppSkillModal() {
     formData.append("name", skillFormData.name);
     formData.append("experience", String(skillFormData.experience));
     formData.append("description", skillFormData.description);
+    formData.append("priority", skillFormData.priority);
 
     if (skillFile) formData.append("skill", skillFile);
 

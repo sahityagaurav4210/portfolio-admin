@@ -6,6 +6,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
   useMediaQuery,
@@ -53,6 +58,11 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
     [setSkillFormData],
   );
 
+  const handlePriorityChange = (event: SelectChangeEvent<number | string>) => {
+    const nextPriority = Number(event.target.value);
+    setSkillFormData((prev) => (prev ? { ...prev, priority: nextPriority } : prev));
+  };
+
   const handleAddBtnClick = useCallback(
     async function (e: BtnClick) {
       e.preventDefault();
@@ -83,6 +93,7 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
           name: skillFormData.name,
           experience: skillFormData.experience,
           description: skillFormData.description,
+          priority: skillFormData.priority,
         };
 
         await addSkill(payload, skillFile);
@@ -140,6 +151,25 @@ function AddSkillModal({ open, handleDialogCloseBtnClick, onAddHandler }: Readon
                 />
               </Grid>
             ))}
+
+            <Grid size={12}>
+              <FormControl fullWidth>
+                <InputLabel id="priority-select">Priority</InputLabel>
+                <Select
+                  labelId="priority-select"
+                  id="priority-select"
+                  value={skillFormData?.priority}
+                  label="Priority"
+                  onChange={handlePriorityChange}
+                >
+                  <MenuItem value={0}>Lowest</MenuItem>
+                  <MenuItem value={1}>Low</MenuItem>
+                  <MenuItem value={2}>Moderate</MenuItem>
+                  <MenuItem value={3}>High</MenuItem>
+                  <MenuItem value={4}>Highest</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
             <Grid size={12}>
               <Box sx={{ position: "relative", mt: 1 }}>

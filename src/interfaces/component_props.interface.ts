@@ -1,7 +1,9 @@
 import { CSSProperties, ReactNode } from "react";
 import { AlertType, AppIcon, BtnClick } from ".";
-import { ISkillForm } from "./models.interface";
+import { IProjects, ISkillForm } from "./models.interface";
 import { IAlert } from "./hooks.interface";
+
+import { IHeroSectionPayload } from "./states.interfaces";
 import { Breakpoint } from "@mui/material";
 
 export interface INavbarProp {
@@ -77,6 +79,28 @@ export interface IEditSkillDialogProp {
   onAddHandler: () => Promise<void>;
 }
 
+export interface IEditHeroSectionDialogProp {
+  open: boolean;
+  handleDialogCloseBtnClick: (e: BtnClick) => void;
+  details?: IHeroSectionPayload;
+  onAddHandler: () => Promise<void>;
+}
+
+export interface IEditProjectDialogProp {
+  open: boolean;
+  handleDialogCloseBtnClick: (e: BtnClick) => void;
+  details?: IProjects;
+  onAddHandler: () => Promise<void>;
+}
+
+export interface IViewProjectDialogProp {
+  open: boolean;
+  handleDialogCloseBtnClick: (e: BtnClick) => void;
+  details?: IProjects;
+  onEditHandler?: () => void;
+}
+
+
 export interface IChangePwdProp {
   open: boolean;
   callback: () => void;
@@ -128,4 +152,18 @@ export interface IFooterProp {
 export interface IInjectTitleProp {
   title: string;
   children: ReactNode;
+}
+
+export interface ITagsInput {
+  tags?: Array<string>;
+  onAddTag: Function;
+  onRemoveTag: Function;
+  disabled?: boolean;
+  isRequired?: boolean;
+}
+
+export interface IAppContainer {
+  arrow?: boolean;
+  children: ReactNode;
+  showInfoIcon?: boolean;
 }

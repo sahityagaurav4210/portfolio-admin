@@ -76,6 +76,16 @@ function useAppCss() {
 
   const GlobalDialogDividerCss = useMemo(() => ({ borderTop: `1px solid ${theme.palette.secondary.A100}` }), []);
 
+  const GlobalChipCss = useMemo(
+    () => ({
+      borderRadius: "8px",
+      backgroundColor: "white",
+      border: `1px solid ${theme.palette.success.main}`,
+      color: theme.palette.success.main,
+    }),
+    [],
+  );
+
   return {
     RequiredFieldCss,
     FlexCss,
@@ -85,6 +95,7 @@ function useAppCss() {
     CardCss,
     GlobalTableCss,
     GlobalDialogDividerCss,
+    GlobalChipCss,
   };
 }
 
