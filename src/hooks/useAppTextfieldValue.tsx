@@ -1,4 +1,5 @@
 import { ISkillForm } from "../interfaces/models.interface";
+import { IHeroSectionPayload } from "../interfaces/states.interfaces";
 
 function useAppTextfieldValue() {
   const editSkillModalTextfields = function (skillData: ISkillForm | undefined) {
@@ -27,11 +28,160 @@ function useAppTextfieldValue() {
         size: { xs: 12, md: 6 },
         sx: { mt: { xs: 0, md: 1 } },
       },
-
     ];
   };
 
-  return { editSkillModalTextfields };
+  const editHeroSectionTextfields = function (heroData: IHeroSectionPayload | undefined) {
+    return [
+      {
+        label: "Display Name",
+        name: "displayName",
+        type: "text",
+        value: heroData?.displayName ?? "",
+        required: true,
+        fullWidth: true,
+        autoFocus: true,
+        multiline: false,
+        helperText: "Name shown on the navbar of the main portal.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: 1 },
+      },
+      {
+        label: "Designation",
+        name: "designation",
+        type: "text",
+        value: heroData?.designation ?? "",
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Current role / title of the user.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: { xs: 0, md: 1 } },
+      },
+      {
+        label: "About",
+        name: "about",
+        type: "text",
+        value: heroData?.about ?? "",
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: true,
+        rows: 3,
+        helperText: "A short description of the user.",
+        size: { xs: 12 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Active GitHub Contributions",
+        name: "activeGithubContributions",
+        type: "number",
+        value: heroData?.activeGithubContributions ?? 0,
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Total active GitHub contributions.",
+        size: { xs: 12, md: 4 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Years of Experience",
+        name: "experience",
+        type: "number",
+        value: heroData?.experience ?? 0,
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Total years of professional expertise.",
+        size: { xs: 12, md: 4 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Projects Delivered",
+        name: "projectsDelivered",
+        type: "number",
+        value: heroData?.projectsDelivered ?? 0,
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Total number of projects delivered.",
+        size: { xs: 12, md: 4 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Coding Questions Solved",
+        name: "codingQuestionSolved",
+        type: "number",
+        value: heroData?.codingQuestionSolved ?? 0,
+        required: true,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Total coding questions solved.",
+        size: { xs: 12, md: 4 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "LinkedIn URL",
+        name: "linkedInUrl",
+        type: "url",
+        value: heroData?.linkedInUrl ?? "",
+        required: false,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Full LinkedIn profile URL.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Leetcode URL",
+        name: "leetcodeUrl",
+        type: "url",
+        value: heroData?.leetcodeUrl ?? "",
+        required: false,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Full Leetcode profile URL.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Hackerrank URL",
+        name: "hackerrankUrl",
+        type: "url",
+        value: heroData?.hackerrankUrl ?? "",
+        required: false,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Full Hackerrank profile URL.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: 0 },
+      },
+      {
+        label: "Twitter URL",
+        name: "twitterUrl",
+        type: "url",
+        value: heroData?.twitterUrl ?? "",
+        required: false,
+        fullWidth: true,
+        autoFocus: false,
+        multiline: false,
+        helperText: "Full Twitter / X profile URL.",
+        size: { xs: 12, md: 6 },
+        sx: { mt: 0 },
+      }
+    ];
+
+  };
+
+  return { editSkillModalTextfields, editHeroSectionTextfields };
 }
 
 export default useAppTextfieldValue;

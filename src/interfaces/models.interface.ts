@@ -37,6 +37,7 @@ export interface ISkillForm {
   name: string;
   experience: number;
   description: string;
+  priority: number;
 }
 
 export interface ISkills {
@@ -62,3 +63,35 @@ export interface IUploadCVModalProp {
   open: boolean;
   setOpen: (value: React.SetStateAction<boolean>) => void;
 }
+
+export enum ProjectDomain {
+  TELECOMMUNICATION = 'telecommunication',
+  GOVT = 'government',
+  CORPORATE = 'corporate',
+  FINTECH = 'fintech',
+  EDTECH = 'edtech',
+  OTHERS = 'others',
+}
+
+export interface IProjects {
+  id?: number;
+  _id?: string;
+  name: string;
+  text: string;
+  tech_stack: string[];
+  disabled?: boolean;
+  codeLink?: string;
+  liveLink?: string;
+  documentation_link?: string;
+  ongoing?: boolean;
+  note?: string;
+  showDivider?: boolean;
+  cardImage?: string;
+  type: string;
+  priority?: number;
+  projectDomain?: ProjectDomain | string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+

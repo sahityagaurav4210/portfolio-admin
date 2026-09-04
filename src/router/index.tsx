@@ -14,6 +14,9 @@ import ProtectedView from "../views/Protected";
 import ChangePwd from "../pages/public/ChangePwd";
 import InjectTitle from "../components/app/InjectTitle";
 import UpdatedProfile from "../pages/public/UpdatedProfile";
+import HomePage from "../pages/HomePage";
+import HeroPage from "../pages/HeroPage";
+import ProjectsPage from "../pages/ProjectsPage";
 
 const AppRoutes = createBrowserRouter([
   {
@@ -52,6 +55,14 @@ const AppRoutes = createBrowserRouter([
     children: [
       {
         index: true,
+        element: (
+          <ProtectedView>
+            <HomePage />
+          </ProtectedView>
+        ),
+      },
+      {
+        path: `/${AppStrings.ROUTES.DASHBOARD}`,
         element: (
           <ProtectedView>
             <InjectTitle title="Dashboard">
@@ -96,6 +107,26 @@ const AppRoutes = createBrowserRouter([
           <ProtectedView>
             <InjectTitle title="Views">
               <TodayViewsDetails />
+            </InjectTitle>
+          </ProtectedView>
+        ),
+      },
+      {
+        path: `/${AppStrings.ROUTES.HERO}`,
+        element: (
+          <ProtectedView>
+            <InjectTitle title="Hero Section">
+              <HeroPage />
+            </InjectTitle>
+          </ProtectedView>
+        ),
+      },
+      {
+        path: `/${AppStrings.ROUTES.PROJECTS}`,
+        element: (
+          <ProtectedView>
+            <InjectTitle title="Projects Section">
+              <ProjectsPage />
             </InjectTitle>
           </ProtectedView>
         ),

@@ -16,6 +16,7 @@ import ConfirmationDialog from "../components/ConfirmationDialog";
 import ModalCloseButton from "../components/styled/ModalCloseButton";
 import ModalHeading from "../components/headings/ModalHeading";
 import { useNavigate } from "react-router-dom";
+import AppContainer from "../components/core/AppContainer";
 
 function Contact(): ReactNode {
   const [viewDetails, setViewDetails] = useState<IContactDetails[]>([]);
@@ -136,6 +137,13 @@ function Contact(): ReactNode {
         <Heading Icon={ContactEmergency} text="Contacts" />
 
         <Divider sx={{ mb: 4 }} />
+
+        <AppContainer arrow showInfoIcon>
+          <Typography variant="body1" sx={{ textAlign: "justify" }}>
+            This page lists all the contact forms which have been filled by the users on the website's contact page. Use
+            the action panel to manage individual contact forms.
+          </Typography>
+        </AppContainer>
 
         <MaterialReactTable table={table} />
       </Paper>

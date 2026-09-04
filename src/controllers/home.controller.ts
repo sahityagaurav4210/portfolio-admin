@@ -54,6 +54,32 @@ class HomeController {
 
     return reply;
   }
+
+  public async makeGetHomeSectionReq(): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/home/get`;
+
+    const rawReply = await appController.GET(fullAbsUrl);
+    const reply = await appController.getSafeReply(rawReply, fullAbsUrl, appController.GET.bind(appController));
+
+    return reply;
+  }
+
+  public async makeAddHomeSectionReq(payload: Record<string, any>): Promise<IApiReply> {
+    const appEnv = import.meta.env.VITE_APP_ENV;
+    const baseUrl = getApiBaseUrl(appEnv);
+
+    const appController = new CWPBApiController();
+    const fullAbsUrl = `${baseUrl}/home/add`;
+
+    const rawReply = await appController.POST(fullAbsUrl, {}, payload);
+    const reply = await appController.getSafePostReply(rawReply, fullAbsUrl, appController.POST.bind(appController));
+
+    return reply;
+  }
 }
 
 export default HomeController;

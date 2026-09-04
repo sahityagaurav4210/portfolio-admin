@@ -144,6 +144,7 @@ function Skills(): ReactNode {
       { accessorKey: "id", header: "S.No." },
       { accessorKey: "name", header: "Skill Name" },
       { accessorKey: "experience", header: "Experience" },
+      { accessorKey: "priority", header: "Priority" },
       {
         accessorKey: "actions",
         header: "Actions",
